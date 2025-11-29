@@ -30,10 +30,11 @@ jobs:
   docker-build:
     runs-on: self-hosted
     steps:
-      - name: Build a Docker image (tests Docker-in-Docker or docker socket)
+      - name: Enable BuildKit and build
         run: |
-          docker build -t test-image:https://github.com/docker/getting-started .
-
+             export DOCKER_BUILDKIT=1
+             docker build -t my-getting-started:test https://github.com/docker/getting-started.git
+     
   heavy-workload:
     runs-on: self-hosted
     steps:
@@ -48,4 +49,3 @@ jobs:
     steps:
       - name: This job proves multiple concurrent runners work
         run: echo "All tests passed!"
-        
