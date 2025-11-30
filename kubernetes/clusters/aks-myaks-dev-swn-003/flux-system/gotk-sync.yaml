@@ -20,7 +20,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./kubernetes/clusters/aks-myaks-dev-swn-003
+  path: ./kubernetes/clusters/aks-myaks-dev-swn-003/flux-system
   prune: true
   sourceRef:
     kind: GitRepository
