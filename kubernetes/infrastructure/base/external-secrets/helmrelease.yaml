@@ -22,11 +22,11 @@ spec:
         name: external-secrets
         namespace: flux-system
 
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: cluster-secrets
-        optional: false
+  # postBuild:
+  #   substituteFrom:
+  #     - kind: Secret
+  #       name: cluster-secrets
+  #       optional: false
 
   values:
     installCRDs: true
