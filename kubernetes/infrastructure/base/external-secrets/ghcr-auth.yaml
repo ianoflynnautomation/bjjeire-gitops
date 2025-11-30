@@ -1,0 +1,22 @@
+
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ghcr-auth
+  namespace: flux-system
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: azure-kv-global
+    kind: ClusterSecretStore
+  target:
+    name: ghcr-auth
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        .dockerconfigjson: |
+          {"auths":{"ghcr.io":{"username":"dummy","password":"{{ .pat }}","auth":"{{ printf \"dummy:%s\" .pat | b64enc }}"}}}
+  dataFrom:
+    - extract:
+        key: gh-flux-aks-token

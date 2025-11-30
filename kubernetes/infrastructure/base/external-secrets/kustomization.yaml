@@ -6,3 +6,5 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - helmrelease.yaml
+  - cluster-secretstore.yaml
+  - ghcr-auth.yaml

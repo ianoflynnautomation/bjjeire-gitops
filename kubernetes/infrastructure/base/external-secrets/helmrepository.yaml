@@ -7,3 +7,5 @@ spec:
   type: oci
   url: oci://ghcr.io/external-secrets/external-secrets
   interval: 3m
+  secretRef:
+    name: ghcr-auth
