@@ -1,71 +1,135 @@
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: aks-runners
   namespace: actions-runner-system
-  labels:
-    app.kubernetes.io/name: aks-runners
-    app.kubernetes.io/part-of: github-runners
 spec:
-  interval: 10m
+  interval: 30m
+  timeout: 10m
   chart:
     spec:
       chart: gha-runner-scale-set
-      version: "0.10.0"
+      version: 0.10.x
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
-        namespace: arc-systems
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
   values:
-    githubAppAuth:
-      enabled: false
-    authSecret:
-      create: false
-      name: github-pat-secret
+    # Runner scale set configuration
+    runnerScaleSetName: aks-runners
+    
+    # GitHub configuration
     githubConfigUrl: "https://github.com/ianoflynnautomation/gitops-flux-github-runners"
-    runnerGroup: "aks"
+    githubConfigSecret: github-pat
+    
+    # Scaling configuration
     minRunners: 0
     maxRunners: 15
-    ephemeral: true
-    listener:
-      enabled: true
-    runnerNamePrefix: "arc-runner-"
+    
+    # Runner group
+    runnerGroup: "aks"
+    
+    # Labels for runner selection
     runnerLabels:
       - self-hosted
       - arc
       - kubernetes
-      - ephemeral
       - linux
       - aks
+    
+    # Container mode for Kubernetes
     containerMode:
-      type: kubernetes
-    kubernetesModeWorkVolumeClaim:
-      storageClassName: managed-csi-premium
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 50Gi
+      type: "kubernetes"
+      kubernetesModeWorkVolumeClaim:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: managed-csi-premium
+    
+    # Template for runner pods
     template:
+      metadata:
+        labels:
+          app: github-actions-runner
       spec:
-        serviceAccountName: actions-runner-controller-manager
+        serviceAccountName: github-runner
+        
         containers:
           - name: runner
-            image: ghcr.io/home-operations/actions-runner:2.329.0@sha256:1d26dc36431014527e0d920e7b84878dcf8fd69fb9639598de1af5ccf9210131
+            image: ghcr.io/actions/actions-runner:latest
+            imagePullPolicy: IfNotPresent
+            
             resources:
               requests:
-                cpu: "1"
+                cpu: "1000m"
                 memory: "2Gi"
               limits:
-                cpu: "3"
+                cpu: "3000m"
                 memory: "6Gi"
+            
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: false  # Runners need to write
+              runAsNonRoot: true
+              runAsUser: 1001
+              seccompProfile:
+                type: RuntimeDefault
+            
+            env:
+              - name: RUNNER_FEATURE_FLAGS
+                value: "ephemeral"
+        
+        # Node affinity
         nodeSelector:
           kubernetes.azure.com/agentpool: runners
+        
+        # Tolerations for dedicated runner nodes
         tolerations:
           - key: runner
             operator: Equal
             value: "true"
             effect: NoSchedule
-    serviceAccount:
-      annotations: {}
-      labels:
-        azure.workload.identity/use: "true"
+        
+        # Security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          fsGroup: 1001
+          seccompProfile:
+            type: RuntimeDefault
+    
+    # Controller service account
+    controllerServiceAccount:
+      name: actions-runner-controller
+      namespace: arc-systems
+    
+    # Listener configuration
+    listenerTemplate:
+      metadata:
+        labels:
+          app: github-actions-listener
+      spec:
+        containers:
+          - name: listener
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: 1000
+              seccompProfile:
+                type: RuntimeDefault

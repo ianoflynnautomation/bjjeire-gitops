@@ -1,0 +1,78 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: actions-runner-controller
+  namespace: arc-systems
+spec:
+  interval: 30m
+  timeout: 5m
+  chart:
+    spec:
+      chart: gha-runner-scale-set-controller
+      version: 0.10.x
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner-controller
+        namespace: flux-system
+  install:
+    crds: Create
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    replicaCount: 2
+    
+    flags:
+      logLevel: info
+      logFormat: json
+      updateStrategy: immediate
+      watchNamespace: ""
+    
+    serviceAccount:
+      create: true
+      name: actions-runner-controller
+      annotations:
+        azure.workload.identity/client-id: "${AZURE_ARC_CLIENT_ID}"
+        azure.workload.identity/tenant-id: "${AZURE_TENANT_ID}"
+      labels:
+        azure.workload.identity/use: "true"
+    
+    podLabels:
+      azure.workload.identity/use: "true"
+    
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+    
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+    
+    podSecurityContext:
+      runAsNonRoot: true
+      fsGroup: 1000
+      seccompProfile:
+        type: RuntimeDefault
+    
+    metrics:
+      controllerManagerAddr: ":8080"
+      listenerAddr: ":8080"
+      listenerEndpoint: "/metrics"
+    
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1

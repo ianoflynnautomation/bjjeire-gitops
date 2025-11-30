@@ -1,0 +1,93 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-secrets
+  namespace: external-secrets-system
+spec:
+  interval: 30m
+  timeout: 5m
+  chart:
+    spec:
+      chart: external-secrets
+      version: 0.11.x 
+      sourceRef:
+        kind: HelmRepository
+        name: external-secrets
+        namespace: flux-system
+  install:
+    crds: Create
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    installCRDs: true
+    
+    replicaCount: 2
+    
+    serviceAccount:
+      create: true
+      name: external-secrets
+      annotations:
+        azure.workload.identity/client-id: "${AZURE_ESO_CLIENT_ID}"
+        azure.workload.identity/tenant-id: "${AZURE_TENANT_ID}"
+      labels:
+        azure.workload.identity/use: "true"
+    
+    podLabels:
+      azure.workload.identity/use: "true"
+    
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 65534
+      seccompProfile:
+        type: RuntimeDefault
+    
+    podSecurityContext:
+      runAsNonRoot: true
+      fsGroup: 65534
+      seccompProfile:
+        type: RuntimeDefault
+    
+    webhook:
+      create: true
+      port: 9443
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+    
+    certController:
+      create: true
+      requeueInterval: 5m
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault

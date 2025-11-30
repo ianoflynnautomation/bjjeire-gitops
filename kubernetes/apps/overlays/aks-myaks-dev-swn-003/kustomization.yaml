@@ -4,16 +4,13 @@ resources:
   - ../../base/action-runner-system
 
 patches:
-  - patch: |-
-      apiVersion: helm.toolkit.fluxcd.io/v2
-      kind: HelmRelease
-      metadata:
-        name: aks-runners
-      spec:
-        values:
-          minRunners: 0
-          maxRunners: 5
-    target:
+  - target:
       kind: HelmRelease
       name: aks-runners
-      namespace: actions-runner-system
+    patch: |-
+      - op: replace
+        path: /spec/values/minRunners
+        value: 0
+      - op: replace
+        path: /spec/values/maxRunners
+        value: 5
