@@ -20,27 +20,13 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: external-secrets
-        namespace: external-secrets-system
-
-  # postBuild:
-  #   substituteFrom:
-  #     - kind: Secret
-  #       name: cluster-secrets
-  #       optional: false
 
   values:
     installCRDs: true
     webhook:
       port: 9443
-    
     serviceAccount:
       create: true
-      # annotations:
-      #   azure.workload.identity/client-id: ${WORKLOAD_IDENTITY_CLIENT_ID}
-
-    # podLabels:
-    #   azure.workload.identity/use: "true"
-    
     resources:
       requests:
         cpu: 100m
@@ -48,14 +34,12 @@ spec:
       limits:
         cpu: 500m
         memory: 512Mi
-    
     securityContext:
       runAsNonRoot: true
       runAsUser: 65534
       fsGroup: 65534
       seccompProfile:
         type: RuntimeDefault
-
     podSecurityContext:
       runAsNonRoot: true
       seccompProfile:

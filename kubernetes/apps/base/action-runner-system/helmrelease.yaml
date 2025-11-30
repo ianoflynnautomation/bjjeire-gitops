@@ -12,41 +12,28 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
-        namespace: flux-system
-  
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: cluster-secrets
-        optional: false
-
+        namespace: arc-systems
   values:
     githubAppAuth:
       enabled: false
-
     authSecret:
       create: false
       name: github-pat-secret
-
     githubConfigUrl: "https://github.com/ianoflynnautomation/gitops-flux-github-runners"
     runnerGroup: "aks"
-    
     minRunners: 0
     maxRunners: 15
     ephemeral: true
-
     listener:
       enabled: true
-
     runnerNamePrefix: "arc-runner-"
-    runnerLabels: 
+    runnerLabels:
       - self-hosted
       - arc
       - kubernetes
       - ephemeral
       - linux
       - aks
-
     containerMode:
       type: kubernetes
       kubernetesModeWorkVolumeClaim:
@@ -55,7 +42,6 @@ spec:
         resources:
           requests:
             storage: 50Gi
-
     template:
       spec:
         serviceAccountName: actions-runner-controller-manager
@@ -69,21 +55,15 @@ spec:
               limits:
                 cpu: "3"
                 memory: "6Gi"
-        
         nodeSelector:
           kubernetes.azure.com/agentpool: runners
-        
         tolerations:
           - key: runner
             operator: Equal
             value: "true"
             effect: NoSchedule
-
     serviceAccount:
       create: true
       name: actions-runner-controller-manager
-      # annotations:
-      #   azure.workload.identity/client-id: "${WORKLOAD_IDENTITY_CLIENT_ID}"
-    
     podLabels:
       azure.workload.identity/use: "true"
