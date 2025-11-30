@@ -6,3 +6,5 @@ resources:
 - ../../apps
 - ./arc-controller-namespace.yaml
 - ./arc-controller-hr.yaml
+- ./es-repository.yaml
+- ./es-helmrelease.yaml
