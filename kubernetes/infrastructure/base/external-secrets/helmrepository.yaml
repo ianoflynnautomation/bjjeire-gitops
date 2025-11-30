@@ -4,5 +4,6 @@ metadata:
   name: external-secrets
   namespace: external-secrets-system
 spec:
-  interval: 1h
-  url: https://charts.external-secrets.io
+  type: oci
+  url: oci://ghcr.io/external-secrets/external-secrets
+  interval: 3m
