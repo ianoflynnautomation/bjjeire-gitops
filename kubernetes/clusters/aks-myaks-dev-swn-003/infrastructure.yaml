@@ -14,17 +14,18 @@ spec:
   path: ./kubernetes/infrastructure/overlays/aks-myaks-dev-swn-003
   prune: true
   wait: true
+
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: external-secrets
+      namespace: external-secrets-system
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: external-secrets-webhook
+      namespace: external-secrets-system
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: gha-runner-scale-set-controller
+      namespace: arc-systems
   
-  # healthChecks:
-  #   - apiVersion: apps/v1
-  #     kind: Deployment
-  #     name: external-secrets
-  #     namespace: external-secrets-system
-  #   - apiVersion: apps/v1
-  #     kind: Deployment
-  #     name: external-secrets-webhook
-  #     namespace: external-secrets-system
-  #   - apiVersion: apps/v1
-  #     kind: Deployment
-  #     name: arc-controller-gha-runner-scale-set-controller
-  #     namespace: arc-systems
