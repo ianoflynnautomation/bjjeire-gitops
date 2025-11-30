@@ -6,3 +6,31 @@ metadata:
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: runner-limits
+  namespace: actions-runner-system
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "4"
+        memory: "8Gi"
+      defaultRequest:
+        cpu: "1"
+        memory: "2Gi"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: runner-quota
+  namespace: actions-runner-system
+spec:
+  hard:
+    pods: 50
+    requests.cpu: 50
+    requests.memory: 100Gi
+    limits.cpu: 100
+    limits.memory: 200Gi
