@@ -1,14 +1,17 @@
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: arc-runners
+  name: aks-runners
   namespace: actions-runner-system
+  labels:
+    app.kubernetes.io/name: aks-runners
+    app.kubernetes.io/part-of: github-runners
 spec:
   interval: 10m
   chart:
     spec:
       chart: gha-runner-scale-set
-      version: "0.13.0"
+      version: "0.10.0"
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
@@ -36,7 +39,6 @@ spec:
       - aks
     containerMode:
       type: kubernetes
-
     kubernetesModeWorkVolumeClaim:
       storageClassName: managed-csi-premium
       accessModes: ["ReadWriteOnce"]
@@ -64,7 +66,6 @@ spec:
             value: "true"
             effect: NoSchedule
     serviceAccount:
-      annotations:
-        azure.workload.identity/client-id: "{{ .vars.ARC_RUNNERS_CLIENT_ID }}"
+      annotations: {}
       labels:
         azure.workload.identity/use: "true"

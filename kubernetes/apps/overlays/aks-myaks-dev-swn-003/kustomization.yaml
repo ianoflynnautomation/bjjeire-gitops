@@ -8,11 +8,12 @@ patches:
       apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
       metadata:
-        name: arc-runners
+        name: aks-runners
       spec:
         values:
           minRunners: 0
           maxRunners: 5
     target:
       kind: HelmRelease
-      name: arc-runners
+      name: aks-runners
+      namespace: actions-runner-system

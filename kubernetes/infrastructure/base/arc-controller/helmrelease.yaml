@@ -1,4 +1,4 @@
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: actions-runner-controller
@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: actions-runner-controller
-      version: 0.23.0
+      version: 0.9.0
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
@@ -22,8 +22,7 @@ spec:
     serviceAccount:
       create: true
       name: actions-runner-controller
-      annotations:
-        azure.workload.identity/client-id: "{{ .vars.ARC_CONTROLLER_CLIENT_ID }}"
+      annotations: {}
       labels:
         azure.workload.identity/use: "true"
     resources:
