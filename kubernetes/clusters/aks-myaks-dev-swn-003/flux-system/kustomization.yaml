@@ -4,6 +4,6 @@ resources:
 - gotk-components.yaml
 - gotk-sync.yaml
 - external-secrets.yaml 
-- ../../apps
+- ../../apps/overlays/aks-myaks-dev-swn-003
 - ./arc-controller-namespace.yaml
 - ./arc-controller-hr.yaml
