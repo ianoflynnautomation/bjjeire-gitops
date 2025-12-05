@@ -41,7 +41,7 @@ spec:
     nameOverride: gha-runner-scale-set
     runnerScaleSetName: gha-runner-scale-set
     githubConfigSecret: github-app-secret
-    githubConfigUrl: https://github.com/xunholy/k8s-gitops
+    githubConfigUrl: https://github.com/ianoflynnautomation/gitops-flux-github-runners
     maxRunners: 3
     minRunners: 1
     controllerServiceAccount:
@@ -51,7 +51,6 @@ spec:
       type: kubernetes
       kubernetesModeWorkVolumeClaim:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: truenas-iscsi-csi
         resources:
           requests:
             storage: 1Gi
