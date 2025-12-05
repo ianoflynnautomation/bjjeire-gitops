@@ -6,48 +6,21 @@ on:
 
 jobs:
   basic-connectivity:
-    runs-on: 
-      - self-hosted
-      - arc         
+    runs-on: gha-runner-scale-set 
     steps:
-      - name: Show runner info
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Print runner info
         run: |
-          echo "Runner name: $(hostname)"
+          echo "Hello from self-hosted runner!"
           echo "Runner OS: $(uname -a)"
-          echo "Runner labels: ${{ runner.name }}"
+          echo "Runner IP: $(hostname -I || hostname)"
+          echo "Job is running on: $RUNNER_NAME"
 
-      - name: Verify Kubernetes access
-        run: |
-          kubectl get nodes -o wide
-          kubectl get pods -A | grep arc
+      - name: Sleep to observe scaling
+        run: sleep 30
 
-      - name: Verify Azure CLI works
-        run: |
-          az account show --query "{subscription:id, tenant:tenantId}"
-
-      - name: Prove ephemeral behavior
-        run: |
-          echo "This pod will be deleted in ~2 minutes after job ends"
-
-  docker-build:
-    runs-on: self-hosted
-    steps:
-      - name: Enable BuildKit and build
-        run: |
-             export DOCKER_BUILDKIT=1
-             docker build -t my-getting-started:test https://github.com/docker/getting-started.git
+      - name: Success
+        run: echo "Runner test passed!"
      
-  heavy-workload:
-    runs-on: self-hosted
-    steps:
-      - name: Stress test (4 cores, 8GB RAM
-        run: |
-          stress-ng --cpu 4 --vm 2 --vm-bytes 4G --timeout 120s
-
-  cleanup-check:
-    runs-on: self-hosted
-    needs: [basic-connectivity, docker-build, heavy-workload]
-    if: always()
-    steps:
-      - name: This job proves multiple concurrent runners work
-        run: echo "All tests passed!"
