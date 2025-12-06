@@ -1,10 +1,8 @@
 apiVersion: source.toolkit.fluxcd.io/v1
-kind: OCIRepository
+kind: HelmRepository
 metadata:
   name: external-secrets
   namespace: flux-system
 spec:
   interval: 1h
-  url: oci://ghcr.io/external-secrets/external-secrets-helm
-  ref:
-    tag: v0.10.4
+  url: https://charts.external-secrets.io
