@@ -1,0 +1,43 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-secrets
+  namespace: flux-system      
+spec:
+  interval: 30m
+  timeout: 5m
+  maxHistory: 5
+
+  chartRef:
+    kind: OCIRepository
+    name: external-secrets
+    namespace: flux-system
+  install:
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+
+  values:
+    installCRDs: true
+
+    image:
+      repository: ghcr.io/external-secrets/external-secrets
+      tag: v0.10.4
+      pullPolicy: IfNotPresent
+
+    webhook:
+      image:
+        repository: ghcr.io/external-secrets/external-secrets
+        tag: v0.10.4
+
+    certController:
+      image:
+        repository: ghcr.io/external-secrets/external-secrets
+        tag: v0.10.4

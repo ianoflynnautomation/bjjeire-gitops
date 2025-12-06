@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - ../../base/actions-runner-system
   - ../../base/flux-system/repositories
+  - ../../base/external-secrets
   - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
