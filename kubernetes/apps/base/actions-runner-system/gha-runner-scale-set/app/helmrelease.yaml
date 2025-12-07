@@ -40,7 +40,8 @@ spec:
   values:
     nameOverride: gha-runner-scale-set
     runnerScaleSetName: gha-runner-scale-set
-    githubConfigSecret: github-app-secret
+    githubConfigSecret: 
+      github_token: github-app-secret
     githubConfigUrl: https://github.com/ianoflynnautomation/gitops-flux-github-runners
     maxRunners: 5
     minRunners: 1
