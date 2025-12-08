@@ -15,6 +15,3 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: actions-runner-system
-  dependsOn:
-    - name: external-secrets 
-      namespace: flux-system
