@@ -11,6 +11,6 @@ spec:
   timeout: 3m
   sourceRef:
     kind: GitRepository
-    name: external-secrets
+    name: flux-system
     namespace: flux-system
   targetNamespace: external-secrets
