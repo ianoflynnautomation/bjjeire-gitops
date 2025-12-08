@@ -1,10 +1,12 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
+kind: helmrelease
 metadata:
   name: external-secrets
   namespace: flux-system
 spec:
   interval: 30m
+  releaseName: external-secrets
+  targetNamespace: external-secrets 
   chart:
     spec:
       chart: external-secrets
@@ -13,22 +15,21 @@ spec:
         kind: HelmRepository
         name: external-secrets
         namespace: flux-system
-      interval: 10m
+      interval: 15m
   install:
     crds: CreateReplace
     createNamespace: true
   upgrade:
     crds: CreateReplace
   values:
-    installCRDs: false
+    installCRDs: true                     
+    webhook:
+      create: true
     certController:
-      enabled: true
-    controller:
-      serviceAccount:
-        create: true
-        name: external-secrets
-        # labels: 
-        #   azure.workload.identity/use: "true"
-        annotations:
-          azure.workload.identity/client-id: "c23647c0-2074-4565-8940-54e18057a0f0"
-          azure.workload.identity/tenant-id: "01b41838-a123-48a9-9aaf-91a8d640ff68"
+      create: true
+    serviceAccount:
+      create: true
+      name: external-secrets
+      annotations:
+        azure.workload.identity/client-id: "4c960f21-8ffa-44e0-a30b-ac4a6dce1ca2"
+        azure.workload.identity/tenant-id: "01b41838-a123-48a9-9aaf-91a8d640ff68"
