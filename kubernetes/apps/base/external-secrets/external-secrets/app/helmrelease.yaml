@@ -17,7 +17,7 @@ spec:
         namespace: flux-system
       interval: 15m
   install:
-    crds: false
+    crds: Skip
     createNamespace: true
   upgrade:
     crds: CreateReplace

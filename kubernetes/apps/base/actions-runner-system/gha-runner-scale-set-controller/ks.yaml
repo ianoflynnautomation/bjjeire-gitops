@@ -17,3 +17,4 @@ spec:
   targetNamespace: actions-runner-system
   dependsOn:
     - name: external-secrets-stores
+      namespace: flux-system
