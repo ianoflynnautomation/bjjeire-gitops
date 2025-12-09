@@ -22,7 +22,7 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
-    installCRDs: false
+    installCRDs: true
     webhook:
       create: true
     certController:
