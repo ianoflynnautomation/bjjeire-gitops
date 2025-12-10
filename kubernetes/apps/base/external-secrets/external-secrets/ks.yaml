@@ -16,7 +16,6 @@ spec:
   targetNamespace: external-secrets
 
 ---
-
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -28,7 +27,7 @@ spec:
   prune: true
   wait: true
   timeout: 3m
-  sourceRef:  
+  sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system

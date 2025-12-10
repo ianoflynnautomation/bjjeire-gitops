@@ -23,12 +23,12 @@ spec:
       strategy: rollback
     cleanupOnFail: true
     crds: CreateReplace
-  # test:
-  #   enable: true
-  # rollback:
-  #   recreate: true
-  #   force: true
-  #   cleanupOnFail: true
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
   uninstall:
     keepHistory: false
   driftDetection:
@@ -47,7 +47,7 @@ spec:
     controllerServiceAccount:
       name: gha-runner-scale-set-controller
       namespace: actions-runner-system
-    containerMode:      
+    containerMode:
       type: dind
       # type: kubernetes
       # kubernetesModeWorkVolumeClaim:
@@ -62,7 +62,7 @@ spec:
             image: ghcr.io/home-operations/actions-runner:2.330.0@sha256:92a45e47f4b349f4da2307ebaaea5443cc86d1ce625d37acf2c61b3b09192e47
             command: ["/home/runner/run.sh"]
             securityContext:
-              privileged: true 
+              privileged: true
             resources:
               requests:
                 memory: "12G"
