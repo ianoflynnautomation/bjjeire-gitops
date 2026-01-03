@@ -32,7 +32,7 @@ terraform.rc
 *.env
 .env.local
 .secrets/
-secrets/
+# secrets/
 *.secret.yaml
 *.secret.yml
 

@@ -13,3 +13,8 @@ spec:
     name: flux-system
   wait: true
   timeout: 5m 
+  postBuild:
+    substitute: {}
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
