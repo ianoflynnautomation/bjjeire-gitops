@@ -4,3 +4,4 @@ namespace: flux-system
 
 resources:
   - gha-runner-scale-set-charts.yaml
+  - prometheus-community-charts.yaml
