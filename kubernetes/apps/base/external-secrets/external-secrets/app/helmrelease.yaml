@@ -3,36 +3,37 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: external-secrets
-  namespace: flux-system
 spec:
-  interval: 10m
-  releaseName: external-secrets
-  targetNamespace: external-secrets
-  chart:
-    spec:
-      chart: external-secrets
-      version: 0.10.4
-      sourceRef:
-        kind: HelmRepository
-        name: external-secrets
-        namespace: flux-system
-      interval: 15m
+  interval: 5m
+  chartRef:
+    kind: OCIRepository
+    name: external-secrets
+  driftDetection:
+    mode: enabled
   install:
-    crds: Skip
-    createNamespace: true
-  upgrade:
+    timeout: 10m
+    replace: true
     crds: CreateReplace
-  values:
-    installCRDs: true
-    webhook:
-      create: true
-    certController:
-      create: true
-    # serviceAccount:
-    #   create: true
-    #   name: external-secrets
-    #   annotations:
-    #     azure.workload.identity/client-id: "c5b8256e-bbea-41e6-8f18-5c27638c8979"
-    #     azure.workload.identity/tenant-id: "01b41838-a123-48a9-9aaf-91a8d640ff68"
-    #   podLabels:
-    #     azure.workload.identity/use: "true"
+    createNamespace: true
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  maxHistory: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: external-secrets-values

@@ -35,5 +35,6 @@ spec:
   driftDetection:
     mode: enabled
   maxHistory: 3
-  values:
-    installCRDs: true
+  valuesFrom:
+    - kind: ConfigMap
+      name: cert-manager-values
