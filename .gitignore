@@ -15,9 +15,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-kubernetes/clusters/**/flux-system/gotk-sync.yaml
-kubernetes/clusters/**/flux-system/gotk-components.yaml
-kubernetes/clusters/**/flux-system/kustomization.yaml
+# kubernetes/clusters/**/flux-system/gotk-sync.yaml
+# kubernetes/clusters/**/flux-system/gotk-components.yaml
+# kubernetes/clusters/**/flux-system/kustomization.yaml
 
 .flux.yaml
 .fluxrc

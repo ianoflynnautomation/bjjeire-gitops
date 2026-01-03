@@ -2,12 +2,13 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: gha-runner-scale-set-controller
+  name: grafana
+  namespace: observability
 spec:
-  interval: 15m
+  interval: 1h
   chartRef:
     kind: OCIRepository
-    name: gha-runner-scale-set-controller
+    name: grafana-operator
   install:
     timeout: 10m
     replace: true
@@ -33,6 +34,9 @@ spec:
     keepHistory: false
   driftDetection:
     mode: enabled
+  maxHistory: 3
   values:
-    fullnameOverride: gha-runner-scale-set-controller
-    replicaCount: 1
+    dashboard:
+      enabled: true
+    serviceMonitor:
+      enabled: true
