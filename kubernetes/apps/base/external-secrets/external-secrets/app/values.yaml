@@ -11,6 +11,9 @@ webhook:
     enabled: true
 serviceAccount:
   create: true
-  name: "workload-sa"
-  annotations: {}
-  labels: {}
+  name: external-secrets
+  annotations:
+    azure.workload.identity/client-id: "b200893e-8218-459d-885d-8dd2d875a366"
+    azure.workload.identity/tenant-id: "01b41838-a123-48a9-9aaf-91a8d640ff68"
+  podLabels:
+    azure.workload.identity/use: "true"

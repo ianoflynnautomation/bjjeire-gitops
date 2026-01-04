@@ -1,27 +1,28 @@
+---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- gotk-components.yaml
-- gotk-sync.yaml
+  - gotk-components.yaml
+  - gotk-sync.yaml
 patches:
   - patch: |-
       apiVersion: v1
       kind: ServiceAccount
       metadata:
-        name: workload-sa
+        name: source-controller
+        namespace: flux-system
         annotations:
           azure.workload.identity/client-id: b200893e-8218-459d-885d-8dd2d875a366
         labels:
-          azure.workload.identity/use: "true"      
+          azure.workload.identity/use: "true"
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: workload-sa
-        labels:
-          azure.workload.identity/use: "true"
+        name: source-controller
+        namespace: flux-system
       spec:
         template:
           metadata:
             labels:
-              azure.workload.identity/use: "true"      
+              azure.workload.identity/use: "true"
