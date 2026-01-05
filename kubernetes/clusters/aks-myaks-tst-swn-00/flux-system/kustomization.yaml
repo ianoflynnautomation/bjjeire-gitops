@@ -12,7 +12,7 @@ patches:
         name: source-controller
         namespace: flux-system
         annotations:
-          azure.workload.identity/client-id: 204a41c7-80e6-47e7-8fde-11079df59db2
+          azure.workload.identity/client-id: 9aac0bfe-a1d6-4cde-90db-4804396fa380
         labels:
           azure.workload.identity/use: "true"
     target:

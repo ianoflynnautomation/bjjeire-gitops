@@ -5,21 +5,14 @@ grafanaDashboard:
 webhook:
   create: true
   replicaCount: 2
-  podLabels:
-    azure.workload.identity/use: "true"
   serviceMonitor:
     enabled: true
 certController:
   create: true
-  podLabels:
-    azure.workload.identity/use: "true"
   serviceMonitor:
     enabled: true
 serviceAccount:
   create: true
   name: external-secrets
-  annotations:
-    azure.workload.identity/client-id: ${WORKLOAD_IDENTITY_CLIENT_ID}
-    azure.workload.identity/tenant-id: ${TENANT_ID}
   podLabels:
     azure.workload.identity/use: "true"

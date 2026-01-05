@@ -35,6 +35,11 @@ spec:
   uninstall:
     keepHistory: false
   maxHistory: 3
+  values:
+    serviceAccount:
+      annotations:
+        azure.workload.identity/client-id: "${WORKLOAD_IDENTITY_CLIENT_ID}"
+        azure.workload.identity/tenant-id: "${TENANT_ID}"
   valuesFrom:
     - kind: ConfigMap
       name: external-secrets-values
