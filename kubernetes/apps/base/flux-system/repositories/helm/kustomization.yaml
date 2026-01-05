@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: flux-system
 
 resources:
-  - external-secrets.yaml
+  # - external-secrets.yaml
   - actions-runner-controller.yaml
   - jetstack-charts.yaml
   - grafana-charts.yaml

@@ -36,10 +36,10 @@ spec:
   values:
     fullnameOverride: gha-runner-scale-set-controller
     replicaCount: 1
-    metrics:
-      controllerManagerAddr: ":8080"
-      listenerAddr: ":8080"
-      listenerEndpoint: "/metrics"
-    flags:
-      logLevel: "debug"
-      logFormat: "json"
+    # metrics:
+    #   controllerManagerAddr: ":8080"
+    #   listenerAddr: ":8080"
+    #   listenerEndpoint: "/metrics"
+    # flags:
+    #   logLevel: "debug"
+    #   logFormat: "json"

@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/apps/overlays/aks-myaks-tst-swn-00"
+  path: "./kubernetes/apps/overlays/${CLUSTER_ID}"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -18,3 +18,5 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
+      - kind: ConfigMap
+        name: workload-identity-config

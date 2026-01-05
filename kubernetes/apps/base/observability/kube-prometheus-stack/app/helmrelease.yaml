@@ -96,7 +96,7 @@ spec:
     # Disable kubeProxy whilst using Cilium as it's not deployed
     kubeProxy:
       enabled: false
-    kubeEtcd:
-      service:
-        selector:
-          component: kube-apiserver
+    # kubeEtcd:
+    #   service:
+    #     selector:
+    #       component: kube-apiserver

@@ -12,9 +12,13 @@ patches:
         name: source-controller
         namespace: flux-system
         annotations:
-          azure.workload.identity/client-id: b200893e-8218-459d-885d-8dd2d875a366
+          azure.workload.identity/client-id: ${WORKLOAD_IDENTITY_CLIENT_ID}
         labels:
           azure.workload.identity/use: "true"
+    target:
+      kind: ServiceAccount
+      name: source-controller
+      namespace: flux-system
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
@@ -26,3 +30,7 @@ patches:
           metadata:
             labels:
               azure.workload.identity/use: "true"
+    target:
+      kind: Deployment
+      name: source-controller
+      namespace: flux-system
