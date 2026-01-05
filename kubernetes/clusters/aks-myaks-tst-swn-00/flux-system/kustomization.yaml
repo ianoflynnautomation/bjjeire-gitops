@@ -12,13 +12,14 @@ patches:
         name: source-controller
         namespace: flux-system
         annotations:
-          azure.workload.identity/client-id: ${WORKLOAD_IDENTITY_CLIENT_ID}
+          azure.workload.identity/client-id: 204a41c7-80e6-47e7-8fde-11079df59db2
         labels:
           azure.workload.identity/use: "true"
     target:
       kind: ServiceAccount
       name: source-controller
       namespace: flux-system
+
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
@@ -34,3 +35,19 @@ patches:
       kind: Deployment
       name: source-controller
       namespace: flux-system
+
+  - patch: |-
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: not-used
+      spec:
+        postBuild:
+          substituteFrom:
+            - kind: ConfigMap
+              name: cluster-config
+            - kind: ConfigMap
+              name: workload-identity-config
+    target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
