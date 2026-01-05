@@ -6,13 +6,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: "./kubernetes/apps/overlays/aks-myaks-tst-swn-00"
+  timeout: 30m
+  path: ./kubernetes/apps/overlays/aks-myaks-tst-swn-00
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
-  wait: true
-  timeout: 5m 
+  wait: false
   postBuild:
     substitute: {}
     substituteFrom:

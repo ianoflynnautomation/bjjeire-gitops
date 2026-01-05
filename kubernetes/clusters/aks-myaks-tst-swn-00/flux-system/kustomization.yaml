@@ -40,7 +40,8 @@ patches:
       apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
       metadata:
-        name: not-used
+        name: flux-system
+        namespace: flux-system
       spec:
         postBuild:
           substituteFrom:
@@ -49,5 +50,5 @@ patches:
             - kind: ConfigMap
               name: workload-identity-config
     target:
-      group: kustomize.toolkit.fluxcd.io
-      kind: Kustomization
+          kind: Kustomization
+          name: flux-system
