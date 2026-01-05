@@ -31,10 +31,8 @@ spec:
             substituteFrom:
               - kind: ConfigMap
                 name: cluster-config
-                namespace: flux-system
               - kind: ConfigMap
                 name: workload-identity-config
-                namespace: flux-system
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
