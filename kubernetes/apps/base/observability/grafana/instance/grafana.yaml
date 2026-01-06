@@ -12,24 +12,6 @@ spec:
       check_for_plugin_updates: "false"
       feedback_links_enabled: "false"
       reporting_enabled: "false"
-    # auth:
-    #   disable_login_form: "false"
-    # auth.generic_oauth:
-    #   # For variables see https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#env-provider
-    #   enabled: "true"
-    #   name: "GitHub SSO"
-    #   allow_sign_up: "true"
-    #   client_id: ${GRAFANA_AUTH_GENERIC_CLIENT_ID}
-    #   client_secret: ${GRAFANA_AUTH_GENERIC_CLIENT_SECRET}
-    #   scopes: "openid profile email groups"
-    #   email_attribute_path: email
-    #   login_attribute_path: username
-    #   name_attribute_path: full_name
-    #   groups_attribute_path: groups
-    #   auth_url: "https://dex.${CLUSTER_DOMAIN}/auth"
-    #   token_url: "https://dex.${CLUSTER_DOMAIN}/token"
-    #   api_url: "https://dex.${CLUSTER_DOMAIN}/userinfo"
-    #   role_attribute_path: "contains(groups[*], 'admins') && 'Admin' || contains(groups[*], 'people') && 'Viewer'"
     auth.basic:
       enabled: true
     auth.anonymous:
@@ -75,12 +57,12 @@ spec:
             - name: grafana-data
               persistentVolumeClaim:
                 claimName: grafana-pvc
-  # persistentVolumeClaim:
-  #   spec:
-  #     accessModes:
-  #       - ReadWriteOnce
-  #     resources:
-  #       requests:
-  #         storage: 10Gi
-  #     storageClassName: ceph-block
-  # disableDefaultSecurityContext: All
+  persistentVolumeClaim:
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: ceph-block
+  disableDefaultSecurityContext: All
