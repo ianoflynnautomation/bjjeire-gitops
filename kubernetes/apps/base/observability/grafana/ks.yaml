@@ -30,7 +30,7 @@ spec:
   prune: true
   wait: true
   sourceRef:
-    kind: OCIRepository
+    kind: GitRepository
     name: flux-system
     namespace: flux-system
   dependsOn:
