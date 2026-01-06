@@ -36,6 +36,6 @@ spec:
   dependsOn:
     - name: grafana
       namespace: observability
-    # - name: external-secrets-stores
-    #   namespace: flux-system
+    - name: external-secrets-stores
+      namespace: flux-system
   targetNamespace: observability
