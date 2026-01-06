@@ -36,25 +36,15 @@ spec:
   driftDetection:
     mode: enabled
   maxHistory: 3
-  # dependsOn:
-  #   - name: grafana
-  #     namespace: observability
+  dependsOn:
+    - name: grafana
+      namespace: observability
   timeout: 30m
   # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
   values:
     cleanPrometheusOperatorObjectNames: true
-    # alertmanager:
-    #   alertmanagerSpec:
-    #     alertmanagerConfiguration:
-    #       name: alertmanager
-    #     externalUrl: https://alertmanager.${CLUSTER_DOMAIN}
-    #     storage:
-    #       volumeClaimTemplate:
-    #         spec:
-    #           storageClassName: ceph-block
-    #           resources:
-    #             requests:
-    #               storage: 1Gi
+    alertmanager:
+      enabled: false
     grafana:
       enabled: false
       forceDeployDashboards: true
@@ -95,8 +85,6 @@ spec:
         enabled: true
     # Disable kubeProxy whilst using Cilium as it's not deployed
     kubeProxy:
-      enabled: true
+      enabled: false
     kubeEtcd:
-      service:
-        selector:
-          component: kube-apiserver
+      enabled: true
