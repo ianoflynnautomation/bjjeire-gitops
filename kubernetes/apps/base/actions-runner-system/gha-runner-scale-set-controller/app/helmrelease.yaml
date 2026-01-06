@@ -36,6 +36,8 @@ spec:
   values:
     fullnameOverride: gha-runner-scale-set-controller
     replicaCount: 1
+    nodeSelector:
+      pool_type: "system"
     metrics:
       controllerManagerAddr: ":8080"
       listenerAddr: ":8080"
