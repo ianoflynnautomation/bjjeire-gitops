@@ -13,9 +13,9 @@ spec:
       feedback_links_enabled: "false"
       reporting_enabled: "false"
     auth.basic:
-      enabled: true
+      enabled: "true" 
     auth.anonymous:
-      enabled: false
+      enabled: "false"
     log:
       mode: console
     metrics:
