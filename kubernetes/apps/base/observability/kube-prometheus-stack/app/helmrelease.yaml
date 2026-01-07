@@ -75,7 +75,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: managed-csi
+              storageClassName: azurefile-csi
               resources:
                 requests:
                   storage: 50Gi
