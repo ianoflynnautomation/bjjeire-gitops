@@ -75,7 +75,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: default
+              storageClassName: managed-csi
               resources:
                 requests:
                   storage: 50Gi
