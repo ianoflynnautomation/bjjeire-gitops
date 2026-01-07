@@ -43,6 +43,11 @@ spec:
     alertmanager:
       enabled: false
     grafana:
+      nodeSelector:
+        pool_type: "system"
+      tolerations:
+        - key: "CriticalAddonsOnly"
+          operator: "Exists"
       enabled: false
       forceDeployDashboards: true
       operator:
@@ -52,6 +57,8 @@ spec:
           grafana.internal/instance: grafana
     prometheus:
       prometheusSpec:
+        nodeSelector:
+          pool_type: "system"
         priorityClassName: platform-cluster-critical
         enableFeatures:
           - memory-snapshot-on-shutdown
@@ -76,6 +83,8 @@ spec:
         walCompression: true
     prometheus-node-exporter:
       fullnameOverride: node-exporter
+      tolerations:
+        - operator: "Exists"
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
       verticalPodAutoscaler:
