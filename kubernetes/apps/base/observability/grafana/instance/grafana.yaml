@@ -38,6 +38,8 @@ spec:
           containers:
             - name: grafana
               env:
+                - name: GF_SECURITY_ADMIN_USER
+                  value: "admin"
                 - name: GF_SECURITY_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
@@ -64,5 +66,6 @@ spec:
       resources:
         requests:
           storage: 10Gi
-      storageClassName: azurefile-csi
+      storageClassName: managed-csi
+      # storageClassName: azurefile-csi
   # disableDefaultSecurityContext: All
