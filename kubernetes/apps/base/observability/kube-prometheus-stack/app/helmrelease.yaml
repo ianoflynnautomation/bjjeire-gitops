@@ -59,7 +59,6 @@ spec:
       prometheusSpec:
         nodeSelector:
           pool_type: "system"
-        priorityClassName: platform-cluster-critical
         enableFeatures:
           - memory-snapshot-on-shutdown
         scrapeInterval: 1m
