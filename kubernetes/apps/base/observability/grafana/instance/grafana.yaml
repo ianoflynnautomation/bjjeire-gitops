@@ -38,8 +38,8 @@ spec:
           containers:
             - name: grafana
               env:
-                - name: GF_SECURITY_ADMIN_USER
-                  value: "admin"
+                # - name: GF_SECURITY_ADMIN_USER
+                #   value: "admin"
                 - name: GF_SECURITY_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
@@ -59,13 +59,13 @@ spec:
             - name: grafana-data
               persistentVolumeClaim:
                 claimName: grafana-pvc
-  # persistentVolumeClaim:
-  #   spec:
-  #     accessModes:
-  #       - ReadWriteOnce
-  #     resources:
-  #       requests:
-  #         storage: 10Gi
-  #     storageClassName: managed-csi
+  persistentVolumeClaim:
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: managed-csi
       # storageClassName: azurefile-csi
   # disableDefaultSecurityContext: All
