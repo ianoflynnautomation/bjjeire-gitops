@@ -88,7 +88,6 @@ spec:
       fullnameOverride: kube-state-metrics
       verticalPodAutoscaler:
         enabled: true
-    # Disable kubeProxy whilst using Cilium as it's not deployed
     kubeProxy:
       enabled: false
     kubeEtcd:
