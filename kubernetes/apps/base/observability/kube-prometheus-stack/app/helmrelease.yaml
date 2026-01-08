@@ -62,7 +62,7 @@ spec:
         enableFeatures:
           - memory-snapshot-on-shutdown
         scrapeInterval: 1m
-        externalUrl: https://prometheus.${CLUSTER_DOMAIN}
+        externalUrl: https://prometheus.bjjeire.com
         podAntiAffinity: hard
         ruleSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
