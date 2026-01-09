@@ -8,6 +8,8 @@ resources:
   # - ../../base/network-system
   - ../../base/observability
   - ../../base/external-secrets/external-secrets/ks.yaml
+  - ../../base/flux-system/flux-instance/ks.yaml
+  - ../../base/flux-system/repositories
   - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
   - ../../base/flux-system/repositories
