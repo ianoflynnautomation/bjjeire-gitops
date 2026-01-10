@@ -10,7 +10,7 @@ spec:
   timeout: 3m
   path: "./kubernetes/apps/base/observability/kube-prometheus-stack/app"
   prune: true
-  wait: false
+  wait: true
   sourceRef:
     kind: GitRepository
     name: flux-system
