@@ -13,3 +13,10 @@ spec:
     kind: GitRepository
     name: flux-system
   wait: false
+  postBuild:
+    substitute: {}
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: ConfigMap
+        name: workload-identity-config
