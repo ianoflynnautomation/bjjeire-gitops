@@ -5,6 +5,9 @@ metadata:
   name: flux-instance-extras
   namespace: flux-system
 spec:
+  # dependsOn:
+  #   - name: kube-prometheus-stack
+  #     namespace: observability
   interval: 30m
   path: "./kubernetes/apps/base/flux-system/flux-instance/extras"
   prune: false
