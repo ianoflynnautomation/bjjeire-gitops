@@ -16,8 +16,6 @@ spec:
     name: flux-system
     namespace: flux-system
   dependsOn:
-    - name: kube-prometheus-stack
-      namespace: observability
     - name: external-secrets-stores
       namespace: flux-system
   targetNamespace: observability

@@ -15,9 +15,6 @@ spec:
   targetNamespace: flux-system
   timeout: 5m
   wait: true
-  dependsOn:
-    - name: grafana
-      namespace: observability
   postBuild:
     substituteFrom:
       - kind: ConfigMap
