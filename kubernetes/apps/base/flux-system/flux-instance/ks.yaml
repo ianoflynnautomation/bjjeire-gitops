@@ -16,9 +16,7 @@ spec:
   timeout: 5m
   wait: true
   dependsOn:
-    - name: grafana-instance
-      namespace: observability
-    - name: kube-prometheus-stack
+    - name: grafana
       namespace: observability
   postBuild:
     substituteFrom:
