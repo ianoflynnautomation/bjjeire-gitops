@@ -7,6 +7,14 @@ extraArgs:
   # Use this flag to set a namespace that cert-manager will use to store
   # supporting resources required for each ClusterIssuer (default is kube-system)
   - --cluster-resource-namespace=network-system
+  - --dns01-recursive-nameservers-only
+  - --dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53
+  - --max-concurrent-challenges=60
 prometheus:
   servicemonitor:
     enabled: true
+nodeSelector:
+  kubernetes.io/os: linux
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"

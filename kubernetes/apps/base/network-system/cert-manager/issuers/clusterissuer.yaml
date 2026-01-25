@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    email: platform-team@example.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    profile: tlsserver
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+      - dns01:
+          azureDNS:
+            subscriptionID: ${AZURE_SUBSCRIPTION_ID}
+            resourceGroupName: ${DNS_RESOURCE_GROUP}
+            hostedZoneName: ${CLUSTER_DOMAIN}
+            environment: AzurePublicCloud
+            managedIdentity:
+              clientID: ${CERT_MANAGER_CLIENT_ID}
+        selector:
+          dnsZones:
+            - ${CLUSTER_DOMAIN}
