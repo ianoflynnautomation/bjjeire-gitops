@@ -1,0 +1,19 @@
+---
+
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-dns
+  namespace: network-system
+spec:
+  interval: 30m
+  retryInterval: 1m
+  timeout: 3m
+  path: "./kubernetes/apps/base/network-system/external-dns/app"
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: network-system

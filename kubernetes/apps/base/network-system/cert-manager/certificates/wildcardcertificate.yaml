@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-tls
+  namespace: network-system 
+spec:
+  secretName: wildcard-tls-secret
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+    group: cert-manager.io  
+  dnsNames:
+    - "*.${CLUSTER_DOMAIN}"
+    - "${CLUSTER_DOMAIN}"

@@ -10,7 +10,7 @@ resources:
   - prometheusrule.yaml
 
 configMapGenerator:
-  - name: cert-manager-values
+  - name: external-dns-values
     namespace: network-system
     files:
       - values.yaml=./values.yaml
