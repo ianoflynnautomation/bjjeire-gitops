@@ -39,4 +39,4 @@ spec:
     dashboard:
       enabled: true
     serviceMonitor:
-      enabled: true
+      enabled: false  # Disabled to avoid circular CRD dependency with kube-prometheus-stack
