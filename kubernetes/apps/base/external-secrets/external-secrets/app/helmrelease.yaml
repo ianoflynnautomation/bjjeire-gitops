@@ -38,7 +38,7 @@ spec:
   values:
     serviceAccount:
       annotations:
-        azure.workload.identity/client-id: "${WORKLOAD_IDENTITY_CLIENT_ID}"
+        azure.workload.identity/client-id: "${EXTERNAL_SECRETS_CLIENT_ID}"
         azure.workload.identity/tenant-id: "${TENANT_ID}"
   valuesFrom:
     - kind: ConfigMap
