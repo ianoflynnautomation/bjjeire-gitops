@@ -20,7 +20,6 @@ spec:
       namespace: observability
   targetNamespace: observability
   postBuild:
-    substitute: {}
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
