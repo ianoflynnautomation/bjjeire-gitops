@@ -15,4 +15,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  dependsOn:
+    - name: gha-runner-scale-set-controller
+      namespace: actions-runner-system
   targetNamespace: actions-runner-system
