@@ -7,12 +7,12 @@ resources:
   - ../../base/external-secrets
   - ../../base/observability
   - ../../base/flux-system/repositories
-  - ../../base/network-system
+  # - ../../base/network-system
   - ../../base/external-secrets/external-secrets/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
   - ../../base/flux-system/flux-instance/ks.yaml
-  - ../../base/network-system/external-dns/ks.yaml
-  - ../../base/network-system/cert-manager/ks.yaml
+  # - ../../base/network-system/external-dns/ks.yaml
+  # - ../../base/network-system/cert-manager/ks.yaml
   - ../../base/observability/grafana/ks.yaml
   - ../../base/observability/kube-prometheus-stack/ks.yaml
