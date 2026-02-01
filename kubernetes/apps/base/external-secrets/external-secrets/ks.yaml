@@ -35,3 +35,10 @@ spec:
   targetNamespace: external-secrets
   dependsOn:
     - name: external-secrets
+  postBuild:
+    substitute: {}
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: ConfigMap
+        name: workload-identity-config

@@ -40,3 +40,10 @@ spec:
     - name: grafana
       namespace: observability
   targetNamespace: observability
+  postBuild:
+    substitute: {}
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: ConfigMap
+        name: workload-identity-config

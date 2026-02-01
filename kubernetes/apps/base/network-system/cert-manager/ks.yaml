@@ -28,6 +28,9 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: flux-system
   targetNamespace: network-system
 
 ---
@@ -51,12 +54,10 @@ spec:
   targetNamespace: network-system
   dependsOn:
     - name: cert-manager
-  # postBuild:
-  #   substituteFrom:
-  #     - kind: ConfigMap
-  #       name: cluster-config
-  #     - kind: ConfigMap
-  #       name: workload-identity-config
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
 
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -78,7 +79,7 @@ spec:
   targetNamespace: network-system
   dependsOn:
     - name: cert-manager-issuers
-  # postBuild:
-  #   substituteFrom:
-  #     - kind: ConfigMap
-  #       name: cluster-config
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
