@@ -3,7 +3,7 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: cert-manager
-  namespace: network-system
+  namespace: flux-system
 spec:
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2
@@ -27,19 +27,16 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-    namespace: flux-system
   dependsOn:
     - name: external-secrets-stores
-      namespace: flux-system
   targetNamespace: network-system
 
 ---
-
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: cert-manager-issuers
-  namespace: network-system
+  namespace: flux-system
 spec:
   interval: 30m
   retryInterval: 1m
@@ -50,7 +47,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-    namespace: flux-system
   targetNamespace: network-system
   dependsOn:
     - name: cert-manager
@@ -58,14 +54,17 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
-        namespace: flux-system
+        optional: true
+      - kind: ConfigMap
+        name: workload-identity-config
+        optional: true
 
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: cert-manager-certificates
-  namespace: network-system
+  namespace: flux-system
 spec:
   interval: 30m
   retryInterval: 1m
@@ -76,7 +75,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-    namespace: flux-system
   targetNamespace: network-system
   dependsOn:
     - name: cert-manager-issuers
@@ -84,3 +82,7 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
+        optional: true
+      - kind: ConfigMap
+        name: workload-identity-config
+        optional: true

@@ -14,8 +14,11 @@ spec:
     name: flux-system
   wait: false
   postBuild:
+    substitute: {}
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
+        optional: true
       - kind: ConfigMap
         name: workload-identity-config
+        optional: true

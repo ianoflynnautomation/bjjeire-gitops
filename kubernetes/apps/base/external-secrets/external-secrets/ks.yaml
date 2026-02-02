@@ -13,14 +13,15 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-    namespace: flux-system
   targetNamespace: external-secrets
   postBuild:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
+        optional: true
       - kind: ConfigMap
         name: workload-identity-config
+        optional: true
 
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -37,7 +38,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-    namespace: flux-system
   targetNamespace: external-secrets
   dependsOn:
     - name: external-secrets
@@ -45,3 +45,7 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
+        optional: true
+      - kind: ConfigMap
+        name: workload-identity-config
+        optional: true
