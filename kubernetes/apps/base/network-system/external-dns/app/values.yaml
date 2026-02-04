@@ -10,7 +10,6 @@ env:
         name: cloudflare-api-token
         key: CLOUDFLARE_API_TOKEN
 extraArgs:
-  - --provider=cloudflare
   - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
   - --crd-source-kind=DNSEndpoint
   - --annotation-filter=external-dns.alpha.kubernetes.io/external=true
