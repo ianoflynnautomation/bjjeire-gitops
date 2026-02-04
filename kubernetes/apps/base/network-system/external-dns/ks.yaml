@@ -15,7 +15,7 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: external-secrets-stores
+    - name: external-secrets-cluster-secrets
   targetNamespace: network-system
   postBuild:
     substituteFrom:

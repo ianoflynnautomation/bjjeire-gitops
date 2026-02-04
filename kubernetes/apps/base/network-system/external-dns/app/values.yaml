@@ -7,7 +7,7 @@ env:
   - name: CF_API_TOKEN
     valueFrom:
       secretKeyRef:
-        name: external-dns-cloudflare
+        name: cloudflare-api-token
         key: CLOUDFLARE_API_TOKEN
 extraArgs:
   - --provider=cloudflare

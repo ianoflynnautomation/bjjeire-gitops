@@ -13,8 +13,8 @@ spec:
       - dns01:
           cloudflare:
             apiTokenSecretRef:
-              name: external-dns-cloudflare
-              key: CERT_MANAGER_CLOUDFLARE_API_TOKEN
+              name: cloudflare-api-token
+              key: CLOUDFLARE_API_TOKEN
         selector:
           dnsZones:
             - ${CLUSTER_DOMAIN}

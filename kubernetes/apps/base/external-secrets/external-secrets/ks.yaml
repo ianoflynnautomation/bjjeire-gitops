@@ -49,3 +49,29 @@ spec:
       - kind: ConfigMap
         name: workload-identity-config
         optional: true
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-secrets-cluster-secrets
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: "./kubernetes/apps/base/external-secrets/external-secrets/secrets"
+  prune: true
+  wait: true
+  timeout: 3m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: external-secrets-stores
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+        optional: true
+      - kind: ConfigMap
+        name: workload-identity-config
+        optional: true
