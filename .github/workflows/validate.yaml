@@ -3,15 +3,13 @@ name: Validate Flux Manifests
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "kubernetes/**"
       - ".github/workflows/validate.yaml"
       - "scripts/validate.sh"
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "kubernetes/**"
   workflow_dispatch:
@@ -27,7 +25,7 @@ env:
   KUBERNETES_VERSION: "1.31.0"
   KUSTOMIZE_VERSION: "5.5.0"
   KUBECONFORM_VERSION: "0.6.7"
-
+  FLUX_SCHEMA_DIR: /tmp/flux-crd-schemas/master-standalone-strict
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -84,78 +82,100 @@ jobs:
         with:
           version: ${{ env.KUBECONFORM_VERSION }}
 
-      - name: Download Flux OpenAPI schemas
+      - name: Download Flux CRD schemas
         run: |
-          mkdir -p /tmp/flux-crd-schemas/master-standalone-strict
+          mkdir -p "$FLUX_SCHEMA_DIR"
           curl -sL https://github.com/fluxcd/flux2/releases/latest/download/crd-schemas.tar.gz | \
-            tar zxf - -C /tmp/flux-crd-schemas/master-standalone-strict
+            tar zxf - -C "$FLUX_SCHEMA_DIR"
 
       - name: Validate Flux Kustomizations
         run: |
-          echo "=== Validating Flux Kustomizations ==="
+          set -e
+          echo "::group::Validating Flux Kustomizations"
 
-          # Find all ks.yaml files (Flux Kustomizations)
-          find kubernetes -name "ks.yaml" -type f | while read -r file; do
+          while IFS= read -r file; do
             echo "Validating: $file"
-            kubeconform -strict -ignore-missing-schemas \
+            kubeconform \
+              -strict \
+              -ignore-missing-schemas \
               -schema-location default \
-              -schema-location '/tmp/flux-crd-schemas/master-standalone-strict/{{ .ResourceKind }}{{ .KindSuffix }}.json' \
-              -kubernetes-version ${{ env.KUBERNETES_VERSION }} \
+              -schema-location "${FLUX_SCHEMA_DIR}/{{ .ResourceKind }}{{ .KindSuffix }}.json" \
+              -kubernetes-version "${KUBERNETES_VERSION}" \
               "$file"
-          done
+          done < <(find kubernetes -name "ks.yaml" -type f)
+
+          echo "::endgroup::"
 
       - name: Validate HelmReleases
         run: |
-          echo "=== Validating HelmReleases ==="
+          set -e
+          echo "::group::Validating HelmReleases"
 
-          find kubernetes -name "helmrelease.yaml" -type f | while read -r file; do
+          while IFS= read -r file; do
             echo "Validating: $file"
-            kubeconform -strict -ignore-missing-schemas \
+            kubeconform \
+              -strict \
+              -ignore-missing-schemas \
               -schema-location default \
-              -schema-location '/tmp/flux-crd-schemas/master-standalone-strict/{{ .ResourceKind }}{{ .KindSuffix }}.json' \
-              -kubernetes-version ${{ env.KUBERNETES_VERSION }} \
+              -schema-location "${FLUX_SCHEMA_DIR}/{{ .ResourceKind }}{{ .KindSuffix }}.json" \
+              -kubernetes-version "${KUBERNETES_VERSION}" \
               "$file"
-          done
+          done < <(find kubernetes -name "helmrelease.yaml" -type f)
 
-      - name: Validate Kustomize Overlays
+          echo "::endgroup::"
+
+      - name: Validate Kustomize base manifests
         run: |
-          echo "=== Building and Validating Kustomize Overlays ==="
+          set -e
+          echo "::group::Building and validating Kustomize base manifests"
 
-          # Find all kustomization.yaml files in base directories (not overlays)
-          # Overlays reference paths outside their directory which requires special handling
-          find kubernetes/apps/base -name "kustomization.yaml" -type f | while read -r file; do
+          while IFS= read -r file; do
             dir=$(dirname "$file")
             echo "Building: $dir"
-            kustomize build "$dir" > /dev/null 2>&1 || {
-              echo "WARNING: Failed to build $dir (may have external dependencies)"
+            
+            if ! kustomize build "$dir" > /dev/null 2>&1; then
+              echo "::warning::Failed to build $dir (may have external dependencies)"
               continue
-            }
-          done
+            fi
+          done < <(find kubernetes/apps/base -name "kustomization.yaml" -type f)
 
-          # Build overlays - need to disable load restrictions for relative paths
-          echo "=== Building Cluster Overlays ==="
-          find kubernetes/apps/overlays -name "kustomization.yaml" -type f | while read -r file; do
+          echo "::endgroup::"
+
+      - name: Validate Kustomize overlays
+        run: |
+          set -e
+          echo "::group::Building and validating cluster overlays"
+
+          while IFS= read -r file; do
             dir=$(dirname "$file")
             echo "Building overlay: $dir"
-            kustomize build --load-restrictor=LoadRestrictionsNone "$dir" > /dev/null 2>&1 || {
-              echo "ERROR: Failed to build overlay $dir"
+            
+            if ! kustomize build --load-restrictor=LoadRestrictionsNone "$dir" > /dev/null; then
+              echo "::error::Failed to build overlay $dir"
               kustomize build --load-restrictor=LoadRestrictionsNone "$dir"
               exit 1
-            }
-          done
+            fi
+          done < <(find kubernetes/apps/overlays -name "kustomization.yaml" -type f)
 
-      - name: Validate with kubeconform
+          echo "::endgroup::"
+
+      - name: Schema validation with kubeconform
         run: |
-          echo "=== Schema Validation with kubeconform ==="
+          set -e
+          echo "::group::Schema validation with kubeconform"
 
-          # Build each overlay and validate the output
-          find kubernetes/apps/base -name "kustomization.yaml" -type f | head -20 | while read -r file; do
+          while IFS= read -r file; do
             dir=$(dirname "$file")
             echo "Validating built manifests from: $dir"
+            
             kustomize build "$dir" 2>/dev/null | \
-              kubeconform -strict -ignore-missing-schemas \
+              kubeconform \
+                -strict \
+                -ignore-missing-schemas \
                 -schema-location default \
-                -schema-location '/tmp/flux-crd-schemas/master-standalone-strict/{{ .ResourceKind }}{{ .KindSuffix }}.json' \
-                -kubernetes-version ${{ env.KUBERNETES_VERSION }} \
-                -summary || true
-          done
+                -schema-location "${FLUX_SCHEMA_DIR}/{{ .ResourceKind }}{{ .KindSuffix }}.json" \
+                -kubernetes-version "${KUBERNETES_VERSION}" \
+                -summary
+          done < <(find kubernetes/apps/base -name "kustomization.yaml" -type f | head -20)
+
+          echo "::endgroup::"
