@@ -13,7 +13,7 @@ spec:
       feedback_links_enabled: "false"
       reporting_enabled: "false"
     auth.basic:
-      enabled: "true" 
+      enabled: "true"
     auth.anonymous:
       enabled: "false"
     log:
@@ -46,7 +46,9 @@ spec:
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
-                capabilities: { drop: ["ALL"] }
+                capabilities:
+                  drop:
+                    - "ALL"
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000

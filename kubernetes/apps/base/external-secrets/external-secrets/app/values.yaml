@@ -1,3 +1,4 @@
+---
 serviceMonitor:
   enabled: true
 grafanaDashboard:

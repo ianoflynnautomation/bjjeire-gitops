@@ -36,7 +36,6 @@ terraform.rc
 *.secret.yaml
 *.secret.yml
 
-.github/
 .azure/
 id_rsa
 *.pub
