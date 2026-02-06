@@ -1,0 +1,149 @@
+---
+name: Validate Flux Manifests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "kubernetes/**"
+      - ".github/workflows/validate.yaml"
+      - "scripts/validate.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - "kubernetes/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  KUBERNETES_VERSION: "1.31.0"
+  KUSTOMIZE_VERSION: "5.5.0"
+  KUBECONFORM_VERSION: "0.6.7"
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yaml-lint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: kubernetes/
+          config_data: |
+            extends: default
+            rules:
+              line-length:
+                max: 200
+                level: warning
+              comments:
+                min-spaces-from-content: 1
+              truthy:
+                check-keys: false
+              document-start:
+                present: true
+              indentation:
+                spaces: 2
+                indent-sequences: true
+
+  validate-manifests:
+    name: Validate Manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [yaml-lint]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+        with:
+          version: ${{ env.KUSTOMIZE_VERSION }}
+
+      - name: Setup kubeconform
+        uses: fluxcd/pkg/actions/kubeconform@main
+        with:
+          version: ${{ env.KUBECONFORM_VERSION }}
+
+      - name: Download Flux OpenAPI schemas
+        run: |
+          mkdir -p /tmp/flux-crd-schemas/master-standalone-strict
+          curl -sL https://github.com/fluxcd/flux2/releases/latest/download/crd-schemas.tar.gz | \
+            tar zxf - -C /tmp/flux-crd-schemas/master-standalone-strict
+
+      - name: Validate Flux Kustomizations
+        run: |
+          echo "=== Validating Flux Kustomizations ==="
+
+          # Find all ks.yaml files (Flux Kustomizations)
+          find kubernetes -name "ks.yaml" -type f | while read -r file; do
+            echo "Validating: $file"
+            kubeconform -strict -ignore-missing-schemas \
+              -schema-location default \
+              -schema-location '/tmp/flux-crd-schemas/master-standalone-strict/{{ .ResourceKind }}{{ .KindSuffix }}.json' \
+              -kubernetes-version ${{ env.KUBERNETES_VERSION }} \
+              "$file"
+          done
+
+      - name: Validate HelmReleases
+        run: |
+          echo "=== Validating HelmReleases ==="
+
+          find kubernetes -name "helmrelease.yaml" -type f | while read -r file; do
+            echo "Validating: $file"
+            kubeconform -strict -ignore-missing-schemas \
+              -schema-location default \
+              -schema-location '/tmp/flux-crd-schemas/master-standalone-strict/{{ .ResourceKind }}{{ .KindSuffix }}.json' \
+              -kubernetes-version ${{ env.KUBERNETES_VERSION }} \
+              "$file"
+          done
+
+      - name: Validate Kustomize Overlays
+        run: |
+          echo "=== Building and Validating Kustomize Overlays ==="
+
+          # Find all kustomization.yaml files and validate they build
+          find kubernetes -name "kustomization.yaml" -type f | while read -r file; do
+            dir=$(dirname "$file")
+            echo "Building: $dir"
+            kustomize build "$dir" > /dev/null 2>&1 || {
+              echo "ERROR: Failed to build $dir"
+              kustomize build "$dir"
+              exit 1
+            }
+          done
+
+      - name: Validate with kubeconform
+        run: |
+          echo "=== Schema Validation with kubeconform ==="
+
+          # Build each overlay and validate the output
+          find kubernetes/apps/base -name "kustomization.yaml" -type f | head -20 | while read -r file; do
+            dir=$(dirname "$file")
+            echo "Validating built manifests from: $dir"
+            kustomize build "$dir" 2>/dev/null | \
+              kubeconform -strict -ignore-missing-schemas \
+                -schema-location default \
+                -schema-location '/tmp/flux-crd-schemas/master-standalone-strict/{{ .ResourceKind }}{{ .KindSuffix }}.json' \
+                -kubernetes-version ${{ env.KUBERNETES_VERSION }} \
+                -summary || true
+          done
