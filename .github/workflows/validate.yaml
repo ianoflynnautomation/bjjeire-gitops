@@ -132,14 +132,14 @@ jobs:
             }
           done
 
-          # Build overlays from the repo root to allow relative path resolution
+          # Build overlays - need to disable load restrictions for relative paths
           echo "=== Building Cluster Overlays ==="
           find kubernetes/apps/overlays -name "kustomization.yaml" -type f | while read -r file; do
             dir=$(dirname "$file")
             echo "Building overlay: $dir"
-            kustomize build "$dir" > /dev/null 2>&1 || {
+            kustomize build --load-restrictor=LoadRestrictionsNone "$dir" > /dev/null 2>&1 || {
               echo "ERROR: Failed to build overlay $dir"
-              kustomize build "$dir"
+              kustomize build --load-restrictor=LoadRestrictionsNone "$dir"
               exit 1
             }
           done
