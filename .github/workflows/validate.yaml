@@ -179,3 +179,69 @@ jobs:
           done < <(find kubernetes/apps/base -name "kustomization.yaml" -type f | head -20)
 
           echo "::endgroup::"
+
+  flux-diff:
+    name: Flux Build Diff
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    needs: [yaml-lint]
+    permissions:
+      contents: read
+      pull-requests: write 
+    strategy:
+      matrix:
+        cluster: ["aks-myaks-tst-swn-00"]
+        resource: ["helmrelease", "kustomization"]
+      fail-fast: false
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: pull
+
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: default
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+
+      - name: Run flux-local diff
+        uses: docker://ghcr.io/allenporter/flux-local:v8.1.0@sha256:37c3c4309a351830b04f93c323adfcb0e28c368001818cd819cbce3e08828261
+        with:
+          args: >-
+            diff ${{ matrix.resource }}
+            --unified 6
+            --path /github/workspace/pull/kubernetes/clusters/${{ matrix.cluster }}
+            --path-orig /github/workspace/default/kubernetes/clusters/${{ matrix.cluster }}
+            --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart"
+            --limit-bytes 10000
+            --all-namespaces
+            --sources "flux-system"
+            --output-file diff.patch
+            --skip-invalid-kustomization-paths
+
+      - name: Generate Diff
+        id: diff
+        run: |-
+          echo 'diff<<EOF' >> $GITHUB_OUTPUT
+          cat diff.patch >> $GITHUB_OUTPUT 2>/dev/null || true
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+      - if: ${{ steps.diff.outputs.diff != '' }}
+        name: Add Comment
+        continue-on-error: true
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: ${{ github.event.pull_request.number }}/kubernetes/${{ matrix.resource }}
+          message: |-
+            ```diff
+            ${{ steps.diff.outputs.diff }}
+            ```
+
+
+      
