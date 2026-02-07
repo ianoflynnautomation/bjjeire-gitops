@@ -195,14 +195,20 @@ jobs:
         resource: ["helmrelease", "kustomization"]
       fail-fast: false
     steps:
-      - name: Checkout repository
+      - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0     
+          path: pull
+
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: default
 
       - name: Setup Flux CLI
         uses: fluxcd/flux2/action@main
-      
+
       - name: Run flux-local diff
         uses: docker://ghcr.io/allenporter/flux-local:v8.1.0@sha256:37c3c4309a351830b04f93c323adfcb0e28c368001818cd819cbce3e08828261
         with:
@@ -222,7 +228,7 @@ jobs:
         id: diff
         run: |-
           echo 'diff<<EOF' >> $GITHUB_OUTPUT
-          cat diff.patch >> $GITHUB_OUTPUT
+          cat diff.patch >> $GITHUB_OUTPUT 2>/dev/null || true
           echo 'EOF' >> $GITHUB_OUTPUT
 
       - if: ${{ steps.diff.outputs.diff != '' }}
