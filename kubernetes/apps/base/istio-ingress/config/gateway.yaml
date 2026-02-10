@@ -1,0 +1,86 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main-gateway
+  namespace: istio-ingress
+  annotations:
+    gateway.istio.io/deployment: istio-ingressgateway
+    gateway.istio.io/service-account: istio-ingressgateway
+    external-dns.alpha.kubernetes.io/external: "true"
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: "*.${CLUSTER_DOMAIN}"
+      allowedRoutes:
+        namespaces:
+          from: All
+
+    # HTTPS wildcard listener - uses cert-manager wildcard cert
+    - name: https-wildcard
+      port: 443
+      protocol: HTTPS
+      hostname: "*.${CLUSTER_DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-tls-secret
+            namespace: network-system
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway-access: "true"
+    - name: https-root
+      port: 443
+      protocol: HTTPS
+      hostname: "${CLUSTER_DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-tls-secret
+            namespace: network-system
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway-access: "true"
+    - name: https-grafana
+      port: 443
+      protocol: HTTPS
+      hostname: "grafana.${CLUSTER_DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-tls-secret
+            namespace: network-system
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway-access: "true"
+    - name: https-prometheus
+      port: 443
+      protocol: HTTPS
+      hostname: "prometheus.${CLUSTER_DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-tls-secret
+            namespace: network-system
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway-access: "true"

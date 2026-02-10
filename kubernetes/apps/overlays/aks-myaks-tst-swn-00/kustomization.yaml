@@ -5,6 +5,10 @@ kind: Kustomization
 resources:
   - ../../base/actions-runner-system
   - ../../base/external-secrets
+  - ../../base/istio-config
+  - ../../base/istio-egress
+  - ../../base/istio-ingress
+  - ../../base/istio-system
   - ../../base/observability
   - ../../base/flux-system/repositories
   - ../../base/network-system
@@ -16,3 +20,13 @@ resources:
   - ../../base/network-system/cert-manager/ks.yaml
   - ../../base/observability/grafana/ks.yaml
   - ../../base/observability/kube-prometheus-stack/ks.yaml
+  - ../../base/observability/routes/ks.yaml
+  - ../../base/istio-system/istio-base/k8.yaml
+  - ../../base/istio-system/istio-cni/k8.yaml
+  - ../../base/istio-system/istiod/k8.yaml
+  - ../../base/istio-system/monitoring/ks.yaml
+  - ../../base/istio-ingress/gateway/ks.yaml
+  - ../../base/istio-ingress/config/ks.yaml
+  - ../../base/istio-egress/ks.yaml
+  - ../../base/istio-egress/config/ks.yaml
+  - ../../base/istio-config/ks.yaml

@@ -1,0 +1,26 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: egress-gateway
+  namespace: istio-egress
+  annotations:
+    gateway.istio.io/deployment: istio-egressgateway
+    gateway.istio.io/service-account: istio-egressgateway
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: tls-egress
+      port: 443
+      protocol: TLS
+      tls:
+        mode: Passthrough
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: http-egress
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All

@@ -1,0 +1,30 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: istio-ingressgateway
+  namespace: flux-system
+spec:
+  interval: 30m
+  retryInterval: 1m
+  timeout: 10m
+  path: "./kubernetes/apps/base/istio-ingress/gateway/app"
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: istio-ingress
+  dependsOn:
+    - name: istiod
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: istio-ingressgateway
+      namespace: istio-ingress
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+        optional: false
