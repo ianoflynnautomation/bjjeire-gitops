@@ -15,6 +15,9 @@ spec:
   targetNamespace: flux-system
   timeout: 5m
   wait: false
+  dependsOn:
+    - name: grafana
+    - name: kube-prometheus-stack
   postBuild:
     substituteFrom:
       - kind: ConfigMap
