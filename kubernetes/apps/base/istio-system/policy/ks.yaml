@@ -8,7 +8,7 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
-  path: "./kubernetes/apps/base/istio-config/policy"
+  path: "./kubernetes/apps/base/istio-system/policy"
   prune: true
   wait: true
   sourceRef:
