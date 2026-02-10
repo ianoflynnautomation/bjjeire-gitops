@@ -1,0 +1,25 @@
+---
+cni:
+  cniBinDir: /opt/cni/bin
+  cniConfDir: /etc/cni/net.d
+  excludeNamespaces:
+    - kube-system
+    - istio-system
+    - flux-system
+  logLevel: info
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux

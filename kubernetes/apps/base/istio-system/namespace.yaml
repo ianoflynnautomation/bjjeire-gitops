@@ -2,10 +2,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: observability
+  name: istio-system
   labels:
     kustomize.toolkit.fluxcd.io/prune: disabled
-    istio-injection: enabled
     gateway-access: "true"
     pod-security.kubernetes.io/enforce: privileged
     pod-security.kubernetes.io/audit: privileged

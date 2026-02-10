@@ -17,6 +17,8 @@ policy: sync
 txtPrefix: k8s.
 sources:
   - crd
-  # - gateway-httproute
+  - gateway-httproute
+  - gateway-grpcroute
+  - service
 serviceMonitor:
   enabled: true

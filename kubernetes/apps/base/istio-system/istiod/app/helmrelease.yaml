@@ -1,0 +1,27 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istiod
+  namespace: istio-system
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: istiod
+  install:
+    timeout: 10m
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: istiod-values

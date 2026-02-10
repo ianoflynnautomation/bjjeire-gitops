@@ -1,0 +1,118 @@
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: cloudflare-api
+  namespace: istio-system
+spec:
+  hosts:
+    - api.cloudflare.com
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: letsencrypt-acme
+  namespace: istio-system
+spec:
+  hosts:
+    - acme-v02.api.letsencrypt.org
+    - acme-staging-v02.api.letsencrypt.org
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: azure-keyvault
+  namespace: istio-system
+spec:
+  hosts:
+    - "*.vault.azure.net"
+    - login.microsoftonline.com
+    - sts.windows.net
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: grafana-cdn
+  namespace: istio-system
+spec:
+  hosts:
+    - grafana.com
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: github
+  namespace: istio-system
+spec:
+  hosts:
+    - github.com
+    - raw.githubusercontent.com
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: container-registries
+  namespace: istio-system
+spec:
+  hosts:
+    - ghcr.io
+    - docker.io
+    - registry-1.docker.io
+    - quay.io
+    - registry.k8s.io
+    - production.cloudflare.docker.com
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: external-dns-resolvers
+  namespace: istio-system
+spec:
+  hosts:
+    - "1.1.1.1"
+    - "8.8.8.8"
+  location: MESH_EXTERNAL
+  ports:
+    - number: 53
+      name: udp-dns
+      protocol: UDP
+    - number: 53
+      name: tcp-dns
+      protocol: TCP
+  resolution: NONE

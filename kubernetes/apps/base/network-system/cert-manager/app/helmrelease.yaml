@@ -34,16 +34,15 @@ spec:
     keepHistory: false
   driftDetection:
     mode: enabled
-    ignore:
-      # Temp fix: cert-manager cainjector modifies webhook configs to inject CA bundles
-      - paths: ["/webhooks"]
-        target:
-          kind: ValidatingWebhookConfiguration
-          name: cert-manager-webhook
-      - paths: ["/webhooks"]
-        target:
-          kind: MutatingWebhookConfiguration
-          name: cert-manager-webhook
+    # ignore: #Temp fix: cert-manager cainjector modifies webhook configs to inject CA bundles
+      # - paths: ["/webhooks"]
+      #   target:
+      #     kind: ValidatingWebhookConfiguration
+      #     name: cert-manager-webhook
+      # - paths: ["/webhooks"]
+      #   target:
+      #     kind: MutatingWebhookConfiguration
+      #     name: cert-manager-webhook
   maxHistory: 3
   valuesFrom:
     - kind: ConfigMap

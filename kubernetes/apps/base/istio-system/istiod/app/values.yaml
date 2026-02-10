@@ -1,0 +1,88 @@
+---
+revision: ""
+
+global:
+  istioNamespace: istio-system
+  proxy:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    accessLogFile: /dev/stdout
+    accessLogEncoding: JSON
+    lifecycle:
+      preStop:
+        exec:
+          command:
+            - /bin/sh
+            - -c
+            - sleep 5
+  logging:
+    level: "default:info"
+
+pilot:
+  autoscaleEnabled: true
+  autoscaleMin: 2
+  autoscaleMax: 5
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  podDisruptionBudget:
+    minAvailable: 1
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: istiod
+  nodeSelector:
+    kubernetes.io/os: linux
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+  env:
+    - name: PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_OUTBOUND
+      value: "true"
+    - name: PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_INBOUND
+      value: "true"
+    - name: PILOT_ENABLE_STATUS
+      value: "true"
+    - name: PILOT_ENABLE_ANALYSIS
+      value: "true"
+
+sidecarInjectorWebhook:
+  enableNamespacesByDefault: false
+
+meshConfig:
+  accessLogFile: /dev/stdout
+  accessLogEncoding: JSON
+  # enableTracing: true  # Disabled - no Jaeger deployment yet
+  enableAutoMtls: true
+  trustDomain: cluster.local
+  rootNamespace: istio-system
+
+  defaultConfig:
+    holdApplicationUntilProxyStarts: true
+    # tracing:
+    #   sampling: 100
+    #   zipkin:
+    #     address: jaeger-collector.observability.svc.cluster.local:9411
+
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+
+  extensionProviders:
+    # - name: zipkin
+    #   zipkin:
+    #     service: jaeger-collector.observability.svc.cluster.local
+    #     port: 9411
+    - name: prometheus
+      prometheus: {}
