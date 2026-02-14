@@ -119,8 +119,10 @@ metadata:
   namespace: istio-system
 spec:
   hosts:
-    - "1.1.1.1"
-    - "8.8.8.8"
+    - external-dns-resolvers.internal
+  addresses:
+    - 1.1.1.1/32
+    - 8.8.8.8/32
   location: MESH_EXTERNAL
   ports:
     - number: 53
