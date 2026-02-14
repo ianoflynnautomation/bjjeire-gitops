@@ -1,7 +1,8 @@
 ---
 revision: ""
 
-env: {}
+env:
+  MCS_API_GROUP: ""
 
 global:
   istioNamespace: istio-system
