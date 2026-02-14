@@ -38,6 +38,20 @@ metadata:
 spec:
   hosts:
     - "*.vault.azure.net"
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: NONE
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: azure-identity
+  namespace: istio-system
+spec:
+  hosts:
     - login.microsoftonline.com
     - sts.windows.net
   location: MESH_EXTERNAL

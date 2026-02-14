@@ -15,6 +15,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  targetNamespace: istio-system
   dependsOn:
     - name: istiod
     - name: kube-prometheus-stack
