@@ -20,7 +20,7 @@ spec:
       strategy: rollback
     cleanupOnFail: true
   driftDetection:
-    mode: enabled
+    mode: warn
   maxHistory: 3
   valuesFrom:
     - kind: ConfigMap
