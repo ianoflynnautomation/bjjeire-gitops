@@ -22,7 +22,7 @@ spec:
     cleanupOnFail: true
     crds: CreateReplace
   driftDetection:
-    mode: warn
+    mode: enabled
   maxHistory: 3
   values:
     defaultRevision: default
