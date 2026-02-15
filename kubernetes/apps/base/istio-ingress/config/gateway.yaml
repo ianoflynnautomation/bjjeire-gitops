@@ -7,6 +7,7 @@ metadata:
   annotations:
     gateway.istio.io/deployment: istio-ingressgateway
     gateway.istio.io/service-account: istio-ingressgateway
+    gateway.istio.io/service: istio-ingressgateway
     external-dns.alpha.kubernetes.io/external: "true"
 spec:
   gatewayClassName: istio
