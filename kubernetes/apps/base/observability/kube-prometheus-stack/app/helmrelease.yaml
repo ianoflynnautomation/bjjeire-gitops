@@ -40,11 +40,14 @@ spec:
   # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
   values:
     cleanPrometheusOperatorObjectNames: true
+    prometheusOperator:
+      admissionWebhooks:
+        patch:
+          podAnnotations:
+            sidecar.istio.io/inject: "false"
     alertmanager:
       enabled: false
     grafana:
-      nodeSelector:
-        pool_type: "system"
       tolerations:
         - key: "CriticalAddonsOnly"
           operator: "Exists"
@@ -57,8 +60,6 @@ spec:
           grafana.internal/instance: grafana
     prometheus:
       prometheusSpec:
-        nodeSelector:
-          pool_type: "system"
         enableFeatures:
           - memory-snapshot-on-shutdown
         scrapeInterval: 1m
