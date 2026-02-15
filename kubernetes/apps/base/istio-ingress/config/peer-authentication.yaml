@@ -1,0 +1,9 @@
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: ingress-gateway
+  namespace: istio-ingress
+spec:
+  mtls:
+    mode: PERMISSIVE

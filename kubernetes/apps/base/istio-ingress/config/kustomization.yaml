@@ -7,3 +7,4 @@ namespace: istio-ingress
 resources:
   - gateway.yaml
   - http-redirect.yaml
+  - peer-authentication.yaml
