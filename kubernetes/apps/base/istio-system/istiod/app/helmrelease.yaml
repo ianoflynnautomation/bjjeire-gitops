@@ -20,16 +20,7 @@ spec:
       strategy: rollback
     cleanupOnFail: true
   driftDetection:
-    mode: enabled
-    ignore:
-      - paths: [""]
-        target:
-          kind: MutatingWebhookConfiguration
-          name: istio-sidecar-injector
-      - paths: [""]
-        target:
-          kind: ValidatingWebhookConfiguration
-          name: istio-validator-istio-system
+    mode: warn
   maxHistory: 3
   valuesFrom:
     - kind: ConfigMap
