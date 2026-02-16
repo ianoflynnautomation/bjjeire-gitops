@@ -6,7 +6,7 @@ metadata:
   namespace: istio-ingress
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: istio-ingressgateway
       namespace: istio-ingress
       sectionName: http
   hostnames:

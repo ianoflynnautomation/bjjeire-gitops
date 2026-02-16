@@ -2,7 +2,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: main-gateway
+  name: istio-ingressgateway
   namespace: istio-ingress
   annotations:
     external-dns.alpha.kubernetes.io/external: "true"

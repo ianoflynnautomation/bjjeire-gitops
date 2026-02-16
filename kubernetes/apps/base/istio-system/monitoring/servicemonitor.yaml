@@ -26,7 +26,7 @@ spec:
       - istio-ingress
   selector:
     matchLabels:
-      gateway.networking.k8s.io/gateway-name: main-gateway
+      gateway.networking.k8s.io/gateway-name: istio-ingressgateway
   endpoints:
     - port: http-envoy-prom
       interval: 30s

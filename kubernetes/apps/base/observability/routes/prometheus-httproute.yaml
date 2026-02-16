@@ -9,7 +9,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: "prometheus.${CLUSTER_DOMAIN}"
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: istio-ingressgateway
       namespace: istio-ingress
       sectionName: https-prometheus
   hostnames:

@@ -254,7 +254,7 @@ STRICT mTLS is enforced mesh-wide. The ingress namespace uses PERMISSIVE mode to
 **Authorization policies:**
 
 Access to Grafana and Prometheus is restricted via `AuthorizationPolicy` resources that only allow traffic from:
-- The ingress gateway service account (`main-gateway-istio`)
+- The ingress gateway service account (`istio-ingressgateway-istio`)
 - Pods within the `observability` namespace
 
 ### Observability Routes
@@ -276,7 +276,7 @@ Istio sidecar injection is controlled per-namespace. The CNI plugin excludes `ku
 
 1. Label the namespace: `kubectl label namespace <ns> istio-injection=enabled`
 2. Add a `ServiceEntry` if the service needs to reach external endpoints (REGISTRY_ONLY policy)
-3. Create an `HTTPRoute` in the service's namespace referencing `main-gateway` if it needs external access
+3. Create an `HTTPRoute` in the service's namespace referencing `istio-ingressgateway` if it needs external access
 4. Add an `AuthorizationPolicy` to restrict which sources can reach the service
 5. Ensure the namespace has the `gateway-access: "true"` label for HTTPS route access
 

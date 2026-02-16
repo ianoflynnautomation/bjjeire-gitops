@@ -13,7 +13,7 @@ spec:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/istio-ingress/sa/main-gateway-istio"
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
     - from:
         - source:
             namespaces: ["observability"]
@@ -32,7 +32,7 @@ spec:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/istio-ingress/sa/main-gateway-istio"
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
     - from:
         - source:
             namespaces: ["observability"]
