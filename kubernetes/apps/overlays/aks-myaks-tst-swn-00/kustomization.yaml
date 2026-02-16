@@ -25,7 +25,6 @@ resources:
   - ../../base/istio-system/istio-cni/k8.yaml
   - ../../base/istio-system/istiod/k8.yaml
   - ../../base/istio-system/monitoring/ks.yaml
-  - ../../base/istio-ingress/gateway/ks.yaml
   - ../../base/istio-ingress/config/ks.yaml
   - ../../base/istio-egress/ks.yaml
   - ../../base/istio-egress/config/ks.yaml

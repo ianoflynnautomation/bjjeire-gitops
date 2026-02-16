@@ -17,7 +17,7 @@ spec:
     namespace: flux-system
   targetNamespace: istio-ingress
   dependsOn:
-    - name: istio-ingressgateway
+    - name: istiod
     - name: cert-manager-certificates
   postBuild:
     substituteFrom:

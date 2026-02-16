@@ -5,12 +5,16 @@ metadata:
   name: main-gateway
   namespace: istio-ingress
   annotations:
-    gateway.istio.io/deployment: istio-ingressgateway
-    gateway.istio.io/service-account: istio-ingressgateway
-    gateway.istio.io/service: istio-ingressgateway
     external-dns.alpha.kubernetes.io/external: "true"
 spec:
   gatewayClassName: istio
+  infrastructure:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "*.${CLUSTER_DOMAIN}"
+      external-dns.alpha.kubernetes.io/external: "true"
+      external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+      service.beta.kubernetes.io/port_80_health-probe_protocol: Tcp
+      service.beta.kubernetes.io/port_443_health-probe_protocol: Tcp
   listeners:
     - name: http
       port: 80
