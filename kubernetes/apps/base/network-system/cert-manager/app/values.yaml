@@ -11,7 +11,7 @@ extraArgs:
   - --enable-certificate-owner-ref=true
   - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
   - --dns01-recursive-nameservers-only
-  - --default-issuer-name=letsencrypt-staging
+  - --default-issuer-name=letsencrypt-production
   - --default-issuer-kind=ClusterIssuer
 prometheus:
   servicemonitor:
