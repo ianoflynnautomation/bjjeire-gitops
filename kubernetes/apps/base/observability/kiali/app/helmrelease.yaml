@@ -1,0 +1,61 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kiali-server
+  namespace: observability
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: kiali-server
+      version: "2.21.0"
+      sourceRef:
+        kind: HelmRepository
+        name: kiali
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  values:
+    auth:
+      strategy: anonymous
+    deployment:
+      service_type: ClusterIP
+      pod_annotations:
+        sidecar.istio.io/inject: "true"
+    server:
+      web_fqdn: "kiali.${CLUSTER_DOMAIN}"
+      web_root: /
+      web_schema: https
+    external_services:
+      prometheus:
+        url: "http://prometheus-operated.observability.svc.cluster.local:9090"
+      grafana:
+        enabled: true
+        url: "http://grafana-service.observability.svc.cluster.local:3000"
+        in_cluster_url: "http://grafana-service.observability.svc.cluster.local:3000"
+      istio:
+        root_namespace: istio-system

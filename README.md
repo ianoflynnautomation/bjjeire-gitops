@@ -22,7 +22,8 @@ The repository currently manages the following application stacks:
 - **Actions Runner System**: GitHub Actions self-hosted runners with auto-scaling
 - **External Secrets**: Secrets management from Azure Key Vault
 - **Network System**: Certificate management (cert-manager), external DNS
-- **Observability**: Monitoring and metrics collection (Prometheus, Grafana)
+- **Observability**: Monitoring and metrics collection (Prometheus, Grafana, Kiali)
+- **OAuth2 Proxy**: Azure Entra ID authentication for observability tools (Istio ext-authz)
 - **Flux System**: GitOps controller and source repositories
 
 ## Architecture
@@ -212,6 +213,8 @@ Internet -> Cloudflare (proxy/CDN) -> Azure LB -> Gateway Pod -> HTTPRoute -> Ba
 | https-root | 443 | HTTPS | Root domain `${CLUSTER_DOMAIN}` |
 | https-grafana | 443 | HTTPS | `grafana.${CLUSTER_DOMAIN}` |
 | https-prometheus | 443 | HTTPS | `prometheus.${CLUSTER_DOMAIN}` |
+| https-kiali | 443 | HTTPS | `kiali.${CLUSTER_DOMAIN}` |
+| https-oauth2 | 443 | HTTPS | `oauth2.${CLUSTER_DOMAIN}` (OIDC callback) |
 
 TLS is terminated at the gateway using a wildcard certificate issued by cert-manager (Let's Encrypt production, DNS-01 challenge via Cloudflare).
 
@@ -232,7 +235,8 @@ Outbound traffic is controlled via Istio's `REGISTRY_ONLY` outbound traffic poli
 | cloudflare-api | api.cloudflare.com | cert-manager DNS-01 challenges |
 | letsencrypt-acme | acme-v02.api.letsencrypt.org | Certificate issuance |
 | azure-keyvault | *.vault.azure.net | External Secrets Operator |
-| azure-identity | login.microsoftonline.com, sts.windows.net | Azure Workload Identity |
+| azure-identity | login.microsoftonline.com, sts.windows.net | Azure Workload Identity, OAuth2 Proxy |
+| microsoft-graph | graph.microsoft.com | OAuth2 Proxy group claims |
 | container-registries | ghcr.io, docker.io, quay.io, registry.k8s.io | Image pulls |
 | github | github.com, raw.githubusercontent.com | Flux source, Helm charts |
 | grafana-cdn | grafana.com | Grafana plugin/dashboard downloads |
@@ -265,6 +269,7 @@ Application routing is defined using `HTTPRoute` resources:
 |-------------|----------|---------|------|
 | Grafana | `grafana.${CLUSTER_DOMAIN}` | grafana-service (observability) | 3000 |
 | Prometheus | `prometheus.${CLUSTER_DOMAIN}` | kube-prometheus-stack-prometheus (observability) | 9090 |
+| Kiali | `kiali.${CLUSTER_DOMAIN}` | kiali (observability) | 20001 |
 
 Routes include dedicated health check paths and ExternalDNS annotations for automatic DNS record management.
 

@@ -1,0 +1,67 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: observability
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: oauth2-proxy
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  values:
+    podAnnotations:
+      sidecar.istio.io/inject: "true"
+    config:
+      clientID: "${OAUTH2_PROXY_CLIENT_ID}"
+    extraArgs:
+      provider: entra-id
+      oidc-issuer-url: "https://login.microsoftonline.com/${TENANT_ID}/v2.0"
+      entra-id-allowed-tenant: "${TENANT_ID}"
+      email-domain: "*"
+      allowed-group: "${OAUTH2_PROXY_ALLOWED_GROUP}"
+      cookie-secure: "true"
+      cookie-domain: ".${CLUSTER_DOMAIN}"
+      cookie-name: _oauth2_proxy
+      set-xauthrequest: "true"
+      reverse-proxy: "true"
+      skip-provider-button: "true"
+      upstream: "static://202"
+      scope: "openid"
+    existingSecret: oauth2-proxy-secrets
+    service:
+      type: ClusterIP
+      portNumber: 4180
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi

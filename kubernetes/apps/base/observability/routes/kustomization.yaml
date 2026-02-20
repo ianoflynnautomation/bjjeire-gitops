@@ -7,3 +7,5 @@ namespace: observability
 resources:
   - grafana-httproute.yaml
   - prometheus-httproute.yaml
+  - kiali-httproute.yaml
+  - oauth2-proxy-httproute.yaml
