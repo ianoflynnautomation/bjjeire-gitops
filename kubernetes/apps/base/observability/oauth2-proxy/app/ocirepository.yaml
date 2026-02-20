@@ -11,4 +11,4 @@ spec:
     operation: copy
   ref:
     tag: 7.9.0
-  url: oci://ghcr.io/oauth2-proxy/manifests/oauth2-proxy
+  url: oci://ghcr.io/oauth2-proxy/charts/oauth2-proxy
