@@ -54,6 +54,8 @@ spec:
       skip-provider-button: "true"
       upstream: "static://202"
       scope: "openid"
+      redirect-url: "https://oauth2.${CLUSTER_DOMAIN}/oauth2/callback"
+      whitelist-domain: ".${CLUSTER_DOMAIN}"
     existingSecret: oauth2-proxy-secrets
     service:
       type: ClusterIP
