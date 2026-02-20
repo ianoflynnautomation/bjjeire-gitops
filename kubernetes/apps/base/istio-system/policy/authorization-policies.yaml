@@ -36,3 +36,39 @@ spec:
     - from:
         - source:
             namespaces: ["observability"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-kiali
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kiali
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+    - from:
+        - source:
+            namespaces: ["observability"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: require-entra-auth-observability
+  namespace: observability
+spec:
+  action: CUSTOM
+  provider:
+    name: oauth2-proxy
+  rules:
+    - to:
+        - operation:
+            notPaths:
+              - /healthz
+              - /-/healthy
+              - /api/health

@@ -1,0 +1,36 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kiali
+  namespace: observability
+  annotations:
+    external-dns.alpha.kubernetes.io/external: "true"
+    external-dns.alpha.kubernetes.io/hostname: "kiali.${CLUSTER_DOMAIN}"
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-kiali
+  hostnames:
+    - "kiali.${CLUSTER_DOMAIN}"
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /healthz
+      backendRefs:
+        - name: kiali
+          namespace: observability
+          port: 20001
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: kiali
+          namespace: observability
+          port: 20001
+      timeouts:
+        request: 60s
+        backendRequest: 55s

@@ -64,6 +64,21 @@ spec:
 apiVersion: networking.istio.io/v1
 kind: ServiceEntry
 metadata:
+  name: microsoft-graph
+  namespace: istio-system
+spec:
+  hosts:
+    - graph.microsoft.com
+  location: MESH_EXTERNAL
+  ports:
+    - number: 443
+      name: https
+      protocol: TLS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
   name: grafana-cdn
   namespace: istio-system
 spec:

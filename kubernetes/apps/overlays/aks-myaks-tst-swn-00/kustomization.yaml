@@ -19,6 +19,8 @@ resources:
   - ../../base/network-system/cert-manager/ks.yaml
   - ../../base/observability/grafana/ks.yaml
   - ../../base/observability/kube-prometheus-stack/ks.yaml
+  - ../../base/observability/kiali/ks.yaml
+  - ../../base/observability/oauth2-proxy/ks.yaml
   - ../../base/observability/routes/ks.yaml
   - ../../base/istio-system/istio-base/k8.yaml
   - ../../base/istio-system/gateway-api/k8.yaml
