@@ -6,9 +6,13 @@ metadata:
   namespace: observability
 spec:
   interval: 1h
-  chartRef:
-    kind: OCIRepository
-    name: kiali-server
+  chart:
+    spec:
+      chart: kiali-server
+      version: "2.21.0"
+      sourceRef:
+        kind: HelmRepository
+        name: kiali
   install:
     timeout: 10m
     replace: true
