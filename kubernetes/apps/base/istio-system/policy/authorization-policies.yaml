@@ -59,9 +59,12 @@ spec:
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
-  name: require-entra-auth-observability
+  name: require-entra-auth-grafana
   namespace: observability
 spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
   action: CUSTOM
   provider:
     name: oauth2-proxy
@@ -70,5 +73,40 @@ spec:
         - operation:
             notPaths:
               - /healthz
-              - /-/healthy
               - /api/health
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: require-entra-auth-prometheus
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+  action: CUSTOM
+  provider:
+    name: oauth2-proxy
+  rules:
+    - to:
+        - operation:
+            notPaths:
+              - /-/healthy
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: require-entra-auth-kiali
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kiali
+  action: CUSTOM
+  provider:
+    name: oauth2-proxy
+  rules:
+    - to:
+        - operation:
+            notPaths:
+              - /healthz
