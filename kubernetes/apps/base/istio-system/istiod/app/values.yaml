@@ -86,9 +86,10 @@ meshConfig:
     - name: prometheus
       prometheus: {}
     - name: oauth2-proxy
-      envoyExtAuthz:
+      envoyExtAuthzHttp:
         service: oauth2-proxy.observability.svc.cluster.local
         port: 4180
+        pathPrefix: /oauth2
         includeRequestHeadersInCheck:
           - cookie
           - authorization
@@ -98,6 +99,7 @@ meshConfig:
           - x-auth-request-email
           - x-auth-request-groups
         headersToDownstreamOnDeny:
+          - content-type
           - set-cookie
         headersToDownstreamOnAllow:
           - set-cookie
