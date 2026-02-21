@@ -53,7 +53,7 @@ spec:
       set-xauthrequest: "true"
       reverse-proxy: "true"
       skip-provider-button: "true"
-      upstream: "static://202"
+      upstream: "static://200"
       scope: "openid"
       redirect-url: "https://oauth2.${CLUSTER_DOMAIN}/oauth2/callback"
       whitelist-domain: ".${CLUSTER_DOMAIN}"
