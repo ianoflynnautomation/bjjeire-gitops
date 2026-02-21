@@ -89,7 +89,6 @@ meshConfig:
       envoyExtAuthzHttp:
         service: oauth2-proxy.observability.svc.cluster.local
         port: 4180
-        pathPrefix: /oauth2
         includeRequestHeadersInCheck:
           - cookie
           - authorization
