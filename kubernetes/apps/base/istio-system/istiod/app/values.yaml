@@ -101,5 +101,7 @@ meshConfig:
         headersToDownstreamOnDeny:
           - content-type
           - set-cookie
+          - location
+          - authorization
         headersToDownstreamOnAllow:
           - set-cookie
