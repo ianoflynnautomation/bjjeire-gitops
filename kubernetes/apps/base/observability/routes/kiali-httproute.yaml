@@ -11,7 +11,7 @@ spec:
   parentRefs:
     - name: istio-ingressgateway
       namespace: istio-ingress
-      sectionName: https-kiali
+      sectionName: https-wildcard
   hostnames:
     - "kiali.${CLUSTER_DOMAIN}"
   rules:

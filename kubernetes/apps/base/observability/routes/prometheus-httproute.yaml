@@ -11,7 +11,7 @@ spec:
   parentRefs:
     - name: istio-ingressgateway
       namespace: istio-ingress
-      sectionName: https-prometheus
+      sectionName: https-wildcard
   hostnames:
     - "prometheus.${CLUSTER_DOMAIN}"
   rules:
