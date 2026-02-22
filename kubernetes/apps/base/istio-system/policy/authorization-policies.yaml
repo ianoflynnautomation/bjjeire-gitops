@@ -59,66 +59,23 @@ spec:
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
-  name: require-entra-auth-grafana
-  namespace: observability
+  name: require-entra-auth-observability
+  namespace: istio-ingress
 spec:
   selector:
     matchLabels:
-      app: grafana
+      gateway.networking.k8s.io/gateway-name: istio-ingressgateway
   action: CUSTOM
   provider:
     name: oauth2-proxy
   rules:
-    - from:
-        - source:
-            principals:
-              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
-      to:
+    - to:
         - operation:
+            hosts:
+              - "grafana.${CLUSTER_DOMAIN}"
+              - "prometheus.${CLUSTER_DOMAIN}"
+              - "kiali.${CLUSTER_DOMAIN}"
             notPaths:
               - /healthz
               - /api/health
----
-apiVersion: security.istio.io/v1
-kind: AuthorizationPolicy
-metadata:
-  name: require-entra-auth-prometheus
-  namespace: observability
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: prometheus
-  action: CUSTOM
-  provider:
-    name: oauth2-proxy
-  rules:
-    - from:
-        - source:
-            principals:
-              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
-      to:
-        - operation:
-            notPaths:
               - /-/healthy
----
-apiVersion: security.istio.io/v1
-kind: AuthorizationPolicy
-metadata:
-  name: require-entra-auth-kiali
-  namespace: observability
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: kiali
-  action: CUSTOM
-  provider:
-    name: oauth2-proxy
-  rules:
-    - from:
-        - source:
-            principals:
-              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
-      to:
-        - operation:
-            notPaths:
-              - /healthz
