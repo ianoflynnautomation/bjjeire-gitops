@@ -69,7 +69,11 @@ spec:
   provider:
     name: oauth2-proxy
   rules:
-    - to:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+      to:
         - operation:
             notPaths:
               - /healthz
@@ -88,7 +92,11 @@ spec:
   provider:
     name: oauth2-proxy
   rules:
-    - to:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+      to:
         - operation:
             notPaths:
               - /-/healthy
@@ -106,7 +114,11 @@ spec:
   provider:
     name: oauth2-proxy
   rules:
-    - to:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+      to:
         - operation:
             notPaths:
               - /healthz

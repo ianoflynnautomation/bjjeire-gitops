@@ -6,3 +6,4 @@ resources:
   # - grafanadashboard.yaml  # Disabled - requires GrafanaDashboard CRD from grafana-operator
   - helmrelease.yaml
   - ocirepository.yaml
+  - sidecar.yaml

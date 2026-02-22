@@ -1,0 +1,11 @@
+---
+apiVersion: networking.istio.io/v1
+kind: Sidecar
+metadata:
+  name: prometheus
+spec:
+  workloadSelector:
+    labels:
+      app.kubernetes.io/name: prometheus
+  outboundTrafficPolicy:
+    mode: ALLOW_ANY
