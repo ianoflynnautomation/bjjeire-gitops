@@ -60,6 +60,13 @@ spec:
           grafana.internal/instance: grafana
     prometheus:
       prometheusSpec:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 768Mi
+          limits:
+            cpu: 500m
+            memory: 2Gi
         enableFeatures:
           - memory-snapshot-on-shutdown
         scrapeInterval: 1m

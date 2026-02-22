@@ -1,19 +1,19 @@
 ---
 name: istio-egressgateway
 
-replicaCount: 2
+replicaCount: 1
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
 
 resources:
   requests:
-    cpu: 100m
+    cpu: 50m
     memory: 128Mi
   limits:
-    cpu: 1000m
+    cpu: 500m
     memory: 512Mi
 
 podDisruptionBudget:

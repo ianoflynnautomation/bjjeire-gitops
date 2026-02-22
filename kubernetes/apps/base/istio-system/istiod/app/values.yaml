@@ -9,8 +9,8 @@ global:
   proxy:
     resources:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 50m
+        memory: 64Mi
       limits:
         cpu: 500m
         memory: 512Mi
@@ -28,14 +28,14 @@ global:
 
 pilot:
   autoscaleEnabled: true
-  autoscaleMin: 2
+  autoscaleMin: 1
   autoscaleMax: 5
   resources:
     requests:
-      cpu: 200m
+      cpu: 100m
       memory: 256Mi
     limits:
-      cpu: 1000m
+      cpu: 500m
       memory: 1Gi
   podDisruptionBudget:
     minAvailable: 1
@@ -55,7 +55,6 @@ pilot:
     PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_OUTBOUND: "true"
     PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_INBOUND: "true"
     PILOT_ENABLE_STATUS: "true"
-    # PILOT_ENABLE_ANALYSIS: "true"
 
 sidecarInjectorWebhook:
   enableNamespacesByDefault: false
