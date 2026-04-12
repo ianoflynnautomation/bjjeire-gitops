@@ -11,7 +11,7 @@ resources:
   - ../../base/observability
   - ../../base/flux-system/repositories
   - ../../base/network-system
-   - ../../base/bjj-eire
+  - ../../base/bjj-eire
   - ../../base/external-secrets/external-secrets/ks.yaml
   # - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
   # - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
