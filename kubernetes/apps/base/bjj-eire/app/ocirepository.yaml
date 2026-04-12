@@ -1,0 +1,16 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: bjj-eire
+  namespace: bjj-app
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    semver: ">=0.1.0"
+  url: oci://ghcr.io/ianoflynnautomation/bjj-eire
+  secretRef:
+    name: ghcr-pull-secret

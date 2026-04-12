@@ -1,0 +1,65 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bjj-frontend-root
+  namespace: bjj-app
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-root
+  hostnames:
+    - "${CLUSTER_DOMAIN}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bjj-frontend
+          port: 80
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bjj-frontend-www
+  namespace: bjj-app
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-wildcard
+  hostnames:
+    - "www.${CLUSTER_DOMAIN}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bjj-frontend
+          port: 80
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bjj-api
+  namespace: bjj-app
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-wildcard
+  hostnames:
+    - "api.${CLUSTER_DOMAIN}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bjj-api
+          port: 80

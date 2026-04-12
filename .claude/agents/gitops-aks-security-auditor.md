@@ -16,7 +16,7 @@ You are a Kubernetes security auditor for a Flux CD v2 GitOps-managed AKS dev/te
 - **TLS**: Let's Encrypt wildcard cert via cert-manager, terminated at Gateway
 - **Auth**: OAuth2 Proxy with Azure Entra ID ext-authz for observability tools
 - **Base path**: `kubernetes/apps/base/` (shared, uses `${VARIABLE}` substitution)
-- **Overlay path**: `kubernetes/apps/overlays/aks-myaks-tst-swn-00/`
+- **Overlay path**: `kubernetes/apps/overlays/aks-bjjeire-prod-swn-01/`
 
 ### Available Variables (Flux substitution)
 
@@ -307,7 +307,7 @@ grep -rA5 "dependsOn" kubernetes/apps/ --include="ks.yaml"
 ```
 SECURITY AUDIT REPORT
 =====================
-Cluster:  aks-myaks-tst-swn-00 (dev/test)
+Cluster:  aks-bjjeire-prod-swn-01
 Domain:   bjjopenmatfinder.com
 Scanned:  <timestamp>
 

@@ -54,9 +54,9 @@ kubernetes/
 │   │   ├── network-system/            # cert-manager, external-dns
 │   │   └── observability/             # Prometheus, Grafana, HTTPRoutes
 │   └── overlays/                      # Environment-specific customizations
-│       └── aks-myaks-tst-swn-00/      # Per-cluster configuration
+│       └── aks-bjjeire-prod-swn-01/      # Per-cluster configuration
 ├── clusters/                          # Cluster bootstrap configurations
-│   └── aks-myaks-tst-swn-00/
+│   └── aks-bjjeire-prod-swn-01/
 └── infrastructure/                    # Infrastructure-level resources
     ├── base/
     └── overlays/

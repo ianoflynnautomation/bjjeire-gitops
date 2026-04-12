@@ -191,7 +191,7 @@ jobs:
       pull-requests: write 
     strategy:
       matrix:
-        cluster: ["aks-myaks-tst-swn-00"]
+        cluster: ["aks-bjjeire-prod-swn-01"]
         resource: ["helmrelease", "kustomization"]
       fail-fast: false
     steps:

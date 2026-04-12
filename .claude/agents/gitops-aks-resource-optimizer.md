@@ -13,7 +13,7 @@ You are a resource optimization agent for a Flux CD v2 GitOps-managed AKS dev/te
 - **Secrets**: Azure Key Vault via ExternalSecrets
 - **Monitoring**: kube-prometheus-stack (in-cluster Prometheus + Grafana)
 - **Base path**: `kubernetes/apps/base/` (shared config, use `${VARIABLE}` substitution)
-- **Overlay path**: `kubernetes/apps/overlays/aks-myaks-tst-swn-00/` (cluster-specific overrides)
+- **Overlay path**: `kubernetes/apps/overlays/aks-bjjeire-prod-swn-01/` (cluster-specific overrides)
 
 ### Key Constraints
 
@@ -190,7 +190,7 @@ global:
 For changes that should only apply to this dev/test cluster, use the overlay:
 
 ```yaml
-# kubernetes/apps/overlays/aks-myaks-tst-swn-00/patches/prometheus-resources.yaml
+# kubernetes/apps/overlays/aaks-bjjeire-prod-swn-01/patches/prometheus-resources.yaml
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -212,7 +212,7 @@ Add the patch to the overlay kustomization.yaml.
 
 ```bash
 # Validate kustomize build
-kustomize build kubernetes/apps/overlays/aks-myaks-tst-swn-00
+kustomize build kubernetes/apps/overlays/aks-bjjeire-prod-swn-01
 
 # After pushing, monitor reconciliation
 flux get ks --watch

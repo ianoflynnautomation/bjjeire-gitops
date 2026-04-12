@@ -1,0 +1,219 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: bjj-eire-api
+  namespace: bjj-app
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  datasources:
+    - datasourceName: prometheus
+      inputName: DS_PROMETHEUS
+  json: |
+    {
+      "title": "BJJ Éire — API",
+      "uid": "bjjeire-api-v1",
+      "description": "ASP.NET Core API metrics — request rate, latency, errors, runtime, custom domain meters",
+      "timezone": "browser",
+      "refresh": "1m",
+      "schemaVersion": 38,
+      "time": { "from": "now-3h", "to": "now" },
+      "templating": {
+        "list": [
+          {
+            "name": "DS_PROMETHEUS",
+            "type": "datasource",
+            "pluginId": "prometheus",
+            "hide": 2
+          },
+          {
+            "name": "namespace",
+            "label": "Namespace",
+            "type": "constant",
+            "query": "bjj-app",
+            "hide": 2
+          },
+          {
+            "name": "job",
+            "label": "Job",
+            "type": "constant",
+            "query": "bjj-api",
+            "hide": 2
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request Rate (req/s)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": { "fillOpacity": 10 }
+            }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "sum by (http_route, http_request_method) (\n  rate(http_server_request_duration_seconds_count{namespace=\"$namespace\", job=\"$job\"}[5m])\n)",
+              "legendFormat": "{{http_request_method}} {{http_route}}"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Error Rate — 5xx (req/s)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": { "mode": "fixed", "fixedColor": "red" },
+              "custom": { "fillOpacity": 10 }
+            }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "sum by (http_route) (\n  rate(http_server_request_duration_seconds_count{\n    namespace=\"$namespace\", job=\"$job\",\n    http_response_status_code=~\"5..\"\n  }[5m])\n)",
+              "legendFormat": "5xx {{http_route}}"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Request Duration — p50 / p95 / p99",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": { "fillOpacity": 5 }
+            }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "histogram_quantile(0.50, sum by (le) (\n  rate(http_server_request_duration_seconds_bucket{namespace=\"$namespace\", job=\"$job\"}[5m])\n))",
+              "legendFormat": "p50"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "histogram_quantile(0.95, sum by (le) (\n  rate(http_server_request_duration_seconds_bucket{namespace=\"$namespace\", job=\"$job\"}[5m])\n))",
+              "legendFormat": "p95"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "histogram_quantile(0.99, sum by (le) (\n  rate(http_server_request_duration_seconds_bucket{namespace=\"$namespace\", job=\"$job\"}[5m])\n))",
+              "legendFormat": "p99"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Active HTTP Requests",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+          "fieldConfig": {
+            "defaults": { "unit": "short", "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 50 },
+                { "color": "red", "value": 100 }
+              ]
+            }}
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "sum(http_server_active_requests{namespace=\"$namespace\", job=\"$job\"})",
+              "legendFormat": "active"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Thread Pool Queue Length",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+          "fieldConfig": {
+            "defaults": { "unit": "short", "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 100 },
+                { "color": "red", "value": 500 }
+              ]
+            }}
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "dotnet_thread_pool_queue_length{namespace=\"$namespace\", job=\"$job\"}",
+              "legendFormat": "queue length"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": ".NET GC Heap Size",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": { "fillOpacity": 10 }
+            }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "dotnet_gc_heap_size_bytes{namespace=\"$namespace\", job=\"$job\"}",
+              "legendFormat": "gen{{generation}} heap"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": ".NET GC Collections / min",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+          "fieldConfig": {
+            "defaults": { "unit": "short" }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "rate(dotnet_gc_collections_total{namespace=\"$namespace\", job=\"$job\"}[5m]) * 60",
+              "legendFormat": "gen{{generation}} GC/min"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "Domain Meters — Gyms & Events (custom counters)",
+          "description": "Metrics from the 'gyms' and 'bjjevents' OpenTelemetry meters registered in OpenTelemetryConfiguration.cs",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+          "fieldConfig": {
+            "defaults": { "unit": "short" }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "{namespace=\"$namespace\", job=\"$job\", __name__=~\"gyms_.+\"}",
+              "legendFormat": "gyms · {{__name__}}"
+            },
+            {
+              "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+              "expr": "{namespace=\"$namespace\", job=\"$job\", __name__=~\"bjjevents_.+\"}",
+              "legendFormat": "events · {{__name__}}"
+            }
+          ]
+        }
+      ]
+    }

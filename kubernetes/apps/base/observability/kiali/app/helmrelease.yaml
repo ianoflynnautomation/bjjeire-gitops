@@ -41,7 +41,14 @@ spec:
   maxHistory: 3
   values:
     auth:
-      strategy: anonymous
+      strategy: openid
+      openid:
+        client_id: "${KIALI_CLIENT_ID}"
+        issuer_uri: "https://login.microsoftonline.com/${TENANT_ID}/v2.0"
+        username_claim: preferred_username
+        disable_rbac: true
+        authentication_timeout: 300
+        redirect_uri: "https://kiali.${CLUSTER_DOMAIN}/kiali"
     deployment:
       service_type: ClusterIP
       pod_annotations:
