@@ -94,6 +94,7 @@ spec:
           RateLimitOptions__WindowInSeconds: "10"
           RateLimitOptions__RejectionStatusCode: "429"
           CacheOptions__DefaultExpirationMinutes: "5"
+          ReadOnlyMode__Enabled: "true"
           CompetitionDeactivation__Interval: "1.00:00:00"
           CompetitionDeactivation__InitialDelay: "00:00:30"
           FeatureManagement__BjjEvents: "true"

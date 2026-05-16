@@ -7,7 +7,7 @@ metadata:
 spec:
   interval: 10m
   timeout: 30m
-  path: ./kubernetes/apps/overlays/aks-bjjeire-tst-swn-01
+  path: ./kubernetes/apps/overlays/aks-bjjeire-stg-swn-01
   prune: true
   sourceRef:
     kind: GitRepository

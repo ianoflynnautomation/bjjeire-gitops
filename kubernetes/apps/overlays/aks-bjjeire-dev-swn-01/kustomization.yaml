@@ -3,7 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  # - ../../base/actions-runner-system
+  - ../../base/actions-runner-system
   - ../../base/external-secrets
   - ../../base/istio-egress
   - ../../base/istio-ingress
@@ -12,9 +12,10 @@ resources:
   - ../../base/flux-system/repositories
   - ../../base/network-system
   - ../../base/bjj-eire
+  - ../../base/pr-env-janitor
   - ../../base/external-secrets/external-secrets/ks.yaml
-  # - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
-  # - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
+  - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
+  - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
   - ../../base/flux-system/flux-instance/ks.yaml
   - ../../base/network-system/external-dns/ks.yaml
   - ../../base/network-system/cert-manager/ks.yaml
@@ -34,6 +35,7 @@ resources:
   - ../../base/istio-egress/config/ks.yaml
   - ../../base/istio-system/policy/ks.yaml
   - ../../base/bjj-eire/ks.yaml
+  - ../../base/pr-env-janitor/ks.yaml
 
 patches:
   - target:
@@ -44,4 +46,4 @@ patches:
     patch: |
       - op: replace
         path: /spec/path
-        value: ./kubernetes/apps/overlays/aks-bjjeire-prod-swn-01/bjj-eire
+        value: ./kubernetes/apps/overlays/aks-bjjeire-dev-swn-01/bjj-eire

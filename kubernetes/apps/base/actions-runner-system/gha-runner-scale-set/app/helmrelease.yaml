@@ -43,7 +43,7 @@ spec:
     runnerScaleSetName: gha-runner-scale-set
     githubConfigSecret: github-app-secret
     githubConfigUrl: https://github.com/ianoflynnautomation/gitops-flux-github-runners
-    maxRunners: 5
+    maxRunners: 25
     minRunners: 0
     controllerServiceAccount:
       name: gha-runner-scale-set-controller
