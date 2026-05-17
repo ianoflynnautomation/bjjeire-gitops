@@ -75,6 +75,15 @@ spec:
         imagePullSecrets:
           - name: ghcr-pull-secret
         replicaCount: 2
+        podSecurityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          fsGroup: 1000
+          seccompProfile:
+            type: RuntimeDefault
+          sysctls:
+            - name: net.ipv4.ip_unprivileged_port_start
+              value: "0"
         podAnnotations:
           prometheus.io/scrape: "true"
           prometheus.io/path: "/metrics"
@@ -136,6 +145,15 @@ spec:
         imagePullSecrets:
           - name: ghcr-pull-secret
         replicaCount: 2
+        podSecurityContext:
+          runAsNonRoot: true
+          runAsUser: 101
+          fsGroup: 101
+          seccompProfile:
+            type: RuntimeDefault
+          sysctls:
+            - name: net.ipv4.ip_unprivileged_port_start
+              value: "0"
         podAnnotations:
           prometheus.io/scrape: "true"
           prometheus.io/path: "/metrics"
