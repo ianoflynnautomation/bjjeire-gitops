@@ -4,6 +4,7 @@ kind: Kustomization
 
 resources:
   # - grafanadashboard.yaml  # Disabled - requires GrafanaDashboard CRD from grafana-operator
+  - dnsendpoint-crd.yaml
   - helmrelease.yaml
   - ocirepository.yaml
   - caa-records.yaml
