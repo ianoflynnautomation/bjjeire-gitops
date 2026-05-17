@@ -1,13 +1,15 @@
 ---
-# Commits updated image tags to a dedicated branch (flux/image-updates) whenever an
-# ImagePolicy selects a new tag. A PR from that branch into main is then reviewed before
-# merging — preventing Flux from committing directly to the protected main branch.
-# The markers in helmrelease.yaml — # {"$imagepolicy": "bjj-app:bjjeire-api:tag"} —
-# tell Flux which field to rewrite.
+# Commits updated image tags directly to main whenever an ImagePolicy
+# selects a new tag. The markers in helmrelease.yaml —
+# # {"$imagepolicy": "bjj-app:bjjeire-api:tag"} — tell Flux which field
+# to rewrite.
 #
 # Requires the flux-system GitRepository to have write access to the repo
-# (deploy key or GitHub App with contents:write).
-# Set up a branch protection rule: require a PR for main, exempt flux bot from push.
+# (GitHub App with contents:write).
+#
+# If you later want PR-review on tag bumps:
+#   push.branch: flux/image-updates
+# and add branch protection on main that requires a PR.
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
 metadata:
@@ -36,7 +38,7 @@ spec:
         {{ end -}}
         {{ end -}}
     push:
-      branch: flux/image-updates
+      branch: main
   update:
     path: "./kubernetes/apps/base/bjj-eire/app"
     strategy: Setters
