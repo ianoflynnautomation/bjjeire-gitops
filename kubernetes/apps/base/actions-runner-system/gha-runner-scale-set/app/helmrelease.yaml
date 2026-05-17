@@ -33,7 +33,7 @@ spec:
   uninstall:
     keepHistory: false
   driftDetection:
-    mode: enabled
+    mode: warn
   maxHistory: 3
   dependsOn:
     - name: gha-runner-scale-set-controller
