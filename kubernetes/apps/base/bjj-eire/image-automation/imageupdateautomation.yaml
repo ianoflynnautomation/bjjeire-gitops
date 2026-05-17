@@ -30,9 +30,11 @@ spec:
       messageTemplate: |
         chore(flux): update bjj-eire image tags
 
-        {{range .Updated.Images -}}
-        - {{.}}
-        {{end -}}
+        {{ range $resource, $changes := .Changed.Objects -}}
+        {{ range $changes -}}
+        - {{ $resource.Kind }}/{{ $resource.Name }}: {{ .OldValue }} -> {{ .NewValue }}
+        {{ end -}}
+        {{ end -}}
     push:
       branch: flux/image-updates
   update:
