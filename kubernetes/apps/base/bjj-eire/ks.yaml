@@ -40,5 +40,5 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: bjj-eire
+    - name: external-secrets-cluster-secrets
   targetNamespace: bjj-app
