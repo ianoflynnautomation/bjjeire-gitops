@@ -34,6 +34,8 @@ spec:
     mode: enabled
   maxHistory: 3
   values:
+    image:
+      repository: otel/opentelemetry-collector-contrib
     mode: deployment
     replicaCount: 1
 
