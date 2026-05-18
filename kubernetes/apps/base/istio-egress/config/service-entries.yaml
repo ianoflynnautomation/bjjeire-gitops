@@ -126,21 +126,3 @@ spec:
       name: https
       protocol: TLS
   resolution: DNS
----
-apiVersion: networking.istio.io/v1
-kind: ServiceEntry
-metadata:
-  name: external-dns-resolvers
-  namespace: istio-system
-spec:
-  hosts:
-    - external-dns-resolvers.internal
-  addresses:
-    - 1.1.1.1/32
-    - 8.8.8.8/32
-  location: MESH_EXTERNAL
-  ports:
-    - number: 53
-      name: dns
-      protocol: TCP
-  resolution: NONE

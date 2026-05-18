@@ -22,14 +22,14 @@ spec:
       hostname: "*.${CLUSTER_DOMAIN}"
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
     - name: http-root
       port: 80
       protocol: HTTP
       hostname: "${CLUSTER_DOMAIN}"
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
     - name: https-wildcard
       port: 443
       protocol: HTTPS
