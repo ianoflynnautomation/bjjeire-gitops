@@ -1,0 +1,23 @@
+---
+apiVersion: kyverno.io/v2
+kind: ClusterCleanupPolicy
+metadata:
+  name: pr-env-namespaces
+spec:
+  match:
+    any:
+      - resources:
+          kinds:
+            - Namespace
+          selector:
+            matchLabels:
+              bjjeire.io/pr-env: "true"
+  conditions:
+    all:
+      - key: "{{ regex_match('^pr-[0-9]+$', '{{target.metadata.name}}') }}"
+        operator: Equals
+        value: true
+      - key: "{{ time_diff('{{target.metadata.creationTimestamp}}', time_now_utc('')) }}"
+        operator: GreaterThanOrEquals
+        value: "{{ target.metadata.annotations.\"janitor/ttl\" || '2h' }}"
+  schedule: "*/15 * * * *"
