@@ -14,4 +14,4 @@ patches:
       - op: replace
         path: /spec/ref
         value:
-          tag: "0.1.8"
+          tag: "0.1.9"

@@ -181,11 +181,13 @@ spec:
       ingress:
         enabled: false
     seeder:
-      enabled: false
+      enabled: true
       image:
         repository: ghcr.io/ianoflynnautomation/bjjeire-seeder
         tag: v0.1.11 # {"$imagepolicy": "bjj-app:bjjeire-seeder:tag"}
         pullPolicy: IfNotPresent
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       hookPolicy: "post-install,post-upgrade"
       mongodb:
         host: bjj-mongodb
