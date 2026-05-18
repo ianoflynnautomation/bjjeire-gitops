@@ -70,7 +70,7 @@ spec:
       api:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-api
-          tag: v0.1.11 # {"$imagepolicy": "bjj-app:bjjeire-api:tag"}
+          tag: v0.1.11
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
@@ -140,7 +140,7 @@ spec:
       frontend:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-frontend
-          tag: v0.1.21 # {"$imagepolicy": "bjj-app:bjjeire-frontend:tag"}
+          tag: v0.1.21
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
@@ -184,7 +184,7 @@ spec:
       enabled: true
       image:
         repository: ghcr.io/ianoflynnautomation/bjjeire-seeder
-        tag: v0.1.11 # {"$imagepolicy": "bjj-app:bjjeire-seeder:tag"}
+        tag: v0.1.11
         pullPolicy: IfNotPresent
       imagePullSecrets:
         - name: ghcr-pull-secret

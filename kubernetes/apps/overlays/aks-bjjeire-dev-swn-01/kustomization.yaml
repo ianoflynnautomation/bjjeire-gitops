@@ -35,6 +35,7 @@ resources:
   - ../../base/istio-egress/config/ks.yaml
   - ../../base/istio-system/policy/ks.yaml
   - ../../base/bjj-eire/ks.yaml
+  - ../../base/bjj-eire/image-automation/ks.yaml
   - ../../base/pr-env-janitor/ks.yaml
 
 patches:

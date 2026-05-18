@@ -15,3 +15,7 @@ patches:
         path: /spec/ref
         value:
           tag: "0.1.7"
+  - path: helmrelease-images.yaml
+    target:
+      kind: HelmRelease
+      name: bjj-eire

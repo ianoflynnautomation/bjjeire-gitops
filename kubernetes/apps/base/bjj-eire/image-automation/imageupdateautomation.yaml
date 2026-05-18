@@ -1,15 +1,4 @@
 ---
-# Commits updated image tags directly to main whenever an ImagePolicy
-# selects a new tag. The markers in helmrelease.yaml —
-# # {"$imagepolicy": "bjj-app:bjjeire-api:tag"} — tell Flux which field
-# to rewrite.
-#
-# Requires the flux-system GitRepository to have write access to the repo
-# (GitHub App with contents:write).
-#
-# If you later want PR-review on tag bumps:
-#   push.branch: flux/image-updates
-# and add branch protection on main that requires a PR.
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
 metadata:
@@ -30,7 +19,7 @@ spec:
         email: fluxbot@users.noreply.github.com
         name: Flux Bot
       messageTemplate: |
-        chore(flux): update bjj-eire image tags
+        chore(flux): update bjj-eire image tags (${CLUSTER_ID})
 
         {{ range $resource, $changes := .Changed.Objects -}}
         {{ range $changes -}}
@@ -40,5 +29,5 @@ spec:
     push:
       branch: main
   update:
-    path: "./kubernetes/apps/base/bjj-eire/app"
+    path: "./kubernetes/apps/overlays/${CLUSTER_ID}/bjj-eire"
     strategy: Setters

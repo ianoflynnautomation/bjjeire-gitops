@@ -1,0 +1,19 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bjj-eire
+  namespace: bjj-app
+spec:
+  values:
+    bjj-api:
+      api:
+        image:
+          tag: v0.1.11
+    bjj-frontend:
+      frontend:
+        image:
+          tag: v0.1.21
+    seeder:
+      image:
+        tag: v0.1.11

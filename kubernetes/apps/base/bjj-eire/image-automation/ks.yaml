@@ -2,20 +2,20 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: bjj-eire
+  name: bjj-eire-image-automation
   namespace: flux-system
 spec:
   interval: 30m
   retryInterval: 1m
-  timeout: 10m
-  path: "./kubernetes/apps/base/bjj-eire/app"
+  timeout: 5m
+  path: "./kubernetes/apps/base/bjj-eire/image-automation"
   prune: true
   wait: true
   sourceRef:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: external-secrets-stores
+    - name: external-secrets-cluster-secrets
   targetNamespace: bjj-app
   postBuild:
     substituteFrom:
