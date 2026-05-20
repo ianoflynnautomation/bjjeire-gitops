@@ -12,3 +12,5 @@ resources:
   - servicemonitor.yaml
   - grafanadashboard.yaml
   - request-authentication.yaml
+
+  
