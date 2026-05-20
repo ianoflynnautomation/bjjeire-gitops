@@ -16,6 +16,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: external-secrets-stores
+    - name: grafana
   targetNamespace: bjj-app
   postBuild:
     substituteFrom:
