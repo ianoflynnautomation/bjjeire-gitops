@@ -1,11 +1,4 @@
 ---
-# Mesh-layer verification of Entra (Azure AD) v2 access tokens for bjj-api.
-# Validates signature + issuer at the sidecar. Invalid/expired JWTs are
-# rejected before reaching the application; absent JWTs pass through (the
-# app handles unauthenticated requests itself). Audience is enforced in-app.
-#
-# To require authentication at the mesh, add an AuthorizationPolicy that
-# denies sources with notRequestPrincipals: ["*"] for non-public paths.
 apiVersion: security.istio.io/v1
 kind: RequestAuthentication
 metadata:

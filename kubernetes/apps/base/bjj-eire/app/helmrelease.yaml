@@ -182,7 +182,7 @@ spec:
       ingress:
         enabled: false
     seeder:
-      enabled: true
+      enabled: false
       image:
         repository: ghcr.io/ianoflynnautomation/bjjeire-seeder
         tag: v0.1.11

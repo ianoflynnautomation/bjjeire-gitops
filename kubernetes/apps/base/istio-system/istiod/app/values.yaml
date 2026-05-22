@@ -60,17 +60,14 @@ sidecarInjectorWebhook:
 meshConfig:
   accessLogFile: /dev/stdout
   accessLogEncoding: JSON
-  # enableTracing: true  # Disabled - no Jaeger deployment yet
   enableAutoMtls: true
   trustDomain: cluster.local
   rootNamespace: istio-system
 
   defaultConfig:
     holdApplicationUntilProxyStarts: true
-    # tracing:
-    #   sampling: 100
-    #   zipkin:
-    #     address: jaeger-collector.observability.svc.cluster.local:9411
+    gatewayTopology:
+      numTrustedProxies: 1
 
   outboundTrafficPolicy:
     mode: REGISTRY_ONLY
