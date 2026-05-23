@@ -79,6 +79,20 @@ patches:
               metadata:
                 name: cert-manager-rules
                 namespace: network-system
+          - target:
+              kind: HelmRelease
+              name: cert-manager
+            patch: |
+              apiVersion: helm.toolkit.fluxcd.io/v2
+              kind: HelmRelease
+              metadata:
+                name: cert-manager
+                namespace: network-system
+              spec:
+                values:
+                  prometheus:
+                    servicemonitor:
+                      enabled: false
 
   - target:
       group: kustomize.toolkit.fluxcd.io

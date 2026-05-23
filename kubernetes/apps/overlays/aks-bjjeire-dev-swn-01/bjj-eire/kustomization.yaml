@@ -23,3 +23,21 @@ patches:
     target:
       kind: HelmRelease
       name: bjj-eire
+  - patch: |
+      $patch: delete
+      apiVersion: grafana.integreatly.org/v1beta1
+      kind: GrafanaDashboard
+      metadata:
+        name: bjj-eire-api
+        namespace: bjj-app
+    target:
+      kind: GrafanaDashboard
+  - patch: |
+      $patch: delete
+      apiVersion: monitoring.coreos.com/v1
+      kind: ServiceMonitor
+      metadata:
+        name: bjj-api
+        namespace: bjj-app
+    target:
+      kind: ServiceMonitor
