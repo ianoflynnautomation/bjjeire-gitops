@@ -39,3 +39,8 @@ spec:
     name: flux-system
   dependsOn:
     - name: kyverno
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+        optional: false
