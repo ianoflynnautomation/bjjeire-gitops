@@ -51,3 +51,85 @@ patches:
       - op: replace
         path: /spec/path
         value: ./kubernetes/apps/overlays/aks-bjjeire-dev-swn-01/bjj-eire
+      - op: replace
+        path: /spec/dependsOn
+        value:
+          - name: external-secrets-stores
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: cert-manager
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: cert-manager
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: PrometheusRule
+              name: cert-manager-rules
+            patch: |
+              $patch: delete
+              apiVersion: monitoring.coreos.com/v1
+              kind: PrometheusRule
+              metadata:
+                name: cert-manager-rules
+                namespace: network-system
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: istio-policies
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: istio-policies
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-ingress-to-grafana
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-ingress-to-grafana
+                namespace: observability
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-ingress-to-prometheus
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-ingress-to-prometheus
+                namespace: observability
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-ingress-to-kiali
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-ingress-to-kiali
+                namespace: observability
+          - target:
+              kind: AuthorizationPolicy
+              name: require-entra-auth-observability
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: require-entra-auth-observability
+                namespace: istio-ingress
