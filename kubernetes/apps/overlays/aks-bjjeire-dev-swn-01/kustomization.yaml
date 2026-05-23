@@ -97,6 +97,33 @@ patches:
   - target:
       group: kustomize.toolkit.fluxcd.io
       kind: Kustomization
+      name: external-dns
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: external-dns
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: HelmRelease
+              name: external-dns
+            patch: |
+              apiVersion: helm.toolkit.fluxcd.io/v2
+              kind: HelmRelease
+              metadata:
+                name: external-dns
+                namespace: network-system
+              spec:
+                values:
+                  serviceMonitor:
+                    enabled: false
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
       name: istio-policies
       namespace: flux-system
     patch: |
