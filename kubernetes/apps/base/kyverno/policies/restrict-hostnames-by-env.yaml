@@ -1,0 +1,45 @@
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-hostnames-by-env
+  annotations:
+    policies.kyverno.io/title: Restrict HTTPRoute hostnames per environment
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      Dev/staging clusters must never claim the public production hostnames.
+      Each cluster only allows HTTPRoute hostnames that match its
+      ${CLUSTER_DOMAIN} suffix.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: hostnames-must-match-cluster-domain
+      match:
+        any:
+          - resources:
+              kinds:
+                - HTTPRoute
+              namespaces:
+                - bjj-app
+                - istio-ingress
+                - observability
+      validate:
+        message: >-
+          HTTPRoute hostname must end in "${CLUSTER_DOMAIN}". This blocks dev
+          clusters from claiming the public production hostname.
+        foreach:
+          - list: request.object.spec.hostnames
+            deny:
+              conditions:
+                all:
+                  - key: "{{ element }}"
+                    operator: NotEquals
+                    value: "${CLUSTER_DOMAIN}"
+                  - key: "{{ element }}"
+                    operator: NotEquals
+                    value: "www.${CLUSTER_DOMAIN}"
+                  - key: "{{ regex_match('^[a-zA-Z0-9-]+\\.${CLUSTER_DOMAIN}$', '{{ element }}') }}"
+                    operator: Equals
+                    value: false

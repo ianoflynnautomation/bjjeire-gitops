@@ -8,7 +8,8 @@ resources:
   - ../../base/istio-egress
   - ../../base/istio-ingress
   - ../../base/istio-system
-  - ../../base/observability
+  # Observability stack disabled in dev for cost. Re-enable for incident replay.
+  # - ../../base/observability
   - ../../base/flux-system/repositories
   - ../../base/network-system
   - ../../base/bjj-eire
@@ -16,20 +17,23 @@ resources:
   - ../../base/external-secrets/external-secrets/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
-  - ../../base/flux-system/flux-instance/ks.yaml
+  # flux-instance-extras dependsOn grafana + kube-prometheus-stack; disabled in dev.
+  # - ../../base/flux-system/flux-instance/ks.yaml
   - ../../base/network-system/external-dns/ks.yaml
   - ../../base/network-system/cert-manager/ks.yaml
-  - ../../base/observability/grafana/ks.yaml
-  - ../../base/observability/kube-prometheus-stack/ks.yaml
+  # Cloudflare Tunnel is dev's only ingress — no public Azure LB.
+  - ../../base/network-system/cloudflare-tunnel/ks.yaml
+  # - ../../base/observability/grafana/ks.yaml
+  # - ../../base/observability/kube-prometheus-stack/ks.yaml
   # - ../../base/observability/kiali/ks.yaml
-  - ../../base/observability/oauth2-proxy/ks.yaml
-  - ../../base/observability/opentelemetry-collector/ks.yaml
-  - ../../base/observability/routes/ks.yaml
+  # - ../../base/observability/oauth2-proxy/ks.yaml
+  # - ../../base/observability/opentelemetry-collector/ks.yaml
+  # - ../../base/observability/routes/ks.yaml
   - ../../base/istio-system/istio-base/k8.yaml
   - ../../base/istio-system/gateway-api/k8.yaml
   - ../../base/istio-system/istio-cni/k8.yaml
   - ../../base/istio-system/istiod/k8.yaml
-  - ../../base/istio-system/monitoring/ks.yaml
+  # - ../../base/istio-system/monitoring/ks.yaml
   - ../../base/istio-ingress/config/ks.yaml
   - ../../base/istio-egress/config/ks.yaml
   - ../../base/istio-system/policy/ks.yaml

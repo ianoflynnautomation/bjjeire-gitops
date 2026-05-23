@@ -19,6 +19,7 @@ resources:
   - ../../base/flux-system/flux-instance/ks.yaml
   - ../../base/network-system/external-dns/ks.yaml
   - ../../base/network-system/cert-manager/ks.yaml
+  - ../../base/network-system/cloudflare-tunnel/ks.yaml
   - ../../base/observability/grafana/ks.yaml
   - ../../base/observability/kube-prometheus-stack/ks.yaml
   # - ../../base/observability/kiali/ks.yaml

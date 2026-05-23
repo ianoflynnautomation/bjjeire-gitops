@@ -19,3 +19,7 @@ patches:
     target:
       kind: HelmRelease
       name: bjj-eire
+  - path: helmrelease-dev-values.yaml
+    target:
+      kind: HelmRelease
+      name: bjj-eire

@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - cleanup-controller-rbac.yaml
   - pr-env-cleanup.yaml
+  - restrict-hostnames-by-env.yaml
