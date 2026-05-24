@@ -17,7 +17,6 @@ resources:
   - ../../base/external-secrets/external-secrets/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
   - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
-  # flux-instance-extras dependsOn grafana + kube-prometheus-stack; disabled in dev.
   # - ../../base/flux-system/flux-instance/ks.yaml
   - ../../base/network-system/external-dns/ks.yaml
   - ../../base/network-system/cert-manager/ks.yaml

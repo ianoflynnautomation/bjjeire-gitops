@@ -24,6 +24,8 @@ spec:
         env:
           ASPNETCORE_ENVIRONMENT: Staging
           OTEL_RESOURCE_ATTRIBUTES__deployment.environment: staging
+          RateLimitOptions__PermitLimit: "30"
+          RateLimitOptions__WindowInSeconds: "10"
         resources:
           limits:
             cpu: 500m
