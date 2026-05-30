@@ -22,7 +22,7 @@ spec:
               kinds:
                 - HTTPRoute
               namespaces:
-                - bjj-app
+                - bjjeire-app
                 - istio-ingress
                 - observability
       validate:

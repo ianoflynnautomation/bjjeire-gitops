@@ -3,7 +3,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
   name: bjjeire-api
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   image: ghcr.io/ianoflynnautomation/bjjeire-api
   interval: 5m
@@ -15,7 +15,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
   name: bjjeire-frontend
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   image: ghcr.io/ianoflynnautomation/bjjeire-frontend
   interval: 5m
@@ -27,7 +27,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
   name: bjjeire-seeder
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   image: ghcr.io/ianoflynnautomation/bjjeire-seeder
   interval: 5m

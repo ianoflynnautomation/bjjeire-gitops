@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: bjj-eire
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   interval: 15m
   chartRef:
@@ -75,6 +75,11 @@ spec:
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
+        serviceAccount:
+          create: true
+          name: bjjeire-api
+          annotations:
+            azure.workload.identity/client-id: "${API_CLIENT_ID}"
         replicaCount: 2
         podSecurityContext:
           runAsNonRoot: true
@@ -89,6 +94,8 @@ spec:
           prometheus.io/scrape: "true"
           prometheus.io/path: "/metrics"
           prometheus.io/port: "80"
+        podLabels:
+          azure.workload.identity/use: "true"
         env:
           ASPNETCORE_ENVIRONMENT: Production
           ASPNETCORE_URLS: "http://+:80"
@@ -162,7 +169,7 @@ spec:
         env:
           NODE_ENV: production
           PORT: "80"
-          SERVICES_API_HTTP_0: "http://bjj-api.bjj-app.svc.cluster.local:80"
+          SERVICES_API_HTTP_0: "http://bjj-api.bjjeire.svc.cluster.local:80"
         resources:
           limits:
             cpu: 500m
@@ -178,7 +185,7 @@ spec:
           targetMemoryUtilizationPercentage: 80
         waitForApi:
           enabled: true
-          apiUrl: "http://bjj-api.bjj-app.svc.cluster.local:80/health"
+          apiUrl: "http://bjj-api.bjjeire.svc.cluster.local:80/health"
       ingress:
         enabled: false
     seeder:
@@ -189,6 +196,13 @@ spec:
         pullPolicy: IfNotPresent
       imagePullSecrets:
         - name: ghcr-pull-secret
+      serviceAccount:
+        create: true
+        name: bjjeire-seeder
+        annotations:
+          azure.workload.identity/client-id: "${SEEDER_CLIENT_ID}"
+      podLabels:
+        azure.workload.identity/use: "true"
       hookPolicy: "post-install,post-upgrade"
       mongodb:
         host: bjj-mongodb

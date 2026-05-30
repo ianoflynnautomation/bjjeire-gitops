@@ -3,7 +3,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: bjj-api
-  namespace: bjj-app
+  namespace: bjjeire-app
   labels:
     app.kubernetes.io/name: bjj-api
     app.kubernetes.io/part-of: bjj-eire
@@ -14,7 +14,7 @@ spec:
       app.kubernetes.io/name: bjj-api
   namespaceSelector:
     matchNames:
-      - bjj-app
+      - bjjeire-app
   endpoints:
     - port: http
       path: /metrics

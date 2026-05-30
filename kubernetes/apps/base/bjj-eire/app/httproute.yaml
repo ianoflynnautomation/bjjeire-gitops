@@ -3,7 +3,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: bjj-frontend-root
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   parentRefs:
     - name: istio-ingressgateway
@@ -25,7 +25,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: bjj-frontend-www
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   parentRefs:
     - name: istio-ingressgateway
@@ -47,7 +47,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: bjj-api
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   parentRefs:
     - name: istio-ingressgateway

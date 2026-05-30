@@ -3,7 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-all
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector: {}
   policyTypes:
@@ -15,7 +15,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-dns-egress
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector: {}
   policyTypes:
@@ -36,7 +36,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-frontend-ingress-from-gateway
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector:
     matchLabels:
@@ -59,7 +59,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-api-ingress-from-gateway-and-frontend
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector:
     matchLabels:
@@ -85,7 +85,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-mongodb-ingress-from-api
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector:
     matchLabels:
@@ -109,7 +109,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-frontend-egress-to-api
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector:
     matchLabels:
@@ -132,7 +132,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-api-egress-to-mongodb
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector:
     matchLabels:
@@ -153,7 +153,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-api-egress-internet
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector:
     matchLabels:
@@ -178,7 +178,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-metrics-ingress-from-monitoring
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   podSelector: {}
   policyTypes:

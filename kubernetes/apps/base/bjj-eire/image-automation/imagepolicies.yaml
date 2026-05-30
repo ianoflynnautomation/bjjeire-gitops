@@ -3,11 +3,11 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
   name: bjjeire-api
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   imageRepositoryRef:
     name: bjjeire-api
-    namespace: bjj-app
+    namespace: bjjeire-app
   filterTags:
     pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
     extract: "$version"
@@ -20,11 +20,11 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
   name: bjjeire-frontend
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   imageRepositoryRef:
     name: bjjeire-frontend
-    namespace: bjj-app
+    namespace: bjjeire-app
   filterTags:
     pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
     extract: "$version"
@@ -37,11 +37,11 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
   name: bjjeire-seeder
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   imageRepositoryRef:
     name: bjjeire-seeder
-    namespace: bjj-app
+    namespace: bjjeire-app
   filterTags:
     pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
     extract: "$version"

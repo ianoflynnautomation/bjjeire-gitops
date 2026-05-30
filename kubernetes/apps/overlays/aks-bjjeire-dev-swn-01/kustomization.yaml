@@ -8,7 +8,7 @@ resources:
   - ../../base/istio-egress
   - ../../base/istio-ingress
   - ../../base/istio-system
-  # Observability stack disabled in dev for cost. Re-enable for incident replay.
+  # Observability stack disabled in dev for cost.
   # - ../../base/observability
   - ../../base/flux-system/repositories
   - ../../base/network-system

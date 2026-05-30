@@ -3,7 +3,7 @@ apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: bjj-eire-api
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   allowCrossNamespaceImport: true
   instanceSelector:
@@ -33,7 +33,7 @@ spec:
             "name": "namespace",
             "label": "Namespace",
             "type": "constant",
-            "query": "bjj-app",
+            "query": "bjjeire-app",
             "hide": 2
           },
           {

@@ -40,15 +40,12 @@ spec:
     mode: enabled
   maxHistory: 3
   values:
+    # Auth is handled by oauth2-proxy in front of Kiali (same pattern as
+    # grafana / prometheus). Kiali itself runs anonymous; the oauth2-proxy
+    # ingress enforces Entra group membership before traffic ever reaches
+    # Kiali.
     auth:
-      strategy: openid
-      openid:
-        client_id: "${KIALI_CLIENT_ID}"
-        issuer_uri: "https://login.microsoftonline.com/${TENANT_ID}/v2.0"
-        username_claim: preferred_username
-        disable_rbac: true
-        authentication_timeout: 300
-        redirect_uri: "https://kiali.${CLUSTER_DOMAIN}/kiali"
+      strategy: anonymous
     deployment:
       service_type: ClusterIP
       pod_annotations:

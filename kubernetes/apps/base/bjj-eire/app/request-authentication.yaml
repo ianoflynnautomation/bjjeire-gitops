@@ -3,7 +3,7 @@ apiVersion: security.istio.io/v1
 kind: RequestAuthentication
 metadata:
   name: bjj-api-entra-jwt
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   selector:
     matchLabels:

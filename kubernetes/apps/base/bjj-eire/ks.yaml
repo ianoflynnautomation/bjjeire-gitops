@@ -17,9 +17,12 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: grafana
-  targetNamespace: bjj-app
+  targetNamespace: bjjeire-app
   postBuild:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
+        optional: false
+      - kind: ConfigMap
+        name: workload-identity-config
         optional: false

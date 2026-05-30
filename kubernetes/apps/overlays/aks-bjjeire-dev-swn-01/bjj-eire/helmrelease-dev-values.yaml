@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: bjj-eire
-  namespace: bjj-app
+  namespace: bjjeire-app
 spec:
   values:
     bjj-mongodb:

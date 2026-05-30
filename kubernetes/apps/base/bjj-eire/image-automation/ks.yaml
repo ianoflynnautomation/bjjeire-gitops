@@ -16,7 +16,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: external-secrets-cluster-secrets
-  targetNamespace: bjj-app
+  targetNamespace: bjjeire-app
   postBuild:
     substituteFrom:
       - kind: ConfigMap
