@@ -11,4 +11,31 @@ spec:
   jwtRules:
     - issuer: "https://login.microsoftonline.com/${TENANT_ID}/v2.0"
       jwksUri: "https://login.microsoftonline.com/${TENANT_ID}/discovery/v2.0/keys"
+      audiences:
+        - "${API_AUDIENCE}"
+        - "${API_CLIENT_ID}"
       forwardOriginalToken: true
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: bjj-api-require-entra-jwt
+  namespace: bjjeire-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      when:
+        - key: request.auth.claims[scp]
+          values: ["access_as_user"]
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      when:
+        - key: request.auth.claims[roles]
+          values: ["Tests.Invoke"]
