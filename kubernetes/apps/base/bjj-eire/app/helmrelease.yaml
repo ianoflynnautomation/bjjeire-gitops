@@ -169,7 +169,7 @@ spec:
         env:
           NODE_ENV: production
           PORT: "80"
-          SERVICES_API_HTTP_0: "http://bjj-api.bjjeire.svc.cluster.local:80"
+          SERVICES_API_HTTP_0: "http://bjj-api.bjjeire-app.svc.cluster.local:80"
         resources:
           limits:
             cpu: 500m
@@ -185,7 +185,7 @@ spec:
           targetMemoryUtilizationPercentage: 80
         waitForApi:
           enabled: true
-          apiUrl: "http://bjj-api.bjjeire.svc.cluster.local:80/health"
+          apiUrl: "http://bjj-api.bjjeire-app.svc.cluster.local:80/health"
       ingress:
         enabled: false
     seeder:
