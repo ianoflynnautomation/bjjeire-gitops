@@ -38,6 +38,6 @@ patches:
       kind: ServiceMonitor
       metadata:
         name: bjj-api
-        namespace: bjjeire
+        namespace: bjjeire-app
     target:
       kind: ServiceMonitor
