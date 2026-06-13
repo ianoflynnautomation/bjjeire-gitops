@@ -60,8 +60,7 @@ spec:
         labels:
           azure.workload.identity/use: "true"
       spec:
-        serviceAccountAnnotations:
-          azure.workload.identity/client-id: "${TESTS_RUNNER_CLIENT_ID}"
+        serviceAccountName: gha-runner-sa
         nodeSelector:
           workload: "gha-runner"
         tolerations:
