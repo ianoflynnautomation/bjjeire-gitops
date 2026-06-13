@@ -16,8 +16,8 @@ spec:
     # api-<env_id>.<root>, etc. Issued via DNS-01.
     - "*.${ROOT_DOMAIN}"
     - "${ROOT_DOMAIN}"
-    # Legacy two-level pair kept during the cutover so existing HTTPRoutes
-    # on api.${CLUSTER_DOMAIN} / *.${CLUSTER_DOMAIN} keep working. Drop once
-    # nothing routes through these hostnames any more.
+    # Two-level wildcard kept during the cutover so existing HTTPRoutes
+    # on *.${CLUSTER_DOMAIN} keep working. Drop once nothing routes through
+    # these hostnames any more. ${CLUSTER_DOMAIN} itself is omitted — Let's
+    # Encrypt rejects it as redundant with *.${ROOT_DOMAIN}.
     - "*.${CLUSTER_DOMAIN}"
-    - "${CLUSTER_DOMAIN}"
