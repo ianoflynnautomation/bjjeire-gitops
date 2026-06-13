@@ -56,7 +56,12 @@ spec:
           requests:
             storage: 1Gi
     template:
+      metadata:
+        labels:
+          azure.workload.identity/use: "true"
       spec:
+        serviceAccountAnnotations:
+          azure.workload.identity/client-id: "${TESTS_RUNNER_CLIENT_ID}"
         nodeSelector:
           workload: "gha-runner"
         tolerations:

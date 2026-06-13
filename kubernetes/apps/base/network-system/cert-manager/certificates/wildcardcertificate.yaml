@@ -11,5 +11,13 @@ spec:
     kind: ClusterIssuer
     group: cert-manager.io
   dnsNames:
+    # Single-level wildcard under the root zone covers everything the
+    # convention emits: <env>.<root>, api-<env>.<root>, <env_id>.<root>,
+    # api-<env_id>.<root>, etc. Issued via DNS-01.
+    - "*.${ROOT_DOMAIN}"
+    - "${ROOT_DOMAIN}"
+    # Legacy two-level pair kept during the cutover so existing HTTPRoutes
+    # on api.${CLUSTER_DOMAIN} / *.${CLUSTER_DOMAIN} keep working. Drop once
+    # nothing routes through these hostnames any more.
     - "*.${CLUSTER_DOMAIN}"
     - "${CLUSTER_DOMAIN}"
