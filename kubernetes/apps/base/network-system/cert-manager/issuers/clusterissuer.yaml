@@ -16,8 +16,12 @@ spec:
               name: cloudflare-api-token
               key: CLOUDFLARE_API_TOKEN
         selector:
+          # ${ROOT_DOMAIN} (e.g. bjjeire.com) covers itself and every subdomain
+          # — including *.${ROOT_DOMAIN} and *.${CLUSTER_DOMAIN} — so a single
+          # Cloudflare solver handles the wildcard cert. Requires the Cloudflare
+          # API token to have Zone.DNS:Edit on ${ROOT_DOMAIN}.
           dnsZones:
-            - ${CLUSTER_DOMAIN}
+            - ${ROOT_DOMAIN}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -36,5 +40,9 @@ spec:
               name: cloudflare-api-token
               key: CLOUDFLARE_API_TOKEN
         selector:
+          # ${ROOT_DOMAIN} (e.g. bjjeire.com) covers itself and every subdomain
+          # — including *.${ROOT_DOMAIN} and *.${CLUSTER_DOMAIN} — so a single
+          # Cloudflare solver handles the wildcard cert. Requires the Cloudflare
+          # API token to have Zone.DNS:Edit on ${ROOT_DOMAIN}.
           dnsZones:
-            - ${CLUSTER_DOMAIN}
+            - ${ROOT_DOMAIN}
