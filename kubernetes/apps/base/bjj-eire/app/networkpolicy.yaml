@@ -100,6 +100,10 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: bjjeire-seeder
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-mongodb
+              app.kubernetes.io/component: exporter
       ports:
         - protocol: TCP
           port: 27017
@@ -198,14 +202,64 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-metrics-ingress-from-monitoring
+  name: allow-api-metrics-ingress-from-observability
   namespace: bjjeire-app
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-api
   policyTypes:
     - Ingress
   ingress:
     - from:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: monitoring
+              kubernetes.io/metadata.name: observability
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-mongodb-exporter-egress
+  namespace: bjjeire-app
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-mongodb
+      app.kubernetes.io/component: exporter
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-mongodb
+              app.kubernetes.io/component: mongodb
+      ports:
+        - protocol: TCP
+          port: 27017
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-mongodb-metrics-ingress-from-observability
+  namespace: bjjeire-app
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-mongodb
+      app.kubernetes.io/component: exporter
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - protocol: TCP
+          port: 9216
