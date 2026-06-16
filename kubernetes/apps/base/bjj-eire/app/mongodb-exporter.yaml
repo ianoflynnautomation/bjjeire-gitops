@@ -92,4 +92,3 @@ spec:
       port: 9216
       targetPort: metrics
       protocol: TCP
-

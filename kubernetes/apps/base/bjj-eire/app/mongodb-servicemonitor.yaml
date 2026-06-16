@@ -26,4 +26,3 @@ spec:
           targetLabel: namespace
         - sourceLabels: [__meta_kubernetes_pod_name]
           targetLabel: pod
-

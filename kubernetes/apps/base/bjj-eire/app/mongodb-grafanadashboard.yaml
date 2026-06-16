@@ -1,3 +1,4 @@
+---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
@@ -135,7 +136,7 @@ spec:
           },
           "targets": [
             {
-              "expr": "max(mongodb_mongod_wiredtiger_cache_bytes{namespace=\"$namespace\",job=\"$job\",type=\"total\"}) / max(mongodb_mongod_wiredtiger_cache_max_bytes{namespace=\"$namespace\",job=\"$job\"})",
+              "expr": "mongodb_mongod_wiredtiger_cache_bytes{namespace=\"$namespace\",job=\"$job\",type=\"total\"}/mongodb_mongod_wiredtiger_cache_max_bytes{namespace=\"$namespace\",job=\"$job\"}",
               "refId": "A"
             }
           ],

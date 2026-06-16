@@ -79,4 +79,3 @@ spec:
           annotations:
             summary: BJJ MongoDB WiredTiger cache is above 80%
             description: WiredTiger cache usage has remained above 80% for ten minutes.
-
