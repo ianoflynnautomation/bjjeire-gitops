@@ -71,7 +71,7 @@ spec:
       api:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-api
-          tag: v0.1.11
+          tag: v0.1.13
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
