@@ -41,3 +41,12 @@ patches:
         namespace: bjjeire-app
     target:
       kind: ServiceMonitor
+  - patch: |
+      $patch: delete
+      apiVersion: monitoring.coreos.com/v1
+      kind: PrometheusRule
+      metadata:
+        name: bjj-mongodb
+        namespace: bjjeire-app
+    target:
+      kind: PrometheusRule
