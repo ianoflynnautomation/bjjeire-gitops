@@ -73,17 +73,19 @@ jobs:
         with:
           args: >-
             config
+            --skip-version-check
             --exit-code 1
             --severity HIGH,CRITICAL
             --format table
             rendered
 
       - name: Trivy SARIF report
-        if: always()
+        if: success() && hashFiles('rendered/*.yaml') != ''
         uses: docker://aquasec/trivy:0.70.0
         with:
           args: >-
             config
+            --skip-version-check
             --exit-code 0
             --severity HIGH,CRITICAL
             --format sarif
