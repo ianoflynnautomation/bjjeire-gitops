@@ -1,0 +1,132 @@
+---
+name: Manifest Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "kubernetes/**"
+      - ".github/workflows/manifest-validation.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "kubernetes/**"
+      - ".github/workflows/manifest-validation.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  FLUX_VERSION: "2.8.8"
+  KUBERNETES_VERSION: "1.31.0"
+  KUSTOMIZE_VERSION: "5.5.0"
+  KUBECONFORM_VERSION: "0.6.7"
+  HELM_VERSION: "3.17.0"
+  CLUSTERS: "aks-bjjeire-dev-swn-01 aks-bjjeire-stg-swn-01 aks-bjjeire-prod-swn-01"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Kustomize, Helm, kubeconform
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@v2.8.8
+        with:
+          version: ${{ env.FLUX_VERSION }}
+          token: ${{ github.token }}
+
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@827f6c319fb09577b6243e95b6c07dffe53bb6f3
+        with:
+          version: ${{ env.KUSTOMIZE_VERSION }}
+
+      - name: Setup kubeconform
+        uses: fluxcd/pkg/actions/kubeconform@827f6c319fb09577b6243e95b6c07dffe53bb6f3
+        with:
+          version: ${{ env.KUBECONFORM_VERSION }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v${{ env.HELM_VERSION }}
+
+      - name: Flux CLI smoke check
+        run: |
+          set -euo pipefail
+          flux version --client
+
+      - name: Helm lint local charts
+        run: |
+          set -euo pipefail
+          echo "::group::helm lint"
+          found=0
+          while IFS= read -r chart; do
+            found=1
+            echo "Linting ${chart}"
+            helm lint "$(dirname "$chart")"
+          done < <(find kubernetes -type f -name Chart.yaml | sort)
+          if [[ "$found" -eq 0 ]]; then
+            echo "::notice title=helm lint::No local Helm charts found"
+          fi
+          echo "::endgroup::"
+
+      - name: Build and validate cluster overlays
+        run: |
+          set -euo pipefail
+          echo "::group::Kustomize overlays"
+          mkdir -p rendered
+          for cluster in ${CLUSTERS}; do
+            for root in kubernetes/apps/overlays kubernetes/infrastructure/overlays; do
+              dir="${root}/${cluster}"
+              [[ -f "${dir}/kustomization.yaml" ]] || continue
+              if [[ ! -s "${dir}/kustomization.yaml" ]]; then
+                echo "::warning file=${dir}/kustomization.yaml,title=Empty kustomization::Skipping empty placeholder"
+                continue
+              fi
+              out="rendered/${cluster}-$(basename "$(dirname "$root")").yaml"
+              echo "Building ${dir}"
+              kustomize build --load-restrictor=LoadRestrictionsNone "$dir" > "$out"
+              kubeconform \
+                -strict \
+                -ignore-missing-schemas \
+                -schema-location default \
+                -kubernetes-version "${KUBERNETES_VERSION}" \
+                -summary \
+                "$out"
+            done
+          done
+          echo "::endgroup::"
+
+      - name: Validate OCI Helm chart references
+        run: |
+          set -euo pipefail
+          echo "::group::OCI and image references"
+          grep -RInE 'url:[[:space:]]*oci://' kubernetes || echo "::notice title=OCI refs::No OCI URLs found"
+          if grep -RInE 'url:[[:space:]]*oci://.+:latest([[:space:]]|$)' kubernetes; then
+            echo "::error title=Mutable OCI reference::OCI Helm references must not use latest"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Upload rendered manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-manifests
+          path: rendered/
+          if-no-files-found: error
+          retention-days: 7
