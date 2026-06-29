@@ -13,6 +13,6 @@ resources:
   - grafanadashboard.yaml
   - mongodb-exporter.yaml
   - mongodb-servicemonitor.yaml
-  - mongodb-prometheusrule.yaml
+  # - mongodb-prometheusrule.yaml
   - mongodb-grafanadashboard.yaml
   - request-authentication.yaml
