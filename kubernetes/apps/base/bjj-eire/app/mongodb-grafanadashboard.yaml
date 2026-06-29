@@ -2,7 +2,7 @@
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: bjj-eire-api
+  name: bjj-eire-mongodb
   namespace: bjjeire-app
 spec:
   allowCrossNamespaceImport: true
@@ -17,13 +17,13 @@ spec:
       "annotations": {
         "list": []
       },
-      "description": "ASP.NET Core API metrics — availability, request rate, latency, errors, process and runtime metrics",
+      "description": "MongoDB availability, connections, operations, memory, WiredTiger cache, network, and collection storage",
       "editable": true,
       "graphTooltip": 1,
       "panels": [
         {
           "type": "stat",
-          "title": "API Up",
+          "title": "MongoDB Up",
           "id": 1,
           "datasource": {
             "type": "prometheus",
@@ -31,7 +31,7 @@ spec:
           },
           "targets": [
             {
-              "expr": "max(up{namespace=\"$namespace\",job=\"$job\"})",
+              "expr": "max(mongodb_up{namespace=\"$namespace\",job=\"$job\"})",
               "refId": "A"
             }
           ],
@@ -74,7 +74,7 @@ spec:
         },
         {
           "type": "stat",
-          "title": "Requests / Second",
+          "title": "Current Connections",
           "id": 2,
           "datasource": {
             "type": "prometheus",
@@ -82,14 +82,13 @@ spec:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"$namespace\",job=\"$job\"}[5m])) or vector(0)",
+              "expr": "max(mongodb_ss_connections{namespace=\"$namespace\",job=\"$job\",conn_type=\"current\"})",
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "reqps",
-              "decimals": 2
+              "unit": "short"
             },
             "overrides": []
           },
@@ -102,7 +101,7 @@ spec:
         },
         {
           "type": "stat",
-          "title": "5xx Error Rate",
+          "title": "Resident Memory",
           "id": 3,
           "datasource": {
             "type": "prometheus",
@@ -110,47 +109,7 @@ spec:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"$namespace\",job=\"$job\",code=~\"5..\"}[5m])) or vector(0)",
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "unit": "reqps",
-              "decimals": 2,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 0.01
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 5,
-            "x": 9,
-            "y": 0
-          }
-        },
-        {
-          "type": "stat",
-          "title": "Process Memory",
-          "id": 4,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "targets": [
-            {
-              "expr": "max(process_working_set_bytes{namespace=\"$namespace\",job=\"$job\"})",
+              "expr": "max(mongodb_ss_mem_resident{namespace=\"$namespace\",job=\"$job\"}) * 1024 * 1024",
               "refId": "A"
             }
           ],
@@ -163,27 +122,27 @@ spec:
           "gridPos": {
             "h": 4,
             "w": 5,
-            "x": 14,
+            "x": 9,
             "y": 0
           }
         },
         {
           "type": "stat",
-          "title": "Pod Restarts (15m)",
-          "id": 5,
+          "title": "WiredTiger Cache",
+          "id": 4,
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
           "targets": [
             {
-              "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\",container=\"bjj-api\"}[15m])) or vector(0)",
+              "expr": "mongodb_mongod_wiredtiger_cache_bytes{namespace=\"$namespace\",job=\"$job\",type=\"total\"}/mongodb_mongod_wiredtiger_cache_max_bytes{namespace=\"$namespace\",job=\"$job\"}",
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "decimals": 0,
+              "unit": "percentunit",
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -191,11 +150,42 @@ spec:
                     "color": "green"
                   },
                   {
+                    "color": "yellow",
+                    "value": 0.7
+                  },
+                  {
                     "color": "red",
-                    "value": 1
+                    "value": 0.85
                   }
                 ]
               }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 5,
+            "x": 14,
+            "y": 0
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Database Storage",
+          "id": 5,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "targets": [
+            {
+              "expr": "sum(mongodb_collstats_storageStats_totalSize{namespace=\"$namespace\",job=\"$job\",database=\"Mongodb\"})",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes"
             },
             "overrides": []
           },
@@ -208,7 +198,7 @@ spec:
         },
         {
           "type": "timeseries",
-          "title": "Request Rate by Route",
+          "title": "Operations / Second",
           "id": 6,
           "datasource": {
             "type": "prometheus",
@@ -216,14 +206,14 @@ spec:
           },
           "targets": [
             {
-              "expr": "sum by (method, exported_endpoint) (rate(http_request_duration_seconds_count{namespace=\"$namespace\",job=\"$job\"}[5m]))",
-              "legendFormat": "{{method}} {{exported_endpoint}}",
+              "expr": "sum by (legacy_op_type) (rate(mongodb_ss_opcounters{namespace=\"$namespace\",job=\"$job\"}[5m]))",
+              "legendFormat": "{{legacy_op_type}}",
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "reqps"
+              "unit": "ops"
             },
             "overrides": []
           },
@@ -236,7 +226,7 @@ spec:
         },
         {
           "type": "timeseries",
-          "title": "Request Duration",
+          "title": "Connections",
           "id": 7,
           "datasource": {
             "type": "prometheus",
@@ -244,24 +234,14 @@ spec:
           },
           "targets": [
             {
-              "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"$namespace\",job=\"$job\"}[5m])))",
-              "legendFormat": "p50",
+              "expr": "mongodb_ss_connections{namespace=\"$namespace\",job=\"$job\",conn_type=~\"current|active|available|rejected\"}",
+              "legendFormat": "{{conn_type}}",
               "refId": "A"
-            },
-            {
-              "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"$namespace\",job=\"$job\"}[5m])))",
-              "legendFormat": "p95",
-              "refId": "B"
-            },
-            {
-              "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"$namespace\",job=\"$job\"}[5m])))",
-              "legendFormat": "p99",
-              "refId": "C"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "s"
+              "unit": "short"
             },
             "overrides": []
           },
@@ -274,7 +254,7 @@ spec:
         },
         {
           "type": "timeseries",
-          "title": "Responses by Status",
+          "title": "Network Throughput",
           "id": 8,
           "datasource": {
             "type": "prometheus",
@@ -282,14 +262,19 @@ spec:
           },
           "targets": [
             {
-              "expr": "sum by (code) (rate(http_request_duration_seconds_count{namespace=\"$namespace\",job=\"$job\"}[5m]))",
-              "legendFormat": "HTTP {{code}}",
+              "expr": "rate(mongodb_ss_network_bytesIn{namespace=\"$namespace\",job=\"$job\"}[5m])",
+              "legendFormat": "in",
               "refId": "A"
+            },
+            {
+              "expr": "rate(mongodb_ss_network_bytesOut{namespace=\"$namespace\",job=\"$job\"}[5m])",
+              "legendFormat": "out",
+              "refId": "B"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "reqps"
+              "unit": "Bps"
             },
             "overrides": []
           },
@@ -302,7 +287,7 @@ spec:
         },
         {
           "type": "timeseries",
-          "title": ".NET Runtime",
+          "title": "Queued Operations",
           "id": 9,
           "datasource": {
             "type": "prometheus",
@@ -310,32 +295,16 @@ spec:
           },
           "targets": [
             {
-              "expr": "max(dotnet_total_memory_bytes{namespace=\"$namespace\",job=\"$job\"})",
-              "legendFormat": "managed memory",
+              "expr": "mongodb_ss_globalLock_currentQueue{namespace=\"$namespace\",job=\"$job\"}",
+              "legendFormat": "{{count_type}}",
               "refId": "A"
-            },
-            {
-              "expr": "sum(rate(dotnet_collection_count_total{namespace=\"$namespace\",job=\"$job\"}[5m]))",
-              "legendFormat": "GC collections/s",
-              "refId": "B"
             }
           ],
           "fieldConfig": {
-            "defaults": {},
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "managed memory"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              }
-            ]
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
           },
           "gridPos": {
             "h": 8,
@@ -346,7 +315,7 @@ spec:
         },
         {
           "type": "timeseries",
-          "title": "Process CPU",
+          "title": "Documents by Collection",
           "id": 10,
           "datasource": {
             "type": "prometheus",
@@ -354,14 +323,14 @@ spec:
           },
           "targets": [
             {
-              "expr": "sum(rate(process_cpu_seconds_total{namespace=\"$namespace\",job=\"$job\"}[5m]))",
-              "legendFormat": "CPU cores",
+              "expr": "mongodb_collstats_storageStats_count{namespace=\"$namespace\",job=\"$job\",database=\"Mongodb\"}",
+              "legendFormat": "{{collection}}",
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "cores"
+              "unit": "short"
             },
             "overrides": []
           },
@@ -374,7 +343,7 @@ spec:
         },
         {
           "type": "timeseries",
-          "title": "Active Requests",
+          "title": "Collection Storage",
           "id": 11,
           "datasource": {
             "type": "prometheus",
@@ -382,14 +351,14 @@ spec:
           },
           "targets": [
             {
-              "expr": "sum(http_requests_in_progress{namespace=\"$namespace\",job=\"$job\"}) or vector(0)",
-              "legendFormat": "active",
+              "expr": "mongodb_collstats_storageStats_storageSize{namespace=\"$namespace\",job=\"$job\",database=\"Mongodb\"}",
+              "legendFormat": "{{collection}}",
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "short"
+              "unit": "bytes"
             },
             "overrides": []
           },
@@ -405,7 +374,7 @@ spec:
       "schemaVersion": 41,
       "tags": [
         "bjj-eire",
-        "application"
+        "mongodb"
       ],
       "templating": {
         "list": [
@@ -426,7 +395,7 @@ spec:
             "name": "job",
             "label": "Job",
             "type": "constant",
-            "query": "bjj-api",
+            "query": "bjj-mongodb",
             "hide": 2
           }
         ]
@@ -436,7 +405,7 @@ spec:
         "to": "now"
       },
       "timezone": "browser",
-      "title": "BJJ Éire — API",
-      "uid": "bjjeire-api-v1",
-      "version": 3
+      "title": "BJJ Éire — MongoDB",
+      "uid": "bjjeire-mongodb-v1",
+      "version": 1
     }

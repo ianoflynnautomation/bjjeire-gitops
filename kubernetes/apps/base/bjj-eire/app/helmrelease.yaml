@@ -71,7 +71,7 @@ spec:
       api:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-api
-          tag: v0.1.11
+          tag: v0.1.13
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
@@ -108,6 +108,11 @@ spec:
           RateLimitOptions__WindowInSeconds: "10"
           RateLimitOptions__RejectionStatusCode: "429"
           CacheOptions__DefaultExpirationMinutes: "5"
+          MongoDb__MaxConnectionPoolSize: "200"
+          MongoDb__ServerSelectionTimeoutSeconds: "3"
+          MongoDb__ConnectTimeoutSeconds: "10"
+          MongoDb__SocketTimeoutSeconds: "15"
+          MongoDb__EnableCompression: "true"
           ReadOnlyMode__Enabled: "true"
           CompetitionDeactivation__Interval: "1.00:00:00"
           CompetitionDeactivation__InitialDelay: "00:00:30"

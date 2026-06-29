@@ -1,0 +1,28 @@
+---
+# Reap stale ephemeral environments (PR envs, staging-<sha>, regression, debug-*)
+# once they age past their janitor/ttl annotation. This is the safety net for
+# when the env-deploy.yml destroy job is skipped (cancelled run, runner outage).
+#
+# Match key is the bjjeire.io/ephemeral=true label that env-deploy renders onto
+# every ephemeral namespace (see bjjeire-tests .github/k8s/env/manifests.tpl.yaml)
+# — the same marker env-deploy's destroy guard trusts. Long-lived namespaces
+# (bjjeire-app, observability, …) don't carry it and are never touched.
+apiVersion: kyverno.io/v2
+kind: ClusterCleanupPolicy
+metadata:
+  name: ephemeral-env-namespaces
+spec:
+  match:
+    any:
+      - resources:
+          kinds:
+            - Namespace
+          selector:
+            matchLabels:
+              bjjeire.io/ephemeral: "true"
+  conditions:
+    all:
+      - key: "{{ time_diff('{{target.metadata.creationTimestamp}}', time_now_utc('')) }}"
+        operator: GreaterThanOrEquals
+        value: "{{ target.metadata.annotations.\"janitor/ttl\" || '2h' }}"
+  schedule: "*/15 * * * *"
