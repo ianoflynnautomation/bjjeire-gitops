@@ -37,6 +37,6 @@ spec:
                   - key: "{{ element }}"
                     operator: NotEquals
                     value: "${CLUSTER_DOMAIN}"
-                  - key: "{{ regex_match('^[a-zA-Z0-9*-]+\\.${CLUSTER_DOMAIN}$', '{{ element }}') }}"
+                  - key: "{{ regex_match('^[a-zA-Z0-9*-]+[.-]${CLUSTER_DOMAIN}$', '{{ element }}') }}"
                     operator: Equals
                     value: false
