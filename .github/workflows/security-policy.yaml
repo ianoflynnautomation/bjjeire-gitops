@@ -75,7 +75,6 @@ jobs:
             config
             --exit-code 1
             --severity HIGH,CRITICAL
-            --ignore-unfixed
             --format table
             rendered
 
@@ -87,7 +86,6 @@ jobs:
             config
             --exit-code 0
             --severity HIGH,CRITICAL
-            --ignore-unfixed
             --format sarif
             --output trivy-results.sarif
             rendered

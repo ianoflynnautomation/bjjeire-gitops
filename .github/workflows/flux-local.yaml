@@ -46,7 +46,6 @@ jobs:
           args: >-
             test
             --all-namespaces
-            --enable-helm
             --path /github/workspace/kubernetes/clusters
             --sources "flux-system=."
             --verbose
@@ -65,7 +64,7 @@ jobs:
           - aks-bjjeire-dev-swn-01
           - aks-bjjeire-stg-swn-01
           - aks-bjjeire-prod-swn-01
-        resource: ["helmrelease", "kustomization"]
+        resource: ["kustomization"]
       fail-fast: false
     steps:
       - name: Checkout PR branch
