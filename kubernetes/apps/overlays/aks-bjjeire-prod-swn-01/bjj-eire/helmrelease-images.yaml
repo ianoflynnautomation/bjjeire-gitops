@@ -9,11 +9,11 @@ spec:
     bjj-api:
       api:
         image:
-          tag: v0.1.12
+          tag: v0.1.14
     bjj-frontend:
       frontend:
         image:
-          tag: v0.1.22
+          tag: v0.1.23
     seeder:
       image:
         tag: v0.1.11

@@ -71,7 +71,7 @@ spec:
       api:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-api
-          tag: v0.1.13
+          tag: v0.1.14
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
@@ -153,7 +153,7 @@ spec:
       frontend:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-frontend
-          tag: v0.1.21
+          tag: v0.1.23
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
