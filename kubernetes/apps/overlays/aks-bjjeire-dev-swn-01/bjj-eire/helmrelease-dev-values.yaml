@@ -25,8 +25,11 @@ spec:
           OTEL_EXPORTER_OTLP_ENDPOINT: ""
           ASPNETCORE_ENVIRONMENT: Development
           OTEL_RESOURCE_ATTRIBUTES__deployment.environment: dev
+          ServiceDefaults__EnablePrometheus: "false"
           RateLimitOptions__PermitLimit: "30"
           RateLimitOptions__WindowInSeconds: "10"
+        podAnnotations:
+          prometheus.io/scrape: "false"
         resources:
           limits:
             cpu: 300m
@@ -60,5 +63,7 @@ spec:
           requests:
             cpu: 50m
             memory: 128Mi
+        podAnnotations:
+          prometheus.io/scrape: "false"
         autoscaling:
           enabled: false

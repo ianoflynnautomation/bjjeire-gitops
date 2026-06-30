@@ -32,6 +32,17 @@ patches:
         namespace: bjjeire-app
     target:
       kind: GrafanaDashboard
+      name: bjj-eire-api
+  - patch: |
+      $patch: delete
+      apiVersion: grafana.integreatly.org/v1beta1
+      kind: GrafanaDashboard
+      metadata:
+        name: bjj-eire-mongodb
+        namespace: bjjeire-app
+    target:
+      kind: GrafanaDashboard
+      name: bjj-eire-mongodb
   - patch: |
       $patch: delete
       apiVersion: monitoring.coreos.com/v1
@@ -41,6 +52,17 @@ patches:
         namespace: bjjeire-app
     target:
       kind: ServiceMonitor
+      name: bjj-api
+  - patch: |
+      $patch: delete
+      apiVersion: monitoring.coreos.com/v1
+      kind: ServiceMonitor
+      metadata:
+        name: bjj-mongodb
+        namespace: bjjeire-app
+    target:
+      kind: ServiceMonitor
+      name: bjj-mongodb
   - patch: |
       $patch: delete
       apiVersion: monitoring.coreos.com/v1
@@ -50,3 +72,54 @@ patches:
         namespace: bjjeire-app
     target:
       kind: PrometheusRule
+      name: bjj-mongodb
+  - patch: |
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: bjj-mongodb-exporter
+        namespace: bjjeire-app
+    target:
+      kind: Deployment
+      name: bjj-mongodb-exporter
+  - patch: |
+      $patch: delete
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: bjj-mongodb-exporter
+        namespace: bjjeire-app
+    target:
+      kind: Service
+      name: bjj-mongodb-exporter
+  - patch: |
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: allow-api-metrics-ingress-from-observability
+        namespace: bjjeire-app
+    target:
+      kind: NetworkPolicy
+      name: allow-api-metrics-ingress-from-observability
+  - patch: |
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: allow-mongodb-exporter-egress
+        namespace: bjjeire-app
+    target:
+      kind: NetworkPolicy
+      name: allow-mongodb-exporter-egress
+  - patch: |
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: allow-mongodb-metrics-ingress-from-observability
+        namespace: bjjeire-app
+    target:
+      kind: NetworkPolicy
+      name: allow-mongodb-metrics-ingress-from-observability
