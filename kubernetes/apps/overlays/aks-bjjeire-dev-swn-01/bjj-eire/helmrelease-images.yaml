@@ -9,11 +9,11 @@ spec:
     bjj-api:
       api:
         image:
-          tag: v0.1.12 # {"$imagepolicy": "bjjeire:bjjeire-api:tag"}
+          tag: v0.1.13 # {"$imagepolicy": "bjjeire-app:bjjeire-api:tag"}
     bjj-frontend:
       frontend:
         image:
-          tag: v0.1.22 # {"$imagepolicy": "bjjeire:bjjeire-frontend:tag"}
+          tag: v0.1.22 # {"$imagepolicy": "bjjeire-app:bjjeire-frontend:tag"}
     seeder:
       image:
-        tag: v0.1.11 # {"$imagepolicy": "bjjeire:bjjeire-seeder:tag"}
+        tag: v0.1.13 # {"$imagepolicy": "bjjeire-app:bjjeire-seeder:tag"}
