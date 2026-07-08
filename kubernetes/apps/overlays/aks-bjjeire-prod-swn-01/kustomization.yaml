@@ -24,6 +24,8 @@ resources:
   - ../../base/observability/kube-prometheus-stack/ks.yaml
   # - ../../base/observability/kiali/ks.yaml
   - ../../base/observability/oauth2-proxy/ks.yaml
+  - ../../base/observability/tempo/ks.yaml
+  - ../../base/observability/loki/ks.yaml
   - ../../base/observability/opentelemetry-collector/ks.yaml
   - ../../base/observability/routes/ks.yaml
   - ../../base/istio-system/istio-base/k8.yaml
@@ -47,3 +49,27 @@ patches:
       - op: replace
         path: /spec/path
         value: ./kubernetes/apps/overlays/aks-bjjeire-prod-swn-01/bjj-eire
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: observability-routes
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: observability-routes
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: HTTPRoute
+              name: kiali
+            patch: |
+              $patch: delete
+              apiVersion: gateway.networking.k8s.io/v1
+              kind: HTTPRoute
+              metadata:
+                name: kiali
+                namespace: observability

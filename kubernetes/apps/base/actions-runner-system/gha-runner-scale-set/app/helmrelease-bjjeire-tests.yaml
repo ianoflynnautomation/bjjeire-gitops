@@ -1,0 +1,86 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gha-runner-scale-set-bjjeire-tests
+  namespace: actions-runner-system
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: gha-runner-scale-set
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: warn
+  maxHistory: 3
+  dependsOn:
+    - name: gha-runner-scale-set-controller
+      namespace: actions-runner-system
+  values:
+    nameOverride: gha-runner-scale-set-bjjeire-tests
+    runnerScaleSetName: gha-runner-scale-set
+    githubConfigSecret: github-app-secret
+    githubConfigUrl: https://github.com/ianoflynnautomation/bjjeire-tests
+    # Manual env ops only — a couple of concurrent jobs at most.
+    maxRunners: 5
+    minRunners: 0
+    controllerServiceAccount:
+      name: gha-runner-scale-set-controller
+      namespace: actions-runner-system
+    containerMode:
+      type: kubernetes
+      kubernetesModeWorkVolumeClaim:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+    template:
+      metadata:
+        labels:
+          azure.workload.identity/use: "true"
+      spec:
+        serviceAccountName: gha-runner-sa
+        nodeSelector:
+          workload: "gha-runner"
+        tolerations:
+          - key: "dedicated"
+            operator: "Equal"
+            value: "gha-runner"
+            effect: "NoSchedule"
+          - key: "kubernetes.azure.com/scalesetpriority"
+            operator: "Equal"
+            value: "spot"
+            effect: "NoSchedule"
+        containers:
+          - name: runner
+            image: ghcr.io/home-operations/actions-runner:2.334.0@sha256:95d91d7f8d241e319ef2f4fec08f417aa1606b96fbb327643f75c303acd30002
+            command: ["/home/runner/run.sh"]
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                memory: "1G"
+              limits:
+                memory: "2G"

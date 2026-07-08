@@ -73,10 +73,10 @@ meshConfig:
     mode: REGISTRY_ONLY
 
   extensionProviders:
-    # - name: zipkin
-    #   zipkin:
-    #     service: jaeger-collector.observability.svc.cluster.local
-    #     port: 9411
+    - name: otel-tracing
+      opentelemetry:
+        service: otel-collector.observability.svc.cluster.local
+        port: 4317
     - name: prometheus
       prometheus: {}
     - name: oauth2-proxy

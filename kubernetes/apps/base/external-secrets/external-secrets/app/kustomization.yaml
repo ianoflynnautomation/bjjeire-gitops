@@ -2,7 +2,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  # - grafanadashboard.yaml
+  # dev has no grafana-operator — the dev overlay deletes this via Flux patch
+  - grafanadashboard.yaml
   - helmrelease.yaml
   - ocirepository.yaml
 

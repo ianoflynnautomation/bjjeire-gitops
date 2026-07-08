@@ -12,9 +12,13 @@ spec:
     - name: istio-ingressgateway
       namespace: istio-ingress
       sectionName: http-root
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: http-root-wildcard
   hostnames:
     - "*.${CLUSTER_DOMAIN}"
     - "${CLUSTER_DOMAIN}"
+    - "*.${ROOT_DOMAIN}"
   rules:
     - filters:
         - type: RequestRedirect

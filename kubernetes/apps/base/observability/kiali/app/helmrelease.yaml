@@ -61,5 +61,10 @@ spec:
         enabled: true
         url: "http://grafana-service.observability.svc.cluster.local:3000"
         in_cluster_url: "http://grafana-service.observability.svc.cluster.local:3000"
+      tracing:
+        enabled: true
+        provider: tempo
+        internal_url: "http://tempo.observability.svc.cluster.local:3200"
+        use_grpc: false
       istio:
         root_namespace: istio-system

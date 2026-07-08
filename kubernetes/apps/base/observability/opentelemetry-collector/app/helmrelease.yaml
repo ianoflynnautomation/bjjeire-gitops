@@ -36,19 +36,25 @@ spec:
   values:
     image:
       repository: otel/opentelemetry-collector-contrib
-    mode: deployment
-    replicaCount: 1
+    mode: daemonset
 
     podAnnotations:
       sidecar.istio.io/inject: "true"
 
+    presets:
+      logsCollection:
+        enabled: true
+        includeCollectorLogs: false
+      kubernetesAttributes:
+        enabled: true
+
     resources:
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 75m
+        memory: 192Mi
       limits:
-        cpu: 200m
-        memory: 256Mi
+        cpu: 400m
+        memory: 512Mi
 
     config:
       receivers:
@@ -58,36 +64,45 @@ spec:
               endpoint: 0.0.0.0:4317
             http:
               endpoint: 0.0.0.0:4318
+        filelog:
+          exclude:
+            - /var/log/pods/*_bjj-api-*/*/*.log
 
       processors:
         memory_limiter:
           check_interval: 1s
-          limit_mib: 200
-          spike_limit_mib: 50
+          limit_mib: 400
+          spike_limit_mib: 100
         batch:
           send_batch_size: 1000
           timeout: 10s
 
       exporters:
-        # Prometheus exporter — scraped by kube-prometheus-stack
         prometheus:
           endpoint: 0.0.0.0:8889
           resource_to_telemetry_conversion:
             enabled: true
-        # Debug exporter for traces until Tempo is deployed
-        debug:
-          verbosity: normal
+        otlp/tempo:
+          endpoint: tempo.observability.svc.cluster.local:4317
+          tls:
+            insecure: true
+        otlphttp/loki:
+          endpoint: http://loki-gateway.observability.svc.cluster.local/otlp
 
       service:
         pipelines:
           metrics:
             receivers: [otlp]
-            processors: [memory_limiter, batch]
+            processors: [memory_limiter, k8sattributes, batch]
             exporters: [prometheus]
           traces:
             receivers: [otlp]
-            processors: [memory_limiter, batch]
-            exporters: [debug]
+            processors: [memory_limiter, k8sattributes, batch]
+            exporters: [otlp/tempo]
+          logs:
+            receivers: [otlp, filelog]
+            processors: [memory_limiter, k8sattributes, batch]
+            exporters: [otlphttp/loki]
 
     ports:
       otlp:

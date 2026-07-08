@@ -1,0 +1,82 @@
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: default-deny
+  namespace: istio-system
+spec: {}
+---
+# The ingress gateway must accept unauthenticated internet traffic. The CUSTOM
+# oauth2-proxy policy still gates the observability hostnames on top of this.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-internet-to-ingressgateway
+  namespace: istio-ingress
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: istio-ingressgateway
+  action: ALLOW
+  rules:
+    - {}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-observability-internal
+  namespace: observability
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["observability"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-oauth2-proxy
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: oauth2-proxy
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+---
+# OTLP ingest must accept sources without a mesh identity: bjj-api has no
+# sidecar and the acceptance-test runners post spans from outside the mesh.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-otlp-ingest-to-otel-collector
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opentelemetry-collector
+  action: ALLOW
+  rules:
+    - {}
+---
+# The Kubernetes API server calls the prometheus-operator admission webhook
+# and carries no mesh identity.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-apiserver-to-prometheus-operator-webhook
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app: kube-prometheus-stack-operator
+  action: ALLOW
+  rules:
+    - to:
+        - operation:
+            ports: ["10250"]

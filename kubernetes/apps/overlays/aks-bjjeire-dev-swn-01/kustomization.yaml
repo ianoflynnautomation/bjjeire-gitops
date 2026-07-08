@@ -79,6 +79,16 @@ patches:
                 name: cert-manager-rules
                 namespace: network-system
           - target:
+              kind: GrafanaDashboard
+              name: cert-manager
+            patch: |
+              $patch: delete
+              apiVersion: grafana.integreatly.org/v1beta1
+              kind: GrafanaDashboard
+              metadata:
+                name: cert-manager
+                namespace: network-system
+          - target:
               kind: HelmRelease
               name: cert-manager
             patch: |
@@ -107,6 +117,16 @@ patches:
       spec:
         patches:
           - target:
+              kind: GrafanaDashboard
+              name: cloudflare-tunnels
+            patch: |
+              $patch: delete
+              apiVersion: grafana.integreatly.org/v1beta1
+              kind: GrafanaDashboard
+              metadata:
+                name: cloudflare-tunnels
+                namespace: network-system
+          - target:
               kind: HelmRelease
               name: external-dns
             patch: |
@@ -119,6 +139,30 @@ patches:
                 values:
                   serviceMonitor:
                     enabled: false
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: external-secrets
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: external-secrets
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: GrafanaDashboard
+              name: external-secrets
+            patch: |
+              $patch: delete
+              apiVersion: grafana.integreatly.org/v1beta1
+              kind: GrafanaDashboard
+              metadata:
+                name: external-secrets
+                namespace: external-secrets
 
   - target:
       group: kustomize.toolkit.fluxcd.io
@@ -173,3 +217,53 @@ patches:
               metadata:
                 name: require-entra-auth-observability
                 namespace: istio-ingress
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-observability-internal
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-observability-internal
+                namespace: observability
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-ingress-to-oauth2-proxy
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-ingress-to-oauth2-proxy
+                namespace: observability
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-otlp-ingest-to-otel-collector
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-otlp-ingest-to-otel-collector
+                namespace: observability
+          - target:
+              kind: AuthorizationPolicy
+              name: allow-apiserver-to-prometheus-operator-webhook
+            patch: |
+              $patch: delete
+              apiVersion: security.istio.io/v1
+              kind: AuthorizationPolicy
+              metadata:
+                name: allow-apiserver-to-prometheus-operator-webhook
+                namespace: observability
+          - target:
+              kind: Telemetry
+              name: mesh-default
+            patch: |
+              $patch: delete
+              apiVersion: telemetry.istio.io/v1
+              kind: Telemetry
+              metadata:
+                name: mesh-default
+                namespace: istio-system

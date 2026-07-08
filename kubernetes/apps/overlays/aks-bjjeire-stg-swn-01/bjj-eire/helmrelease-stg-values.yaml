@@ -6,6 +6,8 @@ metadata:
   namespace: bjjeire-app
 spec:
   values:
+    seeder:
+      dataset: "test"
     bjj-mongodb:
       mongodb:
         persistence:

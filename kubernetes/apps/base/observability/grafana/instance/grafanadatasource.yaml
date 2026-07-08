@@ -10,6 +10,54 @@ spec:
   datasource:
     type: prometheus
     name: prometheus
+    uid: prometheus
     access: proxy
     isDefault: true
     url: http://prometheus-operated.observability.svc.cluster.local:9090
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: tempo
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  datasource:
+    type: tempo
+    name: Tempo
+    uid: tempo
+    access: proxy
+    url: http://tempo.observability.svc.cluster.local:3200
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
+        filterByTraceID: true
+        filterBySpanID: false
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: loki
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  datasource:
+    type: loki
+    name: Loki
+    uid: loki
+    access: proxy
+    url: http://loki-gateway.observability.svc.cluster.local
+    jsonData:
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"TraceId":\s*"([a-f0-9]{32})"'
+          datasourceUid: tempo
+          url: "$${__value.raw}"

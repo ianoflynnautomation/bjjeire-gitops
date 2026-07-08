@@ -5,5 +5,7 @@ kind: Kustomization
 resources:
   - serviceaccount.yaml
   - helmrelease.yaml
+  - helmrelease-bjjeire.yaml
+  - helmrelease-bjjeire-tests.yaml
   - ocirepository.yaml
   - externalsecret.yaml

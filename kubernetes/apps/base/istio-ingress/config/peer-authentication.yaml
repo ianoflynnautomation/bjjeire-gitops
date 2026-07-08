@@ -5,5 +5,10 @@ metadata:
   name: ingress-gateway
   namespace: istio-ingress
 spec:
+  # Scoped to the gateway pods only — a future second workload in this
+  # namespace inherits the mesh-wide STRICT default instead of PERMISSIVE.
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: istio-ingressgateway
   mtls:
     mode: PERMISSIVE

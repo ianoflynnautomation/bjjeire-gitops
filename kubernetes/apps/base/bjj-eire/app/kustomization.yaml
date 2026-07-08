@@ -15,4 +15,3 @@ resources:
   - mongodb-servicemonitor.yaml
   - mongodb-prometheusrule.yaml
   - mongodb-grafanadashboard.yaml
-  - request-authentication.yaml

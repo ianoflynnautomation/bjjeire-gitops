@@ -22,8 +22,10 @@ resources:
   - ../../base/network-system/cloudflare-tunnel/ks.yaml
   - ../../base/observability/grafana/ks.yaml
   - ../../base/observability/kube-prometheus-stack/ks.yaml
-  # - ../../base/observability/kiali/ks.yaml
+  - ../../base/observability/kiali/ks.yaml
   - ../../base/observability/oauth2-proxy/ks.yaml
+  - ../../base/observability/tempo/ks.yaml
+  - ../../base/observability/loki/ks.yaml
   - ../../base/observability/opentelemetry-collector/ks.yaml
   - ../../base/observability/routes/ks.yaml
   - ../../base/istio-system/istio-base/k8.yaml
