@@ -123,3 +123,47 @@ patches:
     target:
       kind: NetworkPolicy
       name: allow-mongodb-metrics-ingress-from-observability
+  # Ambient mode: in-mesh traffic arrives as HBONE on port 15008 (source pod
+  # IPs are preserved, so the pod/namespace selectors still match).
+  - patch: |
+      - op: add
+        path: /spec/ingress/0/ports/-
+        value: {protocol: TCP, port: 15008}
+    target:
+      kind: NetworkPolicy
+      name: allow-frontend-ingress-from-gateway
+  - patch: |
+      - op: add
+        path: /spec/ingress/0/ports/-
+        value: {protocol: TCP, port: 15008}
+    target:
+      kind: NetworkPolicy
+      name: allow-api-ingress-from-gateway-and-frontend
+  - patch: |
+      - op: add
+        path: /spec/ingress/0/ports/-
+        value: {protocol: TCP, port: 15008}
+    target:
+      kind: NetworkPolicy
+      name: allow-mongodb-ingress-from-api
+  - patch: |
+      - op: add
+        path: /spec/egress/0/ports/-
+        value: {protocol: TCP, port: 15008}
+    target:
+      kind: NetworkPolicy
+      name: allow-frontend-egress-to-api
+  - patch: |
+      - op: add
+        path: /spec/egress/0/ports/-
+        value: {protocol: TCP, port: 15008}
+    target:
+      kind: NetworkPolicy
+      name: allow-api-egress-to-mongodb
+  - patch: |
+      - op: add
+        path: /spec/egress/0/ports/-
+        value: {protocol: TCP, port: 15008}
+    target:
+      kind: NetworkPolicy
+      name: allow-seeder-egress-to-mongodb

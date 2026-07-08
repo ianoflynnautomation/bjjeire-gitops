@@ -1,0 +1,25 @@
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-bjjeire-app
+  namespace: bjjeire-app
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-bjjeire-app-internal
+  namespace: bjjeire-app
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["bjjeire-app"]

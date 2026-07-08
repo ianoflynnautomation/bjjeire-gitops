@@ -32,6 +32,9 @@ resources:
   - ../../base/istio-system/gateway-api/k8.yaml
   - ../../base/istio-system/istio-cni/k8.yaml
   - ../../base/istio-system/istiod/k8.yaml
+  # Ambient mode (dev only): ztunnel dataplane + ambient profile patches below.
+  - ../../base/istio-system/ztunnel/k8.yaml
+  - ambient-authorization-policies.yaml
   # - ../../base/istio-system/monitoring/ks.yaml
   - ../../base/istio-ingress/config/ks.yaml
   - ../../base/istio-egress/config/ks.yaml
@@ -41,6 +44,68 @@ resources:
   - ../../base/kyverno/ks.yaml
 
 patches:
+  # Enroll the app namespace in ambient: ztunnel handles mTLS + L4 policy,
+  # no sidecar injection, Jobs (seeder) complete normally.
+  - target:
+      kind: Namespace
+      name: bjjeire-app
+    patch: |
+      - op: add
+        path: /metadata/labels/istio.io~1dataplane-mode
+        value: ambient
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: istiod
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: istiod
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: HelmRelease
+              name: istiod
+            patch: |
+              apiVersion: helm.toolkit.fluxcd.io/v2
+              kind: HelmRelease
+              metadata:
+                name: istiod
+                namespace: istio-system
+              spec:
+                values:
+                  profile: ambient
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: istio-cni
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: istio-cni
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: HelmRelease
+              name: istio-cni
+            patch: |
+              apiVersion: helm.toolkit.fluxcd.io/v2
+              kind: HelmRelease
+              metadata:
+                name: istio-cni
+                namespace: istio-system
+              spec:
+                values:
+                  profile: ambient
+
   - target:
       group: kustomize.toolkit.fluxcd.io
       kind: Kustomization
