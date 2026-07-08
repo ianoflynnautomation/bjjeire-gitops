@@ -10,7 +10,7 @@ spec:
   gatewayClassName: istio
   infrastructure:
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: "${CLUSTER_DOMAIN},*.${CLUSTER_DOMAIN},api-dev.${ROOT_DOMAIN}"
+      external-dns.alpha.kubernetes.io/hostname: "${CLUSTER_DOMAIN},*.${CLUSTER_DOMAIN}"
       external-dns.alpha.kubernetes.io/external: "true"
       external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
       service.beta.kubernetes.io/port_80_health-probe_protocol: Tcp
@@ -50,29 +50,6 @@ spec:
       port: 443
       protocol: HTTPS
       hostname: "${CLUSTER_DOMAIN}"
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: wildcard-tls-secret
-            namespace: network-system
-            kind: Secret
-      allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchLabels:
-              gateway-access: "true"
-    - name: http-root-wildcard
-      port: 80
-      protocol: HTTP
-      hostname: "*.${ROOT_DOMAIN}"
-      allowedRoutes:
-        namespaces:
-          from: Same
-    - name: https-root-wildcard
-      port: 443
-      protocol: HTTPS
-      hostname: "*.${ROOT_DOMAIN}"
       tls:
         mode: Terminate
         certificateRefs:

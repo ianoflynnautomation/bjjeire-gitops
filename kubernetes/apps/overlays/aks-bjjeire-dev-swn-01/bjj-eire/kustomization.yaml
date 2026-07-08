@@ -5,6 +5,7 @@ namespace: bjjeire-app
 
 resources:
   - ../../../base/bjj-eire/app
+  - httproute-api-dev.yaml
 
 patches:
   - target:

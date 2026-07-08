@@ -57,6 +57,43 @@ patches:
   - target:
       group: kustomize.toolkit.fluxcd.io
       kind: Kustomization
+      name: istio-gateway-config
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: istio-gateway-config
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: Gateway
+              name: istio-ingressgateway
+            patch: |
+              - op: add
+                path: /spec/listeners/-
+                value:
+                  name: https-root-wildcard
+                  port: 443
+                  protocol: HTTPS
+                  hostname: "api-dev.${ROOT_DOMAIN}"
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - name: wildcard-tls-secret
+                        namespace: network-system
+                        kind: Secret
+                  allowedRoutes:
+                    namespaces:
+                      from: Selector
+                      selector:
+                        matchLabels:
+                          gateway-access: "true"
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
       name: istiod
       namespace: flux-system
     patch: |

@@ -1,0 +1,21 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bjj-api-root-wildcard
+  namespace: bjjeire-app
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-root-wildcard
+  hostnames:
+    - "api-dev.${ROOT_DOMAIN}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bjj-api
+          port: 80
