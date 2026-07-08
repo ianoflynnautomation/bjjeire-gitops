@@ -18,7 +18,7 @@ spec:
   hostnames:
     - "*.${CLUSTER_DOMAIN}"
     - "${CLUSTER_DOMAIN}"
-    - "*.${ROOT_DOMAIN}"
+    - "api-dev.${ROOT_DOMAIN}"
   rules:
     - filters:
         - type: RequestRedirect
