@@ -34,7 +34,7 @@ resources:
   - ../../base/istio-system/istiod/k8.yaml
   # Ambient mode (dev only): ztunnel dataplane + ambient profile patches below.
   - ../../base/istio-system/ztunnel/k8.yaml
-  - ambient-authorization-policies.yaml
+  - ambient/ks.yaml
   # - ../../base/istio-system/monitoring/ks.yaml
   - ../../base/istio-ingress/config/ks.yaml
   - ../../base/istio-egress/config/ks.yaml
