@@ -23,3 +23,15 @@ spec:
     - from:
         - source:
             namespaces: ["bjjeire-app"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-observability-to-bjjeire-app
+  namespace: bjjeire-app
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["observability"]

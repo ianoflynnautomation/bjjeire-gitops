@@ -5,5 +5,6 @@ metadata:
   name: bjjeire-app
   labels:
     gateway-access: "true"
+    istio.io/dataplane-mode: ambient
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/warn: restricted

@@ -1,4 +1,6 @@
 ---
+profile: ambient
+
 cni:
   cniBinDir: /opt/cni/bin
   cniConfDir: /etc/cni/net.d

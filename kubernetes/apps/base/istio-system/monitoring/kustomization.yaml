@@ -4,5 +4,6 @@ kind: Kustomization
 
 resources:
   - podmonitor.yaml
+  - podmonitor-ztunnel.yaml
   - servicemonitor.yaml
   - grafanadashboard.yaml

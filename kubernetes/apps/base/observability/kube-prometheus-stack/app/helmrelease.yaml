@@ -40,11 +40,6 @@ spec:
   # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
   values:
     cleanPrometheusOperatorObjectNames: true
-    prometheusOperator:
-      admissionWebhooks:
-        patch:
-          podAnnotations:
-            sidecar.istio.io/inject: "false"
     alertmanager:
       enabled: false
     grafana:

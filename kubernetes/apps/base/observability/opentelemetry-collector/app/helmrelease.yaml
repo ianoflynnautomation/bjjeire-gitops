@@ -38,9 +38,6 @@ spec:
       repository: otel/opentelemetry-collector-contrib
     mode: daemonset
 
-    podAnnotations:
-      sidecar.istio.io/inject: "true"
-
     presets:
       logsCollection:
         enabled: true

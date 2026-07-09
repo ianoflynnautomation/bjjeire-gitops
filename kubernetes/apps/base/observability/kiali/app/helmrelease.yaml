@@ -48,8 +48,6 @@ spec:
       strategy: anonymous
     deployment:
       service_type: ClusterIP
-      pod_annotations:
-        sidecar.istio.io/inject: "true"
     server:
       web_fqdn: "kiali.${CLUSTER_DOMAIN}"
       web_root: /

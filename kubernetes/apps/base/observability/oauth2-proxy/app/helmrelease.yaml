@@ -36,8 +36,6 @@ spec:
     mode: enabled
   maxHistory: 3
   values:
-    podAnnotations:
-      sidecar.istio.io/inject: "true"
     config:
       clientID: "${OAUTH2_PROXY_CLIENT_ID}"
       existingSecret: oauth2-proxy-secrets

@@ -53,6 +53,8 @@ spec:
           port: 80
         - protocol: TCP
           port: 443
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -79,6 +81,8 @@ spec:
           port: 80
         - protocol: TCP
           port: 443
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -107,6 +111,8 @@ spec:
       ports:
         - protocol: TCP
           port: 27017
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -130,6 +136,8 @@ spec:
           port: 80
         - protocol: TCP
           port: 443
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -151,6 +159,8 @@ spec:
       ports:
         - protocol: TCP
           port: 27017
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -172,6 +182,8 @@ spec:
       ports:
         - protocol: TCP
           port: 27017
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -218,6 +230,8 @@ spec:
       ports:
         - protocol: TCP
           port: 80
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -241,6 +255,8 @@ spec:
       ports:
         - protocol: TCP
           port: 27017
+        - protocol: TCP
+          port: 15008
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -263,3 +279,5 @@ spec:
       ports:
         - protocol: TCP
           port: 9216
+        - protocol: TCP
+          port: 15008
