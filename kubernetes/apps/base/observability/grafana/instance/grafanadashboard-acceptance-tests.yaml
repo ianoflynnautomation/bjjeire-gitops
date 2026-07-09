@@ -1,4 +1,7 @@
 ---
+# yamllint disable rule:line-length
+# Embedded Grafana dashboard JSON (json: | block) — lines cannot be wrapped
+# without breaking the JSON strings.
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:

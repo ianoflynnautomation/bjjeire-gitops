@@ -43,6 +43,10 @@ jobs:
               line-length:
                 max: 200
                 level: warning
+                # Embedded Grafana dashboard JSON — long lines are unavoidable
+                # inside the json: | block and cannot be wrapped.
+                ignore: |
+                  kubernetes/apps/base/observability/grafana/instance/grafanadashboard-acceptance-tests.yaml
               comments:
                 min-spaces-from-content: 1
               truthy:
