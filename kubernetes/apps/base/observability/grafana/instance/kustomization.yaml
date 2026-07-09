@@ -7,3 +7,4 @@ resources:
   - grafanadatasource.yaml
   - grafanadashboard-acceptance-tests.yaml
   - servicemonitor.yaml
+  - externalsecret.yaml
