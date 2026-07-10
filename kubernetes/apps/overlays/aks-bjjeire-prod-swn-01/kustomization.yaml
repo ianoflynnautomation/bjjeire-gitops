@@ -24,7 +24,9 @@ resources:
   - ../../base/observability/kube-prometheus-stack/ks.yaml
   # - ../../base/observability/kiali/ks.yaml
   - ../../base/observability/oauth2-proxy/ks.yaml
-  - ../../base/observability/tempo/ks.yaml
+  # Tempo disabled in prod for cost — re-enable together with the
+  # opentelemetry-collector and grafana-instance patches below.
+  # - ../../base/observability/tempo/ks.yaml
   - ../../base/observability/loki/ks.yaml
   - ../../base/observability/opentelemetry-collector/ks.yaml
   - ../../base/observability/routes/ks.yaml
@@ -73,4 +75,75 @@ patches:
               kind: HTTPRoute
               metadata:
                 name: kiali
+                namespace: observability
+
+  # Tempo is disabled in prod: drop the tempo dependency and remove the
+  # traces pipeline so the collector still reconciles for metrics/logs.
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: opentelemetry-collector
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: opentelemetry-collector
+        namespace: flux-system
+      spec:
+        dependsOn:
+          - name: kube-prometheus-stack
+          - name: istiod
+          - name: loki
+        patches:
+          - target:
+              kind: HelmRelease
+              name: opentelemetry-collector
+            patch: |
+              apiVersion: helm.toolkit.fluxcd.io/v2
+              kind: HelmRelease
+              metadata:
+                name: opentelemetry-collector
+                namespace: observability
+              spec:
+                values:
+                  config:
+                    exporters:
+                      otlp/tempo: null
+                    service:
+                      pipelines:
+                        traces: null
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: grafana-instance
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: grafana-instance
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: GrafanaDatasource
+              name: tempo
+            patch: |
+              $patch: delete
+              apiVersion: grafana.integreatly.org/v1beta1
+              kind: GrafanaDatasource
+              metadata:
+                name: tempo
+                namespace: observability
+          - target:
+              kind: GrafanaDashboard
+              name: bjjeire-acceptance-tests
+            patch: |
+              $patch: delete
+              apiVersion: grafana.integreatly.org/v1beta1
+              kind: GrafanaDashboard
+              metadata:
+                name: bjjeire-acceptance-tests
                 namespace: observability

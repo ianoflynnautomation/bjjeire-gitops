@@ -53,7 +53,7 @@ spec:
       mongodb:
         persistence:
           storageClassName: managed-premium
-          size: 50Gi
+          size: 32Gi
         resources:
           limits:
             cpu: 2000m
