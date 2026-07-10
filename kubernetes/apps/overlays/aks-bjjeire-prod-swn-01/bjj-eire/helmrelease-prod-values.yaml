@@ -11,19 +11,3 @@ spec:
         env:
           RateLimitOptions__PermitLimit: "30"
           RateLimitOptions__WindowInSeconds: "10"
-    bjj-frontend:
-      frontend:
-        # Caddy binary in the image has cap_net_bind_service+ep via setcap.
-        # With allowPrivilegeEscalation:false + drop ALL, the kernel sets
-        # no_new_privs and refuses exec ("operation not permitted"). Granting
-        # NET_BIND_SERVICE in the container lets the kernel skip the
-        # file-cap elevation path on exec.
-        securityContext:
-          allowPrivilegeEscalation: false
-          runAsNonRoot: true
-          runAsUser: 101
-          capabilities:
-            drop:
-              - ALL
-            add:
-              - NET_BIND_SERVICE
