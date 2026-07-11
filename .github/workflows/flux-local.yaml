@@ -31,9 +31,9 @@ jobs:
     strategy:
       matrix:
         cluster:
-          - aks-bjjeire-dev-swn-01
-          - aks-bjjeire-stg-swn-01
-          - aks-bjjeire-prod-swn-01
+          - aks-bjjeire-dev-sdc-01
+          - aks-bjjeire-stg-sdc-01
+          - aks-bjjeire-prod-sdc-01
       fail-fast: false
     steps:
       - name: Checkout
@@ -68,9 +68,9 @@ jobs:
     strategy:
       matrix:
         cluster:
-          - aks-bjjeire-dev-swn-01
-          - aks-bjjeire-stg-swn-01
-          - aks-bjjeire-prod-swn-01
+          - aks-bjjeire-dev-sdc-01
+          - aks-bjjeire-stg-sdc-01
+          - aks-bjjeire-prod-sdc-01
         resource: ["kustomization"]
       fail-fast: false
     steps:

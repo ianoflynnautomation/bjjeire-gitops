@@ -26,7 +26,7 @@ defaults:
 
 env:
   KUSTOMIZE_VERSION: "5.5.0"
-  CLUSTERS: "aks-bjjeire-dev-swn-01 aks-bjjeire-stg-swn-01 aks-bjjeire-prod-swn-01"
+  CLUSTERS: "aks-bjjeire-dev-sdc-01 aks-bjjeire-stg-sdc-01 aks-bjjeire-prod-sdc-01"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
