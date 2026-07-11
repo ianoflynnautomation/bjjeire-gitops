@@ -49,4 +49,4 @@ patches:
     patch: |
       - op: replace
         path: /spec/path
-        value: ./kubernetes/apps/overlays/aks-bjjeire-stg-swn-01/bjj-eire
+        value: ./kubernetes/apps/overlays/aks-bjjeire-stg-sdc-01/bjj-eire

@@ -87,7 +87,7 @@ patches:
     patch: |
       - op: replace
         path: /spec/path
-        value: ./kubernetes/apps/overlays/aks-bjjeire-dev-swn-01/bjj-eire
+        value: ./kubernetes/apps/overlays/aks-bjjeire-dev-sdc-01/bjj-eire
       - op: replace
         path: /spec/dependsOn
         value:

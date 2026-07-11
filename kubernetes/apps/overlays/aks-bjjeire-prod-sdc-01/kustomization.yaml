@@ -51,7 +51,7 @@ patches:
     patch: |
       - op: replace
         path: /spec/path
-        value: ./kubernetes/apps/overlays/aks-bjjeire-prod-swn-01/bjj-eire
+        value: ./kubernetes/apps/overlays/aks-bjjeire-prod-sdc-01/bjj-eire
 
   - target:
       group: kustomize.toolkit.fluxcd.io
