@@ -14,6 +14,7 @@
   "schedule": ["after 6am and before 10pm every weekday"],
   "dependencyDashboardTitle": "Dependency Dashboard (GitOps charts & deps)",
   "commitMessagePrefix": "chore(deps):",
+  "gitAuthor": "Renovate Bot <renovate@users.noreply.github.com>",
   "prBodyNotes": [
     "This repository uses a **hybrid update model**:",
     "- **App container image tags** (api / frontend / seeder) are owned by **Flux Image Automation** in **dev only** and are excluded from Renovate.",
@@ -27,21 +28,21 @@
     "custom.regex"
   ],
   "flux": {
-    "fileMatch": [
-      "(^|/)kubernetes/.+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/)kubernetes/.+\\.ya?ml$/"
     ]
   },
   "github-actions": {
-    "fileMatch": [
-      "(^|/)\\.github/workflows/[^/]+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/)\\.github/workflows/[^/]+\\.ya?ml$/"
     ]
   },
   "customManagers": [
     {
       "customType": "regex",
       "description": "Per-env bjj-eire umbrella chart pin (JSON6902 patch in overlay kustomization)",
-      "fileMatch": [
-        "kubernetes/apps/overlays/.+/bjj-eire/kustomization\\.ya?ml$"
+      "managerFilePatterns": [
+        "/kubernetes/apps/overlays/.+/bjj-eire/kustomization\\.ya?ml$/"
       ],
       "matchStrings": [
         "kind:\\s*OCIRepository[\\s\\S]*?name:\\s*bjj-eire[\\s\\S]*?tag:\\s*[\"']?(?<currentValue>[^\"'\\s#]+)[\"']?"
@@ -54,8 +55,8 @@
     {
       "customType": "regex",
       "description": "Inline renovate annotations on tag lines",
-      "fileMatch": [
-        "(^|/)kubernetes/.+\\.ya?ml$"
+      "managerFilePatterns": [
+        "/(^|/)kubernetes/.+\\.ya?ml$/"
       ],
       "matchStrings": [
         "tag:\\s*[\"']?(?<currentValue>[^\"'\\s#]+)[\"']?\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?"
