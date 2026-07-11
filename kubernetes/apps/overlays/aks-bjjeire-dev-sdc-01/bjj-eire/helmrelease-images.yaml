@@ -12,7 +12,7 @@ spec:
     bjj-frontend:
       frontend:
         image:
-          tag: v0.1.26 # {"$imagepolicy": "bjjeire-app:bjjeire-frontend:tag"}
+          tag: v0.1.27 # {"$imagepolicy": "bjjeire-app:bjjeire-frontend:tag"}
     seeder:
       image:
         tag: v0.1.15 # {"$imagepolicy": "bjjeire-app:bjjeire-seeder:tag"}
