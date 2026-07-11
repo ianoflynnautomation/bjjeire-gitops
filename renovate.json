@@ -1,0 +1,172 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":prHourlyLimit4",
+    ":prConcurrentLimit10",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "labels": ["dependencies", "renovate"],
+  "timezone": "Europe/Dublin",
+  "schedule": ["after 6am and before 10pm every weekday"],
+  "dependencyDashboardTitle": "Dependency Dashboard (GitOps charts & deps)",
+  "commitMessagePrefix": "chore(deps):",
+  "prBodyNotes": [
+    "This repository uses a **hybrid update model**:",
+    "- **App container image tags** (api / frontend / seeder) are owned by **Flux Image Automation** in **dev only** and are excluded from Renovate.",
+    "- **OCI Helm chart versions** and other GitOps dependencies are proposed here as PRs for human / branch-policy review.",
+    "- App image tags and chart versions are independent release trains — bumping one does not require bumping the other.",
+    "Validate with existing CI (`manifest-validation`, `flux-local`) before merge."
+  ],
+  "enabledManagers": [
+    "flux",
+    "github-actions",
+    "custom.regex"
+  ],
+  "flux": {
+    "fileMatch": [
+      "(^|/)kubernetes/.+\\.ya?ml$"
+    ]
+  },
+  "github-actions": {
+    "fileMatch": [
+      "(^|/)\\.github/workflows/[^/]+\\.ya?ml$"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Per-env bjj-eire umbrella chart pin (JSON6902 patch in overlay kustomization)",
+      "fileMatch": [
+        "kubernetes/apps/overlays/.+/bjj-eire/kustomization\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "kind:\\s*OCIRepository[\\s\\S]*?name:\\s*bjj-eire[\\s\\S]*?tag:\\s*[\"']?(?<currentValue>[^\"'\\s#]+)[\"']?"
+      ],
+      "depNameTemplate": "ianoflynnautomation/bjj-eire",
+      "datasourceTemplate": "docker",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Inline renovate annotations on tag lines",
+      "fileMatch": [
+        "(^|/)kubernetes/.+\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "tag:\\s*[\"']?(?<currentValue>[^\"'\\s#]+)[\"']?\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Flux owns app image tags — never let Renovate open PRs for them",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "ghcr.io/ianoflynnautomation/bjjeire-api",
+        "ghcr.io/ianoflynnautomation/bjjeire-frontend",
+        "ghcr.io/ianoflynnautomation/bjjeire-seeder",
+        "ianoflynnautomation/bjjeire-api",
+        "ianoflynnautomation/bjjeire-frontend",
+        "ianoflynnautomation/bjjeire-seeder"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Ignore Flux-managed image overlay files entirely",
+      "matchFileNames": [
+        "**/helmrelease-images.yaml"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Ignore ImageRepository / ImagePolicy / ImageUpdateAutomation manifests",
+      "matchFileNames": [
+        "**/image-automation/**"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Base bjj-eire OCIRepository tag is a fallback only — overlays own the pin",
+      "matchFileNames": [
+        "kubernetes/apps/base/bjj-eire/app/ocirepository.yaml"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Group non-major OCI/Helm chart bumps to reduce PR noise",
+      "matchDatasources": ["docker", "helm"],
+      "matchManagers": ["flux", "custom.regex"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "oci-helm-charts (non-major)",
+      "automerge": false
+    },
+    {
+      "description": "Keep Istio control-plane charts on the same version",
+      "matchDatasources": ["docker", "helm"],
+      "matchPackageNames": [
+        "istio/base",
+        "istio/istiod",
+        "istio/cni",
+        "istio/ztunnel",
+        "**/istio/base",
+        "**/istio/istiod",
+        "**/istio/cni",
+        "**/istio/ztunnel"
+      ],
+      "groupName": "istio control plane",
+      "automerge": false
+    },
+    {
+      "description": "Actions runner scale-set chart + controller share a version",
+      "matchPackageNames": [
+        "actions/actions-runner-controller-charts/**",
+        "**/gha-runner-scale-set**"
+      ],
+      "groupName": "gha-runner-scale-set",
+      "automerge": false
+    },
+    {
+      "description": "bjj-eire umbrella chart pins always require review (promotion gate)",
+      "matchPackageNames": [
+        "ianoflynnautomation/bjj-eire",
+        "ghcr.io/ianoflynnautomation/bjj-eire"
+      ],
+      "automerge": false,
+      "dependencyDashboardApproval": false,
+      "addLabels": ["bjj-eire-chart", "needs-promotion-review"]
+    },
+    {
+      "description": "stg/prod overlay chart pins: never auto-merge",
+      "matchFileNames": [
+        "kubernetes/apps/overlays/aks-bjjeire-stg-*/**",
+        "kubernetes/apps/overlays/aks-bjjeire-prod-*/**"
+      ],
+      "automerge": false,
+      "addLabels": ["needs-promotion-review"]
+    },
+    {
+      "description": "Major updates always need explicit review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "addLabels": ["major-update"]
+    },
+    {
+      "description": "GitHub Actions — group patch/minor; no automerge (CI trust boundary)",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "github-actions",
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  },
+  "osvVulnerabilityAlerts": true
+}
