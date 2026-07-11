@@ -110,14 +110,7 @@
       "description": "Keep Istio control-plane charts on the same version",
       "matchDatasources": ["docker", "helm"],
       "matchPackageNames": [
-        "istio/base",
-        "istio/istiod",
-        "istio/cni",
-        "istio/ztunnel",
-        "**/istio/base",
-        "**/istio/istiod",
-        "**/istio/cni",
-        "**/istio/ztunnel"
+        "gcr.io/istio-release/charts/**"
       ],
       "groupName": "istio control plane",
       "automerge": false
@@ -132,11 +125,14 @@
       "automerge": false
     },
     {
-      "description": "bjj-eire umbrella chart pins always require review (promotion gate)",
+      "description": "bjj-eire umbrella chart pins: per-env PRs, always require review (promotion gate)",
       "matchPackageNames": [
         "ianoflynnautomation/bjj-eire",
         "ghcr.io/ianoflynnautomation/bjj-eire"
       ],
+      "groupName": null,
+      "additionalBranchPrefix": "{{packageFileDir}}-",
+      "commitMessageSuffix": "({{packageFileDir}})",
       "automerge": false,
       "dependencyDashboardApproval": false,
       "addLabels": ["bjj-eire-chart", "needs-promotion-review"]
