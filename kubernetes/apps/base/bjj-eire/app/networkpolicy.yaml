@@ -78,9 +78,7 @@ spec:
               app.kubernetes.io/name: bjj-frontend
       ports:
         - protocol: TCP
-          port: 80
-        - protocol: TCP
-          port: 443
+          port: 8080
         - protocol: TCP
           port: 15008
 
@@ -133,9 +131,7 @@ spec:
               app.kubernetes.io/name: bjj-api
       ports:
         - protocol: TCP
-          port: 80
-        - protocol: TCP
-          port: 443
+          port: 8080
         - protocol: TCP
           port: 15008
 
@@ -229,7 +225,7 @@ spec:
               kubernetes.io/metadata.name: observability
       ports:
         - protocol: TCP
-          port: 80
+          port: 8080
         - protocol: TCP
           port: 15008
 

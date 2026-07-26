@@ -9,5 +9,5 @@ spec:
     bjj-api:
       api:
         env:
-          RateLimitOptions__PermitLimit: "30"
-          RateLimitOptions__WindowInSeconds: "10"
+          RATE_LIMIT_PERMIT_LIMIT: "30"
+          RATE_LIMIT_WINDOW_SECONDS: "10"

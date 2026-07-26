@@ -34,20 +34,16 @@ spec:
   valuesFrom:
     - kind: Secret
       name: bjj-azure-ad-secret
-      valuesKey: AzureAd__TenantId
-      targetPath: bjj-api.api.env.AzureAd__TenantId
+      valuesKey: ENTRA_ISSUER_URI
+      targetPath: bjj-api.api.env.ENTRA_ISSUER_URI
     - kind: Secret
       name: bjj-azure-ad-secret
-      valuesKey: AzureAd__ClientId
-      targetPath: bjj-api.api.env.AzureAd__ClientId
-    - kind: Secret
-      name: bjj-azure-ad-secret
-      valuesKey: AzureAd__Audience
-      targetPath: bjj-api.api.env.AzureAd__Audience
+      valuesKey: ENTRA_AUDIENCE
+      targetPath: bjj-api.api.env.ENTRA_AUDIENCE
     - kind: Secret
       name: bjj-donation-secret
-      valuesKey: Donation__BitcoinAddress
-      targetPath: bjj-api.api.env.Donation__BitcoinAddress
+      valuesKey: DONATION_BITCOIN_ADDRESS
+      targetPath: bjj-api.api.env.DONATION_BITCOIN_ADDRESS
   values:
     bjj-mongodb:
       mongodb:
@@ -71,7 +67,7 @@ spec:
       api:
         image:
           repository: ghcr.io/ianoflynnautomation/bjjeire-api
-          tag: v0.1.13
+          tag: v0.2.0
           pullPolicy: IfNotPresent
         imagePullSecrets:
           - name: ghcr-pull-secret
@@ -87,46 +83,26 @@ spec:
           fsGroup: 1000
           seccompProfile:
             type: RuntimeDefault
-          sysctls:
-            - name: net.ipv4.ip_unprivileged_port_start
-              value: "0"
+          # No unprivileged-port sysctl needed — Spring Boot binds 8080 (>1024).
         podAnnotations:
           prometheus.io/scrape: "true"
           prometheus.io/path: "/metrics"
-          prometheus.io/port: "80"
+          prometheus.io/port: "8080"
         podLabels:
           azure.workload.identity/use: "true"
+        jvmOpts: "-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
         env:
-          ASPNETCORE_ENVIRONMENT: Production
-          ASPNETCORE_URLS: "http://+:80"
-          ASPNETCORE_HTTP_PORT: "80"
-          CorsOptions__AllowedOrigins: "https://${CLUSTER_DOMAIN},https://www.${CLUSTER_DOMAIN}"
-          CorsOptions__AllowedMethods: "GET,POST,PUT,DELETE"
-          CorsOptions__AllowedHeaders: "Authorization,Content-Type"
-          RateLimitOptions__EnableRateLimiting: "true"
-          RateLimitOptions__PermitLimit: "5"
-          RateLimitOptions__WindowInSeconds: "10"
-          RateLimitOptions__RejectionStatusCode: "429"
-          CacheOptions__DefaultExpirationMinutes: "5"
-          MongoDb__MaxConnectionPoolSize: "200"
-          MongoDb__ServerSelectionTimeoutSeconds: "3"
-          MongoDb__ConnectTimeoutSeconds: "10"
-          MongoDb__SocketTimeoutSeconds: "15"
-          MongoDb__EnableCompression: "true"
-          ReadOnlyMode__Enabled: "true"
-          CompetitionDeactivation__Interval: "1.00:00:00"
-          CompetitionDeactivation__InitialDelay: "00:00:30"
-          FeatureManagement__BjjEvents: "true"
-          FeatureManagement__Gyms: "true"
-          FeatureManagement__Stores: "true"
-          FeatureManagement__Competitions: "true"
-          ServiceDefaults__ServiceName: "BjjEire.Api"
-          ServiceDefaults__EnablePrometheus: "true"
-          AzureAd__Instance: "https://login.microsoftonline.com/"
-          Serilog__Properties__Application: "BjjEire.Api"
-          OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.observability.svc.cluster.local:4317"
-          OTEL_RESOURCE_ATTRIBUTES__service.name: "BjjEire.Api"
-          OTEL_RESOURCE_ATTRIBUTES__deployment.environment: "Production"
+          BJJEIRE_CORS_ALLOWEDORIGINS_0: "https://${CLUSTER_DOMAIN}"
+          BJJEIRE_CORS_ALLOWEDORIGINS_1: "https://www.${CLUSTER_DOMAIN}"
+          RATE_LIMIT_ENABLED: "true"
+          RATE_LIMIT_PERMIT_LIMIT: "5"
+          RATE_LIMIT_WINDOW_SECONDS: "10"
+          RATE_LIMIT_REJECTION_STATUS_CODE: "429"
+          READ_ONLY_MODE_ENABLED: "true"
+          FEATURE_BJJ_EVENTS: "true"
+          FEATURE_GYMS: "true"
+          FEATURE_STORES: "true"
+          FEATURE_COMPETITIONS: "true"
         resources:
           limits:
             cpu: 1000m
@@ -145,8 +121,6 @@ spec:
           create: false
           name: bjj-mongodb-root-password
           key: mongodb-password
-      kestrelCert:
-        enabled: false
       ingress:
         enabled: false
     bjj-frontend:
@@ -174,7 +148,7 @@ spec:
         env:
           NODE_ENV: production
           PORT: "80"
-          SERVICES_API_HTTP_0: "http://bjj-api.bjjeire-app.svc.cluster.local:80"
+          SERVICES_API_HTTP_0: "http://bjj-api.bjjeire-app.svc.cluster.local:8080"
         resources:
           limits:
             cpu: 500m
@@ -190,7 +164,7 @@ spec:
           targetMemoryUtilizationPercentage: 80
         waitForApi:
           enabled: true
-          apiUrl: "http://bjj-api.bjjeire-app.svc.cluster.local:80/health"
+          apiUrl: "http://bjj-api.bjjeire-app.svc.cluster.local:8080/health"
       ingress:
         enabled: false
     seeder:

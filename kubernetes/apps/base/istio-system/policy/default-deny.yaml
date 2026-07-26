@@ -6,8 +6,6 @@ metadata:
   namespace: istio-system
 spec: {}
 ---
-# The ingress gateway must accept unauthenticated internet traffic. The CUSTOM
-# oauth2-proxy policy still gates the observability hostnames on top of this.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -49,8 +47,6 @@ spec:
             principals:
               - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
 ---
-# OTLP ingest must accept sources without a mesh identity: bjj-api has no
-# sidecar and the acceptance-test runners post spans from outside the mesh.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -64,8 +60,6 @@ spec:
   rules:
     - {}
 ---
-# The Kubernetes API server calls the prometheus-operator admission webhook
-# and carries no mesh identity.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:

@@ -62,4 +62,4 @@ spec:
             value: /
       backendRefs:
         - name: bjj-api
-          port: 80
+          port: 8080
