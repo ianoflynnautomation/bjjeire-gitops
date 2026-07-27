@@ -83,7 +83,6 @@ spec:
           fsGroup: 1000
           seccompProfile:
             type: RuntimeDefault
-          # No unprivileged-port sysctl needed — Spring Boot binds 8080 (>1024).
         podAnnotations:
           prometheus.io/scrape: "true"
           prometheus.io/path: "/metrics"
