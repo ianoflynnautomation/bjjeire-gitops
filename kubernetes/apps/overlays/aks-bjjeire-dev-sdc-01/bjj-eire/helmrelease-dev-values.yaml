@@ -26,6 +26,7 @@ spec:
         env:
           RATE_LIMIT_PERMIT_LIMIT: "30"
           RATE_LIMIT_WINDOW_SECONDS: "10"
+          OTEL_SDK_DISABLED: "true"
         podAnnotations:
           prometheus.io/scrape: "false"
         resources:

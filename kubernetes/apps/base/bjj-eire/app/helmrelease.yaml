@@ -102,6 +102,8 @@ spec:
           FEATURE_GYMS: "true"
           FEATURE_STORES: "true"
           FEATURE_COMPETITIONS: "true"
+          OTEL_EXPORTER_OTLP_ENDPOINT: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+          OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
         resources:
           limits:
             cpu: 1000m
