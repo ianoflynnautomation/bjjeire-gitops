@@ -8,6 +8,8 @@ spec:
   values:
     seeder:
       dataset: "test"
+      force: true
+      environment: Development
     bjj-mongodb:
       mongodb:
         persistence:

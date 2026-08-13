@@ -27,7 +27,7 @@ spec:
           image: percona/mongodb_exporter:0.51.0
           imagePullPolicy: IfNotPresent
           args:
-            - --mongodb.uri=mongodb://bjj-mongodb:27017/admin
+            - --mongodb.uri=mongodb://$(MONGODB_USER):$(MONGODB_PASSWORD)@bjj-mongodb:27017/admin?authSource=admin
             - --collect-all
             - --compatible-mode
           env:

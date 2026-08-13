@@ -116,6 +116,9 @@ spec:
           minReplicas: 2
           maxReplicas: 10
           targetCPUUtilizationPercentage: 70
+        podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
       secrets:
         mongodbRootPassword:
           enabled: true
@@ -163,13 +166,19 @@ spec:
           maxReplicas: 6
           targetCPUUtilizationPercentage: 70
           targetMemoryUtilizationPercentage: 80
+        podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
         waitForApi:
           enabled: true
-          apiUrl: "http://bjj-api.bjjeire-app.svc.cluster.local:8080/health"
+          apiUrl: "http://bjj-api.bjjeire-app.svc.cluster.local:8080/actuator/health/readiness"
       ingress:
         enabled: false
     seeder:
       enabled: true
+      force: false
+      environment: Production
+      hookPolicy: "post-install"
       image:
         repository: ghcr.io/ianoflynnautomation/bjjeire-seeder
         tag: v0.1.11
@@ -179,11 +188,11 @@ spec:
       serviceAccount:
         create: true
         name: bjjeire-seeder
+        automount: true
         annotations:
           azure.workload.identity/client-id: "${SEEDER_CLIENT_ID}"
       podLabels:
         azure.workload.identity/use: "true"
-      hookPolicy: "post-install,post-upgrade"
       mongodb:
         host: bjj-mongodb
         port: 27017
