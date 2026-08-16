@@ -1,0 +1,92 @@
+---
+name: Sync audit
+
+# Fail-loud drift detector: for every environment overlay, assert that the
+# umbrella chart tag (OCIRepository) and every image tag it pins actually exist
+# as published artifacts in GHCR. Catches the two classes of drift that bit us:
+#   - OCIRepository tag pointing at a chart version never published (e.g. 0.1.11)
+#   - overlay image tag pinned to an image tag that doesn't exist
+#
+# Charts are public (anonymous pull). Images are private: GITHUB_TOKEN works when
+# the packages grant this repo read access; otherwise swap to the bjjeire App
+# token (packages: read across the owner).
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * *"
+  pull_request:
+    paths:
+      - "kubernetes/apps/overlays/**/bjj-eire/**"
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: sync-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Audit chart & image tags vs GHCR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - name: Audit overlays
+        env:
+          OWNER: ianoflynnautomation
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          fail=0
+          b64="$(printf '%s' "$GH_TOKEN" | base64 -w0)"
+
+          reg_tags() {
+            local repo="$1" tok
+            tok="$(curl -fsSL -H "Authorization: Basic ${b64}" \
+              "https://ghcr.io/token?scope=repository:${OWNER}/${repo}:pull" | jq -r '.token')"
+            curl -fsSL -H "Authorization: Bearer ${tok}" \
+              "https://ghcr.io/v2/${OWNER}/${repo}/tags/list" | jq -r '.tags[]?'
+          }
+
+          check() {
+            local repo="$1" tag="$2" kind="$3" env_name="$4" file="$5"
+            if [ -z "$tag" ] || [ "$tag" = "null" ]; then
+              echo "::warning title=Missing pin::[$env_name] no $kind tag found in $file"
+              return
+            fi
+            if reg_tags "$repo" | grep -qxF "$tag"; then
+              echo "::notice title=OK::[$env_name] $kind ghcr.io/$OWNER/$repo:$tag present"
+            else
+              echo "::error title=Drift,file=$file::[$env_name] $kind ghcr.io/$OWNER/$repo:$tag NOT in GHCR"
+              fail=1
+            fi
+          }
+
+          shopt -s nullglob
+          for overlay in kubernetes/apps/overlays/*/bjj-eire; do
+            env_name="$(basename "$(dirname "$overlay")")"
+            ks="$overlay/kustomization.yaml"
+            img="$overlay/helmrelease-images.yaml"
+            [ -f "$ks" ] || continue
+
+            chart_tag="$(yq '.patches[] | select(.target.kind == "OCIRepository") | .patch' "$ks" | yq '.[0].value.tag' -)"
+            check bjj-eire "$chart_tag" chart "$env_name" "$ks"
+
+            if [ -f "$img" ]; then
+              check bjjeire-api      "$(yq '.spec.values.bjj-api.api.image.tag'           "$img")" image "$env_name" "$img"
+              check bjjeire-frontend "$(yq '.spec.values.bjj-frontend.frontend.image.tag' "$img")" image "$env_name" "$img"
+              check bjjeire-seeder   "$(yq '.spec.values.seeder.image.tag'                "$img")" image "$env_name" "$img"
+            fi
+          done
+
+          echo "## Sync audit result" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$fail" -eq 0 ]; then
+            echo "All overlay chart & image tags resolve to published GHCR artifacts. :white_check_mark:" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Drift detected — see annotations above. :x:" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$fail"

@@ -31,6 +31,8 @@ This repository is the **source of truth** for cluster application state:
 ## Quick start (onboarding)
 
 1. **Clone** this repo and install tools: `kubectl`, `flux`, `kustomize` (optional: `kubeconform`, `yamllint`).
+   Or skip the installs — **Reopen in Container** ships all of them pinned to the
+   versions CI uses. See [`.devcontainer/README.md`](.devcontainer/README.md).
 2. **Skim** [repository layout](#repository-layout) and [architecture](docs/architecture.md).
 3. **Validate** a change locally: see [Deploy — local checks](docs/deploy.md#local-validation).
 4. **Open a PR** against `main`. CI runs manifest validation / flux-local checks.

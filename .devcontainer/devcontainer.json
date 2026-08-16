@@ -1,0 +1,134 @@
+// Dev Container for the BjjEire Flux CD GitOps repo.
+//
+// Tool versions mirror .github/workflows/*.yml so `./scripts/validate.sh` in
+// here gives the same answer as CI. The pins live in install-gitops-tools.sh.
+//
+// Spec: https://containers.dev/implementors/json_reference/
+{
+  "name": "bjjeire-gitops",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "remoteUser": "vscode",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "upgradePackages": true,
+      "username": "vscode"
+    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "1.31.0",
+      "helm": "3.17.0",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "latest",
+      "extensions": "aks-preview"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/dhoeric/features/k9s:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "containerEnv": {
+    "KUBECONFIG": "/home/vscode/.kube/config",
+    "AAD_LOGIN_METHOD": "azurecli",
+    "KUBE_EDITOR": "code --wait",
+    "KUBERNETES_VERSION": "1.31.0",
+    "FLUX_SCHEMA_LOCATION": "/home/vscode/.cache/flux-crd-schemas/master-standalone-strict",
+    "DOCKER_BUILDKIT": "1"
+  },
+
+  "mounts": [
+    "source=bjjeire-gitops-kube,target=/home/vscode/.kube,type=volume",
+    "source=bjjeire-gitops-azure,target=/home/vscode/.azure,type=volume"
+  ],
+
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "32gb"
+  },
+
+  "onCreateCommand": "bash .devcontainer/install-gitops-tools.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "forwardPorts": [3000, 9090, 20001],
+  "portsAttributes": {
+    "3000": { "label": "Grafana", "onAutoForward": "notify" },
+    "9090": { "label": "Prometheus", "onAutoForward": "silent" },
+    "20001": { "label": "Kiali", "onAutoForward": "notify" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "weaveworks.vscode-gitops-tools",
+        "redhat.vscode-yaml",
+        "tim-koehler.helm-intellisense",
+        "ms-azuretools.vscode-aks-tools",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "editorconfig.editorconfig",
+        "davidanson.vscode-markdownlint",
+        "streetsidesoftware.code-spell-checker",
+        "ms-azuretools.vscode-containers"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "files.eol": "\n",
+        "editor.formatOnSave": true,
+        "redhat.telemetry.enabled": false,
+
+        "[yaml]": {
+          "editor.defaultFormatter": "redhat.vscode-yaml",
+          "editor.tabSize": 2,
+          "editor.insertSpaces": true,
+          "editor.autoIndent": "keep"
+        },
+        "yaml.format.enable": true,
+        "yaml.validate": true,
+        "yaml.schemas": {
+          "https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json": "kubernetes/**/ks.yaml",
+          "https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json": "kubernetes/**/helmrelease*.yaml",
+          "https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/ocirepository-source-v1beta2.json": "kubernetes/**/ocirepository.yaml"
+        },
+        "yaml.customTags": ["!reference sequence"],
+
+        "vs-kubernetes": {
+          "vs-kubernetes.kubectl-path": "/usr/local/bin/kubectl",
+          "vs-kubernetes.helm-path": "/usr/local/bin/helm",
+          "vs-kubernetes.crd-code-completion": "enabled"
+        },
+
+        "cSpell.words": [
+          "bjjeire",
+          "cloudflared",
+          "conform",
+          "gitops",
+          "hadolint",
+          "helmrelease",
+          "istio",
+          "istioctl",
+          "istiod",
+          "kiali",
+          "kubeconform",
+          "kubectl",
+          "kubelogin",
+          "kustomization",
+          "kustomize",
+          "kyverno",
+          "ocirepository",
+          "polaris",
+          "yamllint",
+          "ztunnel"
+        ]
+      }
+    }
+  }
+}
