@@ -1,0 +1,7 @@
+---
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "ianoflynnautomation/bjjeire-ci-templates/*": ref-pin
+        "*": hash-pin

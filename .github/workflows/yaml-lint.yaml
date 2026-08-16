@@ -22,37 +22,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  yaml-lint:
-    name: YAML Lint
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Run yamllint
-        uses: ibiqlik/action-yamllint@v3
-        with:
-          file_or_dir: kubernetes/ .github/workflows/
-          strict: true
-          config_data: |
-            extends: default
-            rules:
-              line-length:
-                max: 200
-                level: warning
-                # Embedded Grafana dashboard JSON — long lines are unavoidable
-                # inside the json: | block and cannot be wrapped.
-                ignore: |
-                  kubernetes/apps/base/observability/grafana/instance/grafanadashboard-acceptance-tests.yaml
-              comments:
-                min-spaces-from-content: 1
-              truthy:
-                check-keys: false
-              document-start:
-                present: true
-              indentation:
-                spaces: 2
-                indent-sequences: true
+  lint:
+    name: Lint
+    permissions:
+      contents: read
+      checks: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@v1
+    with:
+      yamllint: true
+      yamllint-paths: "kubernetes/ .github/workflows/"
+      yamllint-strict: true
+      yamllint-config-data: |
+        extends: default
+        rules:
+          line-length:
+            max: 200
+            level: warning
+            # Embedded Grafana dashboard JSON — long lines are unavoidable
+            # inside the json: | block and cannot be wrapped.
+            ignore: |
+              kubernetes/apps/base/observability/grafana/instance/grafanadashboard-acceptance-tests.yaml
+          comments:
+            min-spaces-from-content: 1
+          truthy:
+            check-keys: false
+          document-start:
+            present: true
+          indentation:
+            spaces: 2
+            indent-sequences: true
+      zizmor-enforce: false
+      runs-on: ubuntu-24.04

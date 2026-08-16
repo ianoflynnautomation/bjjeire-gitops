@@ -7,6 +7,10 @@ name: Sync audit
 #   - OCIRepository tag pointing at a chart version never published (e.g. 0.1.11)
 #   - overlay image tag pinned to an image tag that doesn't exist
 #
+# The registry probing lives in the shared oci-tag-audit action. Extracting the
+# pins is repo-specific glue and stays here — it depends on this repo's overlay
+# layout and Helm values structure.
+#
 # Charts are public (anonymous pull). Images are private: GITHUB_TOKEN works when
 # the packages grant this repo read access; otherwise swap to the bjjeire App
 # token (packages: read across the owner).
@@ -33,37 +37,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
 
-      - name: Audit overlays
+      - name: Collect pinned chart and image tags
+        id: pins
         env:
-          OWNER: ianoflynnautomation
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHART_REPO: bjj-eire
         run: |
           set -euo pipefail
-          fail=0
-          b64="$(printf '%s' "$GH_TOKEN" | base64 -w0)"
+          artifacts='[]'
 
-          reg_tags() {
-            local repo="$1" tok
-            tok="$(curl -fsSL -H "Authorization: Basic ${b64}" \
-              "https://ghcr.io/token?scope=repository:${OWNER}/${repo}:pull" | jq -r '.token')"
-            curl -fsSL -H "Authorization: Bearer ${tok}" \
-              "https://ghcr.io/v2/${OWNER}/${repo}/tags/list" | jq -r '.tags[]?'
-          }
-
-          check() {
-            local repo="$1" tag="$2" kind="$3" env_name="$4" file="$5"
-            if [ -z "$tag" ] || [ "$tag" = "null" ]; then
-              echo "::warning title=Missing pin::[$env_name] no $kind tag found in $file"
-              return
-            fi
-            if reg_tags "$repo" | grep -qxF "$tag"; then
-              echo "::notice title=OK::[$env_name] $kind ghcr.io/$OWNER/$repo:$tag present"
-            else
-              echo "::error title=Drift,file=$file::[$env_name] $kind ghcr.io/$OWNER/$repo:$tag NOT in GHCR"
-              fail=1
-            fi
+          add() {
+            artifacts="$(printf '%s' "$artifacts" | jq -c \
+              --arg name "$1" --arg repo "$2" --arg tag "$3" --arg file "$4" \
+              '. + [{name: $name, repository: $repo, tag: $tag, file: $file}]')"
           }
 
           shopt -s nullglob
@@ -73,20 +63,27 @@ jobs:
             img="$overlay/helmrelease-images.yaml"
             [ -f "$ks" ] || continue
 
-            chart_tag="$(yq '.patches[] | select(.target.kind == "OCIRepository") | .patch' "$ks" | yq '.[0].value.tag' -)"
-            check bjj-eire "$chart_tag" chart "$env_name" "$ks"
+            chart_tag="$(yq '.patches[] | select(.target.kind == "OCIRepository") | .patch' "$ks" \
+              | yq '.[0].value.tag' -)"
+            add "chart [${env_name}]" "${GITHUB_REPOSITORY_OWNER}/${CHART_REPO}" "$chart_tag" "$ks"
 
             if [ -f "$img" ]; then
-              check bjjeire-api      "$(yq '.spec.values.bjj-api.api.image.tag'           "$img")" image "$env_name" "$img"
-              check bjjeire-frontend "$(yq '.spec.values.bjj-frontend.frontend.image.tag' "$img")" image "$env_name" "$img"
-              check bjjeire-seeder   "$(yq '.spec.values.seeder.image.tag'                "$img")" image "$env_name" "$img"
+              add "api [${env_name}]"      "${GITHUB_REPOSITORY_OWNER}/bjjeire-api" \
+                  "$(yq '.spec.values.bjj-api.api.image.tag' "$img")" "$img"
+              add "frontend [${env_name}]" "${GITHUB_REPOSITORY_OWNER}/bjjeire-frontend" \
+                  "$(yq '.spec.values.bjj-frontend.frontend.image.tag' "$img")" "$img"
+              add "seeder [${env_name}]"   "${GITHUB_REPOSITORY_OWNER}/bjjeire-seeder" \
+                  "$(yq '.spec.values.seeder.image.tag' "$img")" "$img"
             fi
           done
 
-          echo "## Sync audit result" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$fail" -eq 0 ]; then
-            echo "All overlay chart & image tags resolve to published GHCR artifacts. :white_check_mark:" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Drift detected — see annotations above. :x:" >> "$GITHUB_STEP_SUMMARY"
-          fi
-          exit "$fail"
+          echo "artifacts=${artifacts}" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Sync audit::Collected $(printf '%s' "$artifacts" | jq 'length') pinned reference(s)"
+
+      - name: Audit tags against GHCR
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-tag-audit@v1
+        with:
+          artifacts: ${{ steps.pins.outputs.artifacts }}
+          registry: ghcr.io
+          password: ${{ secrets.GITHUB_TOKEN }}
+          summary-title: Sync audit result

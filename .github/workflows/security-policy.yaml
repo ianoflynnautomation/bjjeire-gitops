@@ -18,113 +18,59 @@ on:
 
 permissions:
   contents: read
-  security-events: write
 
 defaults:
   run:
     shell: bash
-
-env:
-  KUSTOMIZE_VERSION: "5.5.0"
-  CLUSTERS: "aks-bjjeire-dev-sdc-01 aks-bjjeire-stg-sdc-01 aks-bjjeire-prod-sdc-01"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  security-policy:
-    name: Security Scans
+  render:
+    name: Render manifests
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Kustomize
-        uses: fluxcd/pkg/actions/kustomize@827f6c319fb09577b6243e95b6c07dffe53bb6f3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-kubernetes-tools@v1
         with:
-          version: ${{ env.KUSTOMIZE_VERSION }}
+          kustomize-version: "5.5.0"
 
-      - name: Render manifests for scanning
-        run: |
-          set -euo pipefail
-          echo "::group::Render manifests"
-          mkdir -p rendered
-          for cluster in ${CLUSTERS}; do
-            for root in kubernetes/apps/overlays kubernetes/infrastructure/overlays; do
-              dir="${root}/${cluster}"
-              [[ -f "${dir}/kustomization.yaml" ]] || continue
-              if [[ ! -s "${dir}/kustomization.yaml" ]]; then
-                echo "::warning file=${dir}/kustomization.yaml,title=Empty kustomization::Skipping empty placeholder"
-                continue
-              fi
-              out="rendered/${cluster}-$(basename "$(dirname "$root")").yaml"
-              echo "Rendering ${dir}"
-              kustomize build --load-restrictor=LoadRestrictionsNone "$dir" > "$out"
-            done
-          done
-          echo "::endgroup::"
-
-      - name: Trivy config scan
-        uses: docker://aquasec/trivy:0.70.0
+      - name: Render cluster overlays
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/kustomize-render@v1
         with:
-          args: >-
-            config
-            --skip-version-check
-            --exit-code 1
-            --severity HIGH,CRITICAL
-            --format table
-            rendered
+          paths: |
+            kubernetes/apps/overlays/*
+            kubernetes/infrastructure/overlays/*
+          output-dir: rendered
 
-      - name: Trivy SARIF report
-        if: success() && hashFiles('rendered/*.yaml') != ''
-        uses: docker://aquasec/trivy:0.70.0
+      - name: Upload rendered manifests
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          args: >-
-            config
-            --skip-version-check
-            --exit-code 0
-            --severity HIGH,CRITICAL
-            --format sarif
-            --output trivy-results.sarif
-            rendered
+          name: rendered-manifests-scan
+          path: rendered/
+          if-no-files-found: error
+          retention-days: 1
 
-      - name: Upload Trivy SARIF
-        if: >-
-          always() &&
-          hashFiles('trivy-results.sarif') != '' &&
-          (github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository)
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: trivy-results.sarif
-
-      - name: Polaris policy audit
-        uses: docker://quay.io/fairwinds/polaris:10.1.8@sha256:7af688527df75c3825395ded8aeb3775fad2027228aa06c9959d39ae6c00e999
-        with:
-          args: >-
-            polaris
-            audit
-            --audit-path rendered
-            --format pretty
-            --set-exit-code-on-danger
-            --set-exit-code-below-score 80
-
-      - name: Discover Dockerfiles
-        id: dockerfiles
-        run: |
-          set -euo pipefail
-          files="$(find . -type f \( -iname Dockerfile -o -iname '*.Dockerfile' \) -print | sort | tr '\n' ' ')"
-          echo "files=${files}" >> "$GITHUB_OUTPUT"
-          if [[ -z "$files" ]]; then
-            echo "::notice title=hadolint::No Dockerfiles found"
-          fi
-
-      - name: Hadolint Dockerfiles
-        if: steps.dockerfiles.outputs.files != ''
-        uses: docker://hadolint/hadolint:v2.12.0
-        with:
-          args: ${{ steps.dockerfiles.outputs.files }}
+  scan:
+    name: Security Scans
+    needs: render
+    permissions:
+      contents: read
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/kubernetes-policy-scan.yml@v1
+    with:
+      manifests-artifact: rendered-manifests-scan
+      trivy-severity: HIGH,CRITICAL
+      polaris-min-score: 80
+      runs-on: ubuntu-24.04
+      timeout-minutes: 25
