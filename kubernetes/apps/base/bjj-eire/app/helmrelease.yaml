@@ -41,6 +41,10 @@ spec:
       valuesKey: ENTRA_AUDIENCE
       targetPath: bjj-api.api.env.ENTRA_AUDIENCE
     - kind: Secret
+      name: bjj-azure-ad-secret
+      valuesKey: ENTRA_AUDIENCE_URI
+      targetPath: bjj-api.api.env.ENTRA_AUDIENCE_URI
+    - kind: Secret
       name: bjj-donation-secret
       valuesKey: DONATION_BITCOIN_ADDRESS
       targetPath: bjj-api.api.env.DONATION_BITCOIN_ADDRESS
