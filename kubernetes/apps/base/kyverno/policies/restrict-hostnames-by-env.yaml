@@ -25,6 +25,16 @@ spec:
                 - bjjeire-app
                 - istio-ingress
                 - observability
+          # Ephemeral PR / SHA / debug namespaces. The destroy guard and the
+          # TTL janitor both key off this label; hostnames must still sit
+          # under ${CLUSTER_DOMAIN} so a mis-set root_domain cannot claim
+          # the production apex.
+          - resources:
+              kinds:
+                - HTTPRoute
+              namespaceSelector:
+                matchLabels:
+                  bjjeire.io/ephemeral: "true"
       validate:
         message: >-
           HTTPRoute hostname must end in "${CLUSTER_DOMAIN}". This blocks dev

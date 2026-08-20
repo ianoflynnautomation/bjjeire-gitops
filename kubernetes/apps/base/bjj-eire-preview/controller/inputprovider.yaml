@@ -1,0 +1,20 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: bjj-eire-prs
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "1m"
+    fluxcd.controlplane.io/reconcileTimeout: "2m"
+spec:
+  type: GitHubPullRequest
+  url: https://github.com/ianoflynnautomation/BjjEire
+  secretRef:
+    name: github-preview-token
+  filter:
+    labels:
+      - deploy-preview
+    limit: 8
+  defaultValues:
+    clusterDomain: ${CLUSTER_DOMAIN}

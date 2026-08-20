@@ -39,6 +39,7 @@ resources:
   - ../../base/istio-system/policy/ks.yaml
   - ../../base/bjj-eire/ks.yaml
   - ../../base/bjj-eire/image-automation/ks.yaml
+  - ../../base/bjj-eire-preview/ks.yaml
   - ../../base/kyverno/ks.yaml
 
 patches:

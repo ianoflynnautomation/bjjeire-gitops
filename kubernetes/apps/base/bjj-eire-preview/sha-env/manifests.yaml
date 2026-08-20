@@ -1,0 +1,463 @@
+---
+# CI-applied SHA / debug env. Flux owns the HelmRelease after apply.
+# Placeholders (envsubst): ENV_ID IMAGE_TAG CLUSTER_DOMAIN TTL
+# Must stay aligned with controller/resourceset.yaml.
+#
+#   ENV_ID=sha-123 IMAGE_TAG=$GITHUB_SHA CLUSTER_DOMAIN=dev.bjjeire.com TTL=4h \
+#     envsubst '${ENV_ID} ${IMAGE_TAG} ${CLUSTER_DOMAIN} ${TTL}' \
+#     < manifests.yaml | kubectl apply --server-side --field-manager=gha -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${ENV_ID}
+  labels:
+    gateway-access: "true"
+    istio.io/dataplane-mode: ambient
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    bjjeire.io/ephemeral: "true"
+    bjjeire.io/env-id: ${ENV_ID}
+    app.kubernetes.io/managed-by: flux-preview
+  annotations:
+    janitor/ttl: ${TTL}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: ephemeral
+  namespace: ${ENV_ID}
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi
+    pods: "20"
+    persistentvolumeclaims: "0"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ephemeral
+  namespace: ${ENV_ID}
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: bjj-mongodb-root-password
+  namespace: ${ENV_ID}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: azure-keyvault-store
+  target:
+    name: bjj-mongodb-root-password
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        mongodb-password: "{{ .mongodb_password }}"
+  data:
+    - secretKey: mongodb_password
+      remoteRef:
+        key: bjj-mongodb-root-password
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: bjj-azure-ad-secret
+  namespace: ${ENV_ID}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: azure-keyvault-store
+  target:
+    name: bjj-azure-ad-secret
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        ENTRA_ISSUER_URI: "https://login.microsoftonline.com/{{ .tenant_id }}/v2.0"
+        ENTRA_AUDIENCE: "{{ .audience }}"
+  data:
+    - secretKey: tenant_id
+      remoteRef:
+        key: bjj-api-azuread-tenant-id
+    - secretKey: audience
+      remoteRef:
+        key: bjj-api-azuread-audience
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: ghcr-pull-secret
+  namespace: ${ENV_ID}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: azure-keyvault-store
+  target:
+    name: ghcr-pull-secret
+    creationPolicy: Owner
+    template:
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: |
+          {"auths":{"ghcr.io":{"auth":"{{ printf "ianoflynnautomation:%s" .ghcr_pat | b64enc }}"}}}
+  data:
+    - secretKey: ghcr_pat
+      remoteRef:
+        key: ghcr-pat
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: bjj-donation-secret
+  namespace: ${ENV_ID}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: azure-keyvault-store
+  target:
+    name: bjj-donation-secret
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        DONATION_BITCOIN_ADDRESS: "{{ .bitcoin_address }}"
+  data:
+    - secretKey: bitcoin_address
+      remoteRef:
+        key: bjj-donation-bitcoin-address
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bjj-frontend
+  namespace: ${ENV_ID}
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-wildcard
+  hostnames:
+    - ${ENV_ID}.${CLUSTER_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bjj-frontend
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bjj-api
+  namespace: ${ENV_ID}
+spec:
+  parentRefs:
+    - name: istio-ingressgateway
+      namespace: istio-ingress
+      sectionName: https-wildcard
+  hostnames:
+    - api-${ENV_ID}.${CLUSTER_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bjj-api
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: ${ENV_ID}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: ${ENV_ID}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-ingress-from-gateway
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-ingress
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-ingress-from-gateway-and-frontend
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-ingress
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-frontend
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-mongodb-ingress-from-api
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-mongodb
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-api
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjjeire-seeder
+      ports:
+        - protocol: TCP
+          port: 27017
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-egress-to-api
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-frontend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-api
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-egress-to-mongodb
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-mongodb
+      ports:
+        - protocol: TCP
+          port: 27017
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-seeder-egress-to-mongodb
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjjeire-seeder
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bjj-mongodb
+      ports:
+        - protocol: TCP
+          port: 27017
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-egress-internet
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.0.0/16
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-egress-to-otel-collector
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - protocol: TCP
+          port: 4318
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bjj-eire
+  namespace: ${ENV_ID}
+  labels:
+    app.kubernetes.io/managed-by: flux-preview
+spec:
+  interval: 5m
+  timeout: 10m
+  chartRef:
+    kind: OCIRepository
+    name: bjj-eire
+    namespace: bjjeire-app
+  install:
+    createNamespace: false
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 30s
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 30s
+  driftDetection:
+    mode: enabled
+  maxHistory: 2
+  valuesFrom:
+    - kind: ConfigMap
+      name: bjj-eire-ephemeral-values
+      valuesKey: values.yaml
+    - kind: Secret
+      name: bjj-azure-ad-secret
+      valuesKey: ENTRA_ISSUER_URI
+      targetPath: bjj-api.api.env.ENTRA_ISSUER_URI
+    - kind: Secret
+      name: bjj-azure-ad-secret
+      valuesKey: ENTRA_AUDIENCE
+      targetPath: bjj-api.api.env.ENTRA_AUDIENCE
+    - kind: Secret
+      name: bjj-donation-secret
+      valuesKey: DONATION_BITCOIN_ADDRESS
+      targetPath: bjj-api.api.env.DONATION_BITCOIN_ADDRESS
+  values:
+    bjj-api:
+      api:
+        image:
+          tag: ${IMAGE_TAG}
+        env:
+          BJJEIRE_CORS_ALLOWEDORIGINS_0: https://${ENV_ID}.${CLUSTER_DOMAIN}
+          OTEL_RESOURCE_ATTRIBUTES: service.name=bjjeire-api,deployment.environment=${ENV_ID}
+    bjj-frontend:
+      frontend:
+        image:
+          tag: ${IMAGE_TAG}
+        env:
+          SERVICES_API_HTTP_0: http://bjj-api.${ENV_ID}.svc.cluster.local:8080
+        waitForApi:
+          apiUrl: http://bjj-api.${ENV_ID}.svc.cluster.local:8080/actuator/health/readiness
+    seeder:
+      image:
+        tag: ${IMAGE_TAG}
