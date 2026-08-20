@@ -61,6 +61,8 @@ spec:
         labels:
           azure.workload.identity/use: "true"
       spec:
+        securityContext:
+          fsGroup: 123
         serviceAccountName: gha-runner-sa
         nodeSelector:
           workload: "gha-runner"
