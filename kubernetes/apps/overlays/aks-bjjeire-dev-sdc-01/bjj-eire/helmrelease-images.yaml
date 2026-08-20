@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,7 +8,7 @@ spec:
     bjj-api:
       api:
         image:
-          tag: v0.1.17 # {"$imagepolicy": "bjjeire-app:bjjeire-api:tag"}
+          tag: v0.1.19 # {"$imagepolicy": "bjjeire-app:bjjeire-api:tag"}
     bjj-frontend:
       frontend:
         image:
