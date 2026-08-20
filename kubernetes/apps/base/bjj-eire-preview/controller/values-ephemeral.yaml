@@ -8,7 +8,7 @@ bjj-mongodb:
         cpu: 500m
         memory: 512Mi
       requests:
-        cpu: 100m
+        cpu: 50m
         memory: 256Mi
   secrets:
     mongodbRootPassword:
@@ -47,7 +47,7 @@ bjj-api:
         cpu: 500m
         memory: 512Mi
       requests:
-        cpu: 100m
+        cpu: 50m
         memory: 256Mi
     autoscaling:
       enabled: false
