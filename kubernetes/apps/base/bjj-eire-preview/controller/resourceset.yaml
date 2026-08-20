@@ -169,9 +169,9 @@ spec:
             parentRefs:
               - name: istio-ingressgateway
                 namespace: istio-ingress
-                sectionName: https-wildcard
+                sectionName: https-apex-wildcard
             hostnames:
-              - pr-<< inputs.id >>.<< inputs.clusterDomain >>
+              - pr-<< inputs.id >>.<< inputs.rootDomain >>
             rules:
               - matches:
                   - path:
@@ -189,9 +189,9 @@ spec:
             parentRefs:
               - name: istio-ingressgateway
                 namespace: istio-ingress
-                sectionName: https-wildcard
+                sectionName: https-apex-wildcard
             hostnames:
-              - api-pr-<< inputs.id >>.<< inputs.clusterDomain >>
+              - api-pr-<< inputs.id >>.<< inputs.rootDomain >>
             rules:
               - matches:
                   - path:
@@ -458,7 +458,7 @@ spec:
                   image:
                     tag: pr-<< inputs.id >>-<< inputs.sha >>
                   env:
-                    BJJEIRE_CORS_ALLOWEDORIGINS_0: https://pr-<< inputs.id >>.<< inputs.clusterDomain >>
+                    BJJEIRE_CORS_ALLOWEDORIGINS_0: https://pr-<< inputs.id >>.<< inputs.rootDomain >>
                     OTEL_RESOURCE_ATTRIBUTES: service.name=bjjeire-api,deployment.environment=pr-<< inputs.id >>
               bjj-frontend:
                 frontend:

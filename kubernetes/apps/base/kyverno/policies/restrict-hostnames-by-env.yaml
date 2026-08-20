@@ -25,16 +25,6 @@ spec:
                 - bjjeire-app
                 - istio-ingress
                 - observability
-          # Ephemeral PR / SHA / debug namespaces. The destroy guard and the
-          # TTL janitor both key off this label; hostnames must still sit
-          # under ${CLUSTER_DOMAIN} so a mis-set root_domain cannot claim
-          # the production apex.
-          - resources:
-              kinds:
-                - HTTPRoute
-              namespaceSelector:
-                matchLabels:
-                  bjjeire.io/ephemeral: "true"
       validate:
         message: >-
           HTTPRoute hostname must end in "${CLUSTER_DOMAIN}". This blocks dev
@@ -48,5 +38,29 @@ spec:
                     operator: NotEquals
                     value: "${CLUSTER_DOMAIN}"
                   - key: "{{ regex_match('^[a-zA-Z0-9*-]+[.-]${CLUSTER_DOMAIN}$', '{{ element }}') }}"
+                    operator: Equals
+                    value: false
+    # Preview/SHA hosts use a single label under ${ROOT_DOMAIN} so Cloudflare
+    # Universal SSL (*.${ROOT_DOMAIN}) covers them. Only pr-/sha- prefixes
+    # are allowed so this cluster cannot claim www/api/staging.
+    - name: ephemeral-hostnames-under-root-domain
+      match:
+        any:
+          - resources:
+              kinds:
+                - HTTPRoute
+              namespaceSelector:
+                matchLabels:
+                  bjjeire.io/ephemeral: "true"
+      validate:
+        message: >-
+          Ephemeral HTTPRoute hostname must be pr-|sha-|api-pr-|api-sha- plus
+          an id under ${ROOT_DOMAIN} (e.g. pr-80.${ROOT_DOMAIN}).
+        foreach:
+          - list: request.object.spec.hostnames
+            deny:
+              conditions:
+                all:
+                  - key: "{{ regex_match('^(pr|sha|api-pr|api-sha)-[a-zA-Z0-9]+.${ROOT_DOMAIN}$', '{{ element }}') }}"
                     operator: Equals
                     value: false

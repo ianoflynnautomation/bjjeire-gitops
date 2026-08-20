@@ -9,7 +9,7 @@ metadata:
     fluxcd.controlplane.io/reconcileTimeout: "2m"
 spec:
   type: GitHubPullRequest
-  url: https://github.com/ianoflynnautomation/BjjEire
+  url: https://github.com/ianoflynnautomation/bjjeire
   secretRef:
     name: github-preview-token
   filter:
@@ -18,3 +18,4 @@ spec:
     limit: 8
   defaultValues:
     clusterDomain: ${CLUSTER_DOMAIN}
+    rootDomain: ${ROOT_DOMAIN}

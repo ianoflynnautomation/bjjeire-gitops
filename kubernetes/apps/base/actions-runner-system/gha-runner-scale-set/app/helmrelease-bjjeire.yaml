@@ -42,7 +42,7 @@ spec:
     nameOverride: gha-runner-scale-set-bjjeire
     runnerScaleSetName: gha-runner-scale-set
     githubConfigSecret: github-app-secret
-    githubConfigUrl: https://github.com/ianoflynnautomation/BjjEire
+    githubConfigUrl: https://github.com/ianoflynnautomation/bjjeire
     # pr-env acceptance runs 4 projects x 4 shards plus env lifecycle jobs.
     maxRunners: 20
     minRunners: 0

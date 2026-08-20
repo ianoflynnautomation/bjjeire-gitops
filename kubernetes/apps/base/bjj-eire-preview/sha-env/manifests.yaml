@@ -1,10 +1,11 @@
 ---
 # CI-applied SHA / debug env. Flux owns the HelmRelease after apply.
-# Placeholders (envsubst): ENV_ID IMAGE_TAG CLUSTER_DOMAIN TTL
+# Placeholders (envsubst): ENV_ID IMAGE_TAG CLUSTER_DOMAIN ROOT_DOMAIN TTL
 # Must stay aligned with controller/resourceset.yaml.
 #
-#   ENV_ID=sha-123 IMAGE_TAG=$GITHUB_SHA CLUSTER_DOMAIN=dev.bjjeire.com TTL=4h \
-#     envsubst '${ENV_ID} ${IMAGE_TAG} ${CLUSTER_DOMAIN} ${TTL}' \
+#   ENV_ID=sha-123 IMAGE_TAG=$GITHUB_SHA CLUSTER_DOMAIN=dev.bjjeire.com \
+#     ROOT_DOMAIN=bjjeire.com TTL=4h \
+#     envsubst '${ENV_ID} ${IMAGE_TAG} ${CLUSTER_DOMAIN} ${ROOT_DOMAIN} ${TTL}' \
 #     < manifests.yaml | kubectl apply --server-side --field-manager=gha -f -
 apiVersion: v1
 kind: Namespace
@@ -156,9 +157,9 @@ spec:
   parentRefs:
     - name: istio-ingressgateway
       namespace: istio-ingress
-      sectionName: https-wildcard
+      sectionName: https-apex-wildcard
   hostnames:
-    - ${ENV_ID}.${CLUSTER_DOMAIN}
+    - ${ENV_ID}.${ROOT_DOMAIN}
   rules:
     - matches:
         - path:
@@ -177,9 +178,9 @@ spec:
   parentRefs:
     - name: istio-ingressgateway
       namespace: istio-ingress
-      sectionName: https-wildcard
+      sectionName: https-apex-wildcard
   hostnames:
-    - api-${ENV_ID}.${CLUSTER_DOMAIN}
+    - api-${ENV_ID}.${ROOT_DOMAIN}
   rules:
     - matches:
         - path:
@@ -456,7 +457,7 @@ spec:
         image:
           tag: ${IMAGE_TAG}
         env:
-          BJJEIRE_CORS_ALLOWEDORIGINS_0: https://${ENV_ID}.${CLUSTER_DOMAIN}
+          BJJEIRE_CORS_ALLOWEDORIGINS_0: https://${ENV_ID}.${ROOT_DOMAIN}
           OTEL_RESOURCE_ATTRIBUTES: service.name=bjjeire-api,deployment.environment=${ENV_ID}
     bjj-frontend:
       frontend:

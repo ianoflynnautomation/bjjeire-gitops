@@ -62,3 +62,21 @@ spec:
           selector:
             matchLabels:
               gateway-access: "true"
+    # Single-label names under the zone apex (pr-80.bjjeire.com, sha-*.bjjeire.com).
+    # Cloudflare Universal SSL covers *.${ROOT_DOMAIN} but not *.${CLUSTER_DOMAIN}.
+    - name: https-apex-wildcard
+      port: 443
+      protocol: HTTPS
+      hostname: "*.${ROOT_DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-tls-secret
+            namespace: network-system
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway-access: "true"
