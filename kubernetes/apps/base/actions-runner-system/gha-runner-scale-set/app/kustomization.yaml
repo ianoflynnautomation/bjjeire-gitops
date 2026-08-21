@@ -9,3 +9,4 @@ resources:
   - helmrelease-bjjeire-tests.yaml
   - ocirepository.yaml
   - externalsecret.yaml
+  - externalsecret-ghcr.yaml

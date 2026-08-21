@@ -63,6 +63,8 @@ spec:
         securityContext:
           fsGroup: 123
         serviceAccountName: gha-runner-sa
+        imagePullSecrets:
+          - name: ghcr-pull-secret
         nodeSelector:
           workload: "gha-runner"
         tolerations:
@@ -76,7 +78,7 @@ spec:
             effect: "NoSchedule"
         containers:
           - name: runner
-            image: ghcr.io/home-operations/actions-runner:2.336.0@sha256:281a9a090522fafbf4967f158b8c97d03552b1978b688893c5f7cb1944bc5fe5
+            image: ghcr.io/ianoflynnautomation/actions-runner:2.336.0
             command: ["/home/runner/run.sh"]
             env:
               - name: ACTIONS_RUNNER_CONTAINER_HOOKS
