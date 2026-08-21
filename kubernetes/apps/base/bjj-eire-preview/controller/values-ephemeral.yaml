@@ -68,6 +68,15 @@ bjj-frontend:
     imagePullSecrets:
       - name: ghcr-pull-secret
     replicaCount: 1
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 101
+      fsGroup: 101
+      seccompProfile:
+        type: RuntimeDefault
+      sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: "0"
     podAnnotations:
       prometheus.io/scrape: "true"
       prometheus.io/path: "/metrics"
@@ -97,6 +106,8 @@ seeder:
   image:
     repository: ghcr.io/ianoflynnautomation/bjjeire-seeder
     pullPolicy: IfNotPresent
+  imagePullSecrets:
+    - name: ghcr-pull-secret
   hookPolicy: "post-install,post-upgrade"
   mongodb:
     host: bjj-mongodb

@@ -210,6 +210,42 @@ spec:
             policyTypes:
               - Ingress
               - Egress
+        # Mesh-wide default-deny AuthorizationPolicy lives in istio-system.
+        # Same-namespace + ingress + observability allows, matching bjjeire-app.
+        - apiVersion: security.istio.io/v1
+          kind: AuthorizationPolicy
+          metadata:
+            name: allow-preview-internal
+            namespace: pr-<< inputs.id >>
+          spec:
+            action: ALLOW
+            rules:
+              - from:
+                  - source:
+                      namespaces: ["pr-<< inputs.id >>"]
+        - apiVersion: security.istio.io/v1
+          kind: AuthorizationPolicy
+          metadata:
+            name: allow-ingress-to-preview
+            namespace: pr-<< inputs.id >>
+          spec:
+            action: ALLOW
+            rules:
+              - from:
+                  - source:
+                      principals:
+                        - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+        - apiVersion: security.istio.io/v1
+          kind: AuthorizationPolicy
+          metadata:
+            name: allow-observability-to-preview
+            namespace: pr-<< inputs.id >>
+          spec:
+            action: ALLOW
+            rules:
+              - from:
+                  - source:
+                      namespaces: ["observability"]
         - apiVersion: networking.k8s.io/v1
           kind: NetworkPolicy
           metadata:

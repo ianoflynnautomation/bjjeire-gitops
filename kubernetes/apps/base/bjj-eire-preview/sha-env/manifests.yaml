@@ -201,6 +201,43 @@ spec:
     - Ingress
     - Egress
 ---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-preview-internal
+  namespace: ${ENV_ID}
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["${ENV_ID}"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-preview
+  namespace: ${ENV_ID}
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-ingress/sa/istio-ingressgateway-istio"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-observability-to-preview
+  namespace: ${ENV_ID}
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["observability"]
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

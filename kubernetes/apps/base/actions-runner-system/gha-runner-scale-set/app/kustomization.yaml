@@ -4,6 +4,8 @@ kind: Kustomization
 
 resources:
   - serviceaccount.yaml
+  - role.yaml
+  - rolebinding.yaml
   - helmrelease.yaml
   - helmrelease-bjjeire.yaml
   - helmrelease-bjjeire-tests.yaml
