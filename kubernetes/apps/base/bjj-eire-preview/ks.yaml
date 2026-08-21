@@ -10,7 +10,19 @@ spec:
   timeout: 5m
   path: "./kubernetes/apps/base/bjj-eire-preview/controller"
   prune: true
-  wait: true
+  # Factory health only. wait:true would also wait on ResourceSet Ready, and the
+  # ResourceSet stays InProgress while any generated PR HelmRelease is installing.
+  # CI (flux-wait-helmrelease) owns per-preview Ready.
+  wait: false
+  healthChecks:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: bjj-eire-prs
+      namespace: flux-system
+    - apiVersion: notification.toolkit.fluxcd.io/v1
+      kind: Receiver
+      name: bjj-eire-prs
+      namespace: flux-system
   sourceRef:
     kind: GitRepository
     name: flux-system
