@@ -61,6 +61,32 @@
       "matchStrings": [
         "tag:\\s*[\"']?(?<currentValue>[^\"'\\s#]+)[\"']?\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "ARC runner base image FROM pin",
+      "managerFilePatterns": [
+        "/images/actions-runner/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "FROM ghcr.io/home-operations/actions-runner:(?<currentValue>[^@\\s]+)(?:@sha256:[a-f0-9]+)?"
+      ],
+      "depNameTemplate": "ghcr.io/home-operations/actions-runner",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Published ARC runner image tag in HelmReleases",
+      "managerFilePatterns": [
+        "/kubernetes/apps/base/actions-runner-system/gha-runner-scale-set/app/helmrelease.*\\.yaml$/"
+      ],
+      "matchStrings": [
+        "image:\\s+ghcr.io/ianoflynnautomation/actions-runner:(?<currentValue>[^@\\s]+)"
+      ],
+      "depNameTemplate": "ghcr.io/ianoflynnautomation/actions-runner",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -122,6 +148,15 @@
         "**/gha-runner-scale-set**"
       ],
       "groupName": "gha-runner-scale-set",
+      "automerge": false
+    },
+    {
+      "description": "Keep published ARC runner image in lockstep with the home-operations base",
+      "matchPackageNames": [
+        "ghcr.io/home-operations/actions-runner",
+        "ghcr.io/ianoflynnautomation/actions-runner"
+      ],
+      "groupName": "gha-actions-runner-image",
       "automerge": false
     },
     {

@@ -1,0 +1,74 @@
+---
+name: Publish actions-runner image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "images/actions-runner/**"
+      - ".github/workflows/publish-actions-runner.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "images/actions-runner/**"
+      - ".github/workflows/publish-actions-runner.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Read runner version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      runner-version: ${{ steps.ver.outputs.runner-version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Parse FROM tag
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          from="$(grep -E '^FROM ghcr.io/home-operations/actions-runner:' images/actions-runner/Dockerfile | head -1)"
+          ver="${from#*:}"
+          ver="${ver%%@*}"
+          if [ -z "${ver}" ] || [ "${ver}" = "${from}" ]; then
+            echo "::error title=Dockerfile::could not parse runner version from FROM line"
+            exit 1
+          fi
+          echo "runner-version=${ver}" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Runner version::${ver}"
+
+  build:
+    name: Build & Push
+    needs: [version]
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@v1
+    with:
+      image-name: actions-runner
+      dockerfile: ./images/actions-runner/Dockerfile
+      context: ./images/actions-runner
+      # Runner node pool is Standard_D2ds_v5 (amd64).
+      platforms: linux/amd64
+      push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+      runs-on: ubuntu-24.04
+      tags: |
+        type=raw,value=${{ needs.version.outputs.runner-version }}
+        type=sha,format=short
+        type=raw,value=latest,enable={{is_default_branch}}
+      labels: |
+        org.opencontainers.image.title=actions-runner
+        org.opencontainers.image.description=ARC runner image with Azure CLI
