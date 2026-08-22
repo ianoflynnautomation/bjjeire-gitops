@@ -250,7 +250,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: bjj-api
   portLevelMtls:
-    8080:
+    "8080":
       mode: PERMISSIVE
 ---
 apiVersion: security.istio.io/v1
