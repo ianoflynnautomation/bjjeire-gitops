@@ -79,20 +79,6 @@ patches:
                       selector:
                         matchLabels:
                           gateway-access: "true"
-          # Tunnel CNAMEs for ${CLUSTER_DOMAIN} are owned by Terraform
-          # (module.cloudflare_tunnel). If these annotations stay, external-dns
-          # publishes A records at the Istio LoadBalancer IP and Cloudflare
-          # rejects the tunnel CNAME create (error 81053).
-          - target:
-              kind: Gateway
-              name: istio-ingressgateway
-            patch: |
-              - op: remove
-                path: /spec/infrastructure/annotations/external-dns.alpha.kubernetes.io~1hostname
-              - op: remove
-                path: /spec/infrastructure/annotations/external-dns.alpha.kubernetes.io~1external
-              - op: remove
-                path: /spec/infrastructure/annotations/external-dns.alpha.kubernetes.io~1cloudflare-proxied
 
   - target:
       group: kustomize.toolkit.fluxcd.io

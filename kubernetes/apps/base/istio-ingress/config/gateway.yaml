@@ -10,9 +10,10 @@ spec:
   gatewayClassName: istio
   infrastructure:
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: "${CLUSTER_DOMAIN},*.${CLUSTER_DOMAIN}"
-      external-dns.alpha.kubernetes.io/external: "true"
-      external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+      # Do not publish ${CLUSTER_DOMAIN} / *.${CLUSTER_DOMAIN} via external-dns.
+      # Terraform module.cloudflare_tunnel owns those names as CNAMEs to
+      # <tunnel-id>.cfargotunnel.com. Publishing A records at the Istio
+      # LoadBalancer IP makes Cloudflare reject the CNAME create (81053).
       service.beta.kubernetes.io/port_80_health-probe_protocol: Tcp
       service.beta.kubernetes.io/port_443_health-probe_protocol: Tcp
   listeners:
