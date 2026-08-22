@@ -248,17 +248,41 @@ spec:
                       namespaces: ["observability"]
         # ARC acceptance jobs hit the in-cluster Service
         # (http://bjj-api.pr-N.svc.cluster.local:8080) to skip Cloudflare Access.
+        # Runners stay out of ambient (privileged ARC / DinD). Mesh-wide STRICT
+        # mTLS plus source.namespaces (SPIFFE only) would RST those plaintext
+        # calls. PERMISSIVE on 8080 + notPrincipals lets unauthenticated
+        # runners in; NetworkPolicy still limits L4 to actions-runner-system.
+        - apiVersion: security.istio.io/v1
+          kind: PeerAuthentication
+          metadata:
+            name: allow-plaintext-api-from-runners
+            namespace: pr-<< inputs.id >>
+          spec:
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: bjj-api
+            portLevelMtls:
+              8080:
+                mode: PERMISSIVE
         - apiVersion: security.istio.io/v1
           kind: AuthorizationPolicy
           metadata:
             name: allow-actions-runners-to-preview
             namespace: pr-<< inputs.id >>
           spec:
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: bjj-api
             action: ALLOW
             rules:
               - from:
                   - source:
                       namespaces: ["actions-runner-system"]
+                  - source:
+                      notPrincipals: ["*"]
+                to:
+                  - operation:
+                      ports: ["8080"]
         - apiVersion: networking.k8s.io/v1
           kind: NetworkPolicy
           metadata:

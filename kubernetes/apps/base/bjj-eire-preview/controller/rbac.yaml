@@ -84,6 +84,7 @@ rules:
       - security.istio.io
     resources:
       - authorizationpolicies
+      - peerauthentications
     verbs:
       - create
       - get
