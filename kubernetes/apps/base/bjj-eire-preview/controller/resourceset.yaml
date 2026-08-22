@@ -246,6 +246,19 @@ spec:
               - from:
                   - source:
                       namespaces: ["observability"]
+        # ARC acceptance jobs hit the in-cluster Service
+        # (http://bjj-api.pr-N.svc.cluster.local:8080) to skip Cloudflare Access.
+        - apiVersion: security.istio.io/v1
+          kind: AuthorizationPolicy
+          metadata:
+            name: allow-actions-runners-to-preview
+            namespace: pr-<< inputs.id >>
+          spec:
+            action: ALLOW
+            rules:
+              - from:
+                  - source:
+                      namespaces: ["actions-runner-system"]
         - apiVersion: networking.k8s.io/v1
           kind: NetworkPolicy
           metadata:
@@ -305,6 +318,27 @@ spec:
                   - podSelector:
                       matchLabels:
                         app.kubernetes.io/name: bjj-frontend
+                ports:
+                  - protocol: TCP
+                    port: 8080
+                  - protocol: TCP
+                    port: 15008
+        - apiVersion: networking.k8s.io/v1
+          kind: NetworkPolicy
+          metadata:
+            name: allow-api-ingress-from-actions-runners
+            namespace: pr-<< inputs.id >>
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: bjj-api
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: actions-runner-system
                 ports:
                   - protocol: TCP
                     port: 8080
