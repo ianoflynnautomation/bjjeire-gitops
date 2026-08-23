@@ -11,6 +11,7 @@ resources:
   - inputprovider.yaml
   - resourceset.yaml
   - receiver.yaml
+  - receiver-oidc.yaml
 
 configMapGenerator:
   - name: bjj-eire-ephemeral-values

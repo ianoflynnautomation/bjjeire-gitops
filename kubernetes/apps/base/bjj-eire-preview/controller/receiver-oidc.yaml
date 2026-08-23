@@ -1,8 +1,4 @@
 ---
-# Requires Flux 2.9+ (notification-controller Receiver CRD with spec.oidcProviders).
-# Not listed in kustomization.yaml while the cluster is on Flux 2.8.8
-# (flux-operator-manifests v0.52.0). Re-add the file to resources after
-# upgrading the operator manifests artifact to >= v0.53.0.
 apiVersion: notification.toolkit.fluxcd.io/v1
 kind: Receiver
 metadata:
@@ -10,13 +6,11 @@ metadata:
   namespace: flux-system
 spec:
   type: generic-oidc
-  events:
-    - push
   oidcProviders:
     - issuerURL: https://token.actions.githubusercontent.com
-      audience: flux-notification-controller
+      audience: notification-controller
       validations:
-        - expression: "claims.repository == 'ianoflynnautomation/BjjEire' || claims.repository == 'ianoflynnautomation/bjjeire-java'"
+        - expression: "claims.repository == 'ianoflynnautomation/bjjeire'"
           message: "repository not allowed"
   resources:
     - apiVersion: fluxcd.controlplane.io/v1
