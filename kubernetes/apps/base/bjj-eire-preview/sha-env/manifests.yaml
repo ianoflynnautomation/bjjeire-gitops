@@ -238,8 +238,10 @@ spec:
         - source:
             namespaces: ["observability"]
 ---
-# ARC jobs call http://bjj-api.${ENV_ID}.svc.cluster.local:8080 from outside
-# the mesh. Keep in lockstep with controller/resourceset.yaml.
+# ARC jobs call in-cluster Services from outside the mesh to skip Cloudflare
+# Bot Fight. Keep in lockstep with controller/resourceset.yaml.
+#   API  http://bjj-api.${ENV_ID}.svc.cluster.local:8080
+#   UI   http://bjj-frontend.${ENV_ID}.svc.cluster.local:80
 apiVersion: security.istio.io/v1
 kind: PeerAuthentication
 metadata:
@@ -251,6 +253,19 @@ spec:
       app.kubernetes.io/name: bjj-api
   portLevelMtls:
     "8080":
+      mode: PERMISSIVE
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: allow-plaintext-frontend-from-runners
+  namespace: ${ENV_ID}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-frontend
+  portLevelMtls:
+    "80":
       mode: PERMISSIVE
 ---
 apiVersion: security.istio.io/v1
@@ -273,6 +288,26 @@ spec:
         - operation:
             ports: ["8080"]
 ---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-actions-runners-to-frontend
+  namespace: ${ENV_ID}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-frontend
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["actions-runner-system"]
+        - source:
+            notPrincipals: ["*"]
+      to:
+        - operation:
+            ports: ["80"]
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -292,6 +327,28 @@ spec:
       ports:
         - protocol: TCP
           port: 8080
+        - protocol: TCP
+          port: 15008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-ingress-from-actions-runners
+  namespace: ${ENV_ID}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: bjj-frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: actions-runner-system
+      ports:
+        - protocol: TCP
+          port: 80
         - protocol: TCP
           port: 15008
 ---

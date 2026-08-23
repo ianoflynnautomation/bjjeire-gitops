@@ -246,11 +246,14 @@ spec:
               - from:
                   - source:
                       namespaces: ["observability"]
-        # ARC acceptance jobs hit the in-cluster Service
-        # (http://bjj-api.pr-N.svc.cluster.local:8080) to skip Cloudflare Access.
+        # ARC acceptance jobs hit in-cluster Services to skip Cloudflare
+        # Bot Fight (JS challenge cannot be solved by HeadlessChrome XHR):
+        #   API  http://bjj-api.pr-N.svc.cluster.local:8080
+        #   UI   http://bjj-frontend.pr-N.svc.cluster.local:80
+        #        (Caddy reverse-proxies /api to the API Service)
         # Runners stay out of ambient (privileged ARC / DinD). Mesh-wide STRICT
         # mTLS plus source.namespaces (SPIFFE only) would RST those plaintext
-        # calls. PERMISSIVE on 8080 + notPrincipals lets unauthenticated
+        # calls. PERMISSIVE on 8080/80 + notPrincipals lets unauthenticated
         # runners in; NetworkPolicy still limits L4 to actions-runner-system.
         - apiVersion: security.istio.io/v1
           kind: PeerAuthentication
@@ -263,6 +266,18 @@ spec:
                 app.kubernetes.io/name: bjj-api
             portLevelMtls:
               "8080":
+                mode: PERMISSIVE
+        - apiVersion: security.istio.io/v1
+          kind: PeerAuthentication
+          metadata:
+            name: allow-plaintext-frontend-from-runners
+            namespace: pr-<< inputs.id >>
+          spec:
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: bjj-frontend
+            portLevelMtls:
+              "80":
                 mode: PERMISSIVE
         - apiVersion: security.istio.io/v1
           kind: AuthorizationPolicy
@@ -283,6 +298,25 @@ spec:
                 to:
                   - operation:
                       ports: ["8080"]
+        - apiVersion: security.istio.io/v1
+          kind: AuthorizationPolicy
+          metadata:
+            name: allow-actions-runners-to-frontend
+            namespace: pr-<< inputs.id >>
+          spec:
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: bjj-frontend
+            action: ALLOW
+            rules:
+              - from:
+                  - source:
+                      namespaces: ["actions-runner-system"]
+                  - source:
+                      notPrincipals: ["*"]
+                to:
+                  - operation:
+                      ports: ["80"]
         - apiVersion: networking.k8s.io/v1
           kind: NetworkPolicy
           metadata:
@@ -366,6 +400,27 @@ spec:
                 ports:
                   - protocol: TCP
                     port: 8080
+                  - protocol: TCP
+                    port: 15008
+        - apiVersion: networking.k8s.io/v1
+          kind: NetworkPolicy
+          metadata:
+            name: allow-frontend-ingress-from-actions-runners
+            namespace: pr-<< inputs.id >>
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: bjj-frontend
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: actions-runner-system
+                ports:
+                  - protocol: TCP
+                    port: 80
                   - protocol: TCP
                     port: 15008
         - apiVersion: networking.k8s.io/v1
