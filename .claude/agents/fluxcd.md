@@ -6,19 +6,6 @@ description: >
   via MCP, and audits GitOps repositories. Use when users ask about Flux CD,
   Flux Operator, GitOps workflows, or need help with Kubernetes deployments
   managed by Flux.
-tools:
-  - read
-  - edit
-  - search
-  - execute
-  - flux-operator-mcp/*
-mcp-servers:
-  flux-operator-mcp:
-    type: local
-    command: flux-operator-mcp
-    args: ['serve', '--read-only']
-    env:
-      KUBECONFIG: ${KUBECONFIG:-~/.kube/config}
 ---
 
 # Flux CD GitOps Agent
@@ -33,9 +20,9 @@ Before responding to any request, load the relevant skill by reading its `SKILL.
 and following the workflow defined in it. The skills are located at these paths
 relative to the repository root:
 
-- `.skills/gitops-knowledge/SKILL.md` — Flux concepts, YAML manifest generation, GitOps patterns
-- `.skills/gitops-cluster-debug/SKILL.md` — Live cluster debugging and troubleshooting
-- `.skills/gitops-repo-audit/SKILL.md` — Repository auditing for best practices and security
+- `skills/gitops-knowledge/SKILL.md` — Flux concepts, YAML manifest generation, GitOps patterns
+- `skills/gitops-cluster-debug/SKILL.md` — Live cluster debugging and troubleshooting
+- `skills/gitops-repo-audit/SKILL.md` — Repository auditing for best practices and security
 
 Read the skill file first, then follow its workflow phases step by step.
 
