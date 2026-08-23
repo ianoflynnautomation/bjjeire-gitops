@@ -1,6 +1,6 @@
 # BJJ Éire GitOps
 
-[![Flux CD](https://img.shields.io/badge/Flux_CD-v2.8-blue?logo=flux&logoColor=white)](https://fluxcd.io/)
+[![Flux CD](https://img.shields.io/badge/Flux_CD-v2.9-blue?logo=flux&logoColor=white)](https://fluxcd.io/)
 [![AKS](https://img.shields.io/badge/Azure-AKS-0078D4?logo=microsoftazure&logoColor=white)](https://learn.microsoft.com/azure/aks/)
 [![Istio](https://img.shields.io/badge/Istio-1.29_ambient-466BB0?logo=istio&logoColor=white)](https://istio.io/)
 [![Helm / OCI](https://img.shields.io/badge/Helm-OCI_(GHCR)-0F1689?logo=helm&logoColor=white)](https://helm.sh/)
