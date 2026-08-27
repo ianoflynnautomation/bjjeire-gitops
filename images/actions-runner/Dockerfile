@@ -8,7 +8,7 @@
 # (same runner version string, e.g. 2.336.0).
 
 # renovate: datasource=docker depName=ghcr.io/home-operations/actions-runner
-FROM ghcr.io/home-operations/actions-runner:2.336.0@sha256:281a9a090522fafbf4967f158b8c97d03552b1978b688893c5f7cb1944bc5fe5
+FROM ghcr.io/home-operations/actions-runner:2.337.0@sha256:281a9a090522fafbf4967f158b8c97d03552b1978b688893c5f7cb1944bc5fe5
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
