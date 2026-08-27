@@ -12,3 +12,8 @@ rules:
   - apiGroups: [""]
     resources: ["namespaces"]
     verbs: ["get", "list", "watch", "delete"]
+  # SHA/main acceptance envs are Flux-owned. Reaping the Static
+  # ResourceSetInputProvider is what drops the ResourceSet input.
+  - apiGroups: ["fluxcd.controlplane.io"]
+    resources: ["resourcesetinputproviders"]
+    verbs: ["get", "list", "watch", "delete"]

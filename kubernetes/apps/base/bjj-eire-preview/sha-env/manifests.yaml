@@ -1,12 +1,12 @@
 ---
-# CI-applied SHA / debug env. Flux owns the HelmRelease after apply.
-# Placeholders (envsubst): ENV_ID IMAGE_TAG CLUSTER_DOMAIN ROOT_DOMAIN TTL
-# Must stay aligned with controller/resourceset.yaml.
+# Manual / debug SHA env only. Main CI no longer kubectl-applies this file
+# (AKS RBAC Admin cannot write ResourceQuota). SHA/main acceptance envs are
+# Flux-owned: GitHub Actions applies a Static ResourceSetInputProvider labelled
+# bjjeire.io/sha-env=true; ResourceSet bjj-eire-previews renders the same
+# objects as PR previews. Keep this copy aligned with controller/resourceset.yaml
+# if you still envsubst it for a break-glass apply.
 #
-#   ENV_ID=sha-123 IMAGE_TAG=$GITHUB_SHA CLUSTER_DOMAIN=dev.bjjeire.com \
-#     ROOT_DOMAIN=bjjeire.com TTL=4h \
-#     envsubst '${ENV_ID} ${IMAGE_TAG} ${CLUSTER_DOMAIN} ${ROOT_DOMAIN} ${TTL}' \
-#     < manifests.yaml | kubectl apply --server-side --field-manager=gha -f -
+# Placeholders: ENV_ID IMAGE_TAG CLUSTER_DOMAIN ROOT_DOMAIN TTL
 apiVersion: v1
 kind: Namespace
 metadata:
