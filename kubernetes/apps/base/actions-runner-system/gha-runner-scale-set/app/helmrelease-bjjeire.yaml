@@ -43,8 +43,8 @@ spec:
     runnerScaleSetName: gha-runner-scale-set
     githubConfigSecret: github-app-secret
     githubConfigUrl: https://github.com/ianoflynnautomation/bjjeire
-    # pr-env acceptance runs 4 projects x 4 shards plus env lifecycle jobs.
-    maxRunners: 20
+    # 8 acceptance shards; extra headroom for preview lifecycle jobs.
+    maxRunners: 10
     minRunners: 0
     controllerServiceAccount:
       name: gha-runner-scale-set-controller
@@ -82,16 +82,25 @@ spec:
             env:
               - name: ACTIONS_RUNNER_CONTAINER_HOOKS
                 value: /home/runner/k8s-novolume/index.js
+              - name: ACTIONS_RUNNER_CONTAINER_HOOK_TEMPLATE
+                value: /home/runner/pod-templates/default.yaml
               - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
                 value: "false"
               - name: ACTIONS_RUNNER_POD_NAME
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.name
+            volumeMounts:
+              - name: hook-extension
+                mountPath: /home/runner/pod-templates
             securityContext:
               privileged: true
             resources:
               requests:
-                memory: "1G"
+                memory: "512Mi"
               limits:
-                memory: "2G"
+                memory: "1Gi"
+        volumes:
+          - name: hook-extension
+            configMap:
+              name: gha-runner-hook-extension

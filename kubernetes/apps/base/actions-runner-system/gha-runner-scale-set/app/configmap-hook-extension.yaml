@@ -1,0 +1,22 @@
+---
+# Applied to the Playwright/job container ARC creates for `container:`.
+# Without requests, kubelet packs 8×~3Gi jobs onto one node and evicts them
+# (MemoryPressure). These requests force Pending until there is RAM, instead
+# of scheduling then OOM-killing the shard.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gha-runner-hook-extension
+  namespace: actions-runner-system
+data:
+  default.yaml: |
+    spec:
+      containers:
+        - name: "$job"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi

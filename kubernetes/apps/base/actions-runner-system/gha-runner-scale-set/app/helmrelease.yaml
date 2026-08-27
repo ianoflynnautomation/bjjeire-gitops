@@ -81,12 +81,17 @@ spec:
             env:
               - name: ACTIONS_RUNNER_CONTAINER_HOOKS
                 value: /home/runner/k8s-novolume/index.js
+              - name: ACTIONS_RUNNER_CONTAINER_HOOK_TEMPLATE
+                value: /home/runner/pod-templates/default.yaml
               - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
                 value: "false"
               - name: ACTIONS_RUNNER_POD_NAME
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.name
+            volumeMounts:
+              - name: hook-extension
+                mountPath: /home/runner/pod-templates
             securityContext:
               privileged: true
             resources:
@@ -94,6 +99,10 @@ spec:
                 memory: "14G"
               limits:
                 memory: "16G"
+        volumes:
+          - name: hook-extension
+            configMap:
+              name: gha-runner-hook-extension
     listenerMetrics:
       counters:
         gha_started_jobs_total:
