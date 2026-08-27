@@ -30,22 +30,22 @@ spec:
         - apiVersion: v1
           kind: Namespace
           metadata:
-            name: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            name: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
             labels:
               gateway-access: "true"
               istio.io/dataplane-mode: ambient
               pod-security.kubernetes.io/enforce: baseline
               pod-security.kubernetes.io/warn: restricted
               bjjeire.io/ephemeral: "true"
-              bjjeire.io/env-id: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
-              bjjeire.io/sha-env: "<< if inputs.ns >>true<< else >>false<< end >>"
+              bjjeire.io/env-id: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
+              bjjeire.io/sha-env: '<< if get inputs "ns" >>true<< else >>false<< end >>'
             annotations:
-              janitor/ttl: "<< if inputs.ttl >><< inputs.ttl >><< else >>2h<< end >>"
+              janitor/ttl: '<< get inputs "ttl" | default "2h" >>'
         - apiVersion: v1
           kind: ResourceQuota
           metadata:
             name: ephemeral
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             hard:
               requests.cpu: "2"
@@ -58,7 +58,7 @@ spec:
           kind: LimitRange
           metadata:
             name: ephemeral
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             limits:
               - type: Container
@@ -72,14 +72,14 @@ spec:
           kind: ConfigMap
           metadata:
             name: bjj-eire-ephemeral-values
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
             annotations:
               fluxcd.controlplane.io/copyFrom: flux-system/bjj-eire-ephemeral-values
         - apiVersion: external-secrets.io/v1
           kind: ExternalSecret
           metadata:
             name: bjj-mongodb-root-password
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -100,7 +100,7 @@ spec:
           kind: ExternalSecret
           metadata:
             name: bjj-azure-ad-secret
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -129,7 +129,7 @@ spec:
           kind: ExternalSecret
           metadata:
             name: ghcr-pull-secret
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -151,7 +151,7 @@ spec:
           kind: ExternalSecret
           metadata:
             name: bjj-donation-secret
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -172,14 +172,14 @@ spec:
           kind: HTTPRoute
           metadata:
             name: bjj-frontend
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             parentRefs:
               - name: istio-ingressgateway
                 namespace: istio-ingress
                 sectionName: https-apex-wildcard
             hostnames:
-              - << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.<< inputs.rootDomain >>
+              - '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.<< inputs.rootDomain >>'
             rules:
               - matches:
                   - path:
@@ -192,14 +192,14 @@ spec:
           kind: HTTPRoute
           metadata:
             name: bjj-api
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             parentRefs:
               - name: istio-ingressgateway
                 namespace: istio-ingress
                 sectionName: https-apex-wildcard
             hostnames:
-              - api-<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.<< inputs.rootDomain >>
+              - 'api-<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.<< inputs.rootDomain >>'
             rules:
               - matches:
                   - path:
@@ -212,7 +212,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: default-deny-all
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector: {}
             policyTypes:
@@ -224,18 +224,18 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-preview-internal
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             action: ALLOW
             rules:
               - from:
                   - source:
-                      namespaces: ["<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>"]
+                      namespaces: ['<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>']
         - apiVersion: security.istio.io/v1
           kind: AuthorizationPolicy
           metadata:
             name: allow-ingress-to-preview
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             action: ALLOW
             rules:
@@ -247,7 +247,7 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-observability-to-preview
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             action: ALLOW
             rules:
@@ -267,7 +267,7 @@ spec:
           kind: PeerAuthentication
           metadata:
             name: allow-plaintext-api-from-runners
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             selector:
               matchLabels:
@@ -279,7 +279,7 @@ spec:
           kind: PeerAuthentication
           metadata:
             name: allow-plaintext-frontend-from-runners
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             selector:
               matchLabels:
@@ -291,7 +291,7 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-actions-runners-to-preview
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             selector:
               matchLabels:
@@ -310,7 +310,7 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-actions-runners-to-frontend
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             selector:
               matchLabels:
@@ -329,7 +329,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-dns-egress
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector: {}
             policyTypes:
@@ -348,7 +348,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-frontend-ingress-from-gateway
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -369,7 +369,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-ingress-from-gateway-and-frontend
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -393,7 +393,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-ingress-from-actions-runners
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -414,7 +414,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-frontend-ingress-from-actions-runners
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -435,7 +435,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-mongodb-ingress-from-api
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -459,7 +459,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-frontend-egress-to-api
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -480,7 +480,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-egress-to-mongodb
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -501,7 +501,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-seeder-egress-to-mongodb
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -522,7 +522,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-egress-internet
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -545,7 +545,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-egress-to-otel-collector
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             podSelector:
               matchLabels:
@@ -569,7 +569,7 @@ spec:
           kind: HelmRelease
           metadata:
             name: bjj-eire
-            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+            namespace: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
           spec:
             interval: 5m
             timeout: 10m
@@ -613,18 +613,18 @@ spec:
               bjj-api:
                 api:
                   image:
-                    tag: << if inputs.imageTag >><< inputs.imageTag >><< else >>pr-<< inputs.id >>-<< inputs.sha >><< end >>
+                    tag: '<< get inputs "imageTag" | default (printf "pr-%s-%s" inputs.id inputs.sha) >>'
                   env:
-                    BJJEIRE_CORS_ALLOWEDORIGINS_0: https://<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.<< inputs.rootDomain >>
-                    OTEL_RESOURCE_ATTRIBUTES: service.name=bjjeire-api,deployment.environment=<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+                    BJJEIRE_CORS_ALLOWEDORIGINS_0: 'https://<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.<< inputs.rootDomain >>'
+                    OTEL_RESOURCE_ATTRIBUTES: 'service.name=bjjeire-api,deployment.environment=<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
               bjj-frontend:
                 frontend:
                   image:
-                    tag: << if inputs.imageTag >><< inputs.imageTag >><< else >>pr-<< inputs.id >>-<< inputs.sha >><< end >>
+                    tag: '<< get inputs "imageTag" | default (printf "pr-%s-%s" inputs.id inputs.sha) >>'
                   env:
-                    SERVICES_API_HTTP_0: http://bjj-api.<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.svc.cluster.local:8080
+                    SERVICES_API_HTTP_0: 'http://bjj-api.<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.svc.cluster.local:8080'
                   waitForApi:
-                    apiUrl: http://bjj-api.<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.svc.cluster.local:8080/actuator/health/readiness
+                    apiUrl: 'http://bjj-api.<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.svc.cluster.local:8080/actuator/health/readiness'
               seeder:
                 image:
-                  tag: << if inputs.imageTag >><< inputs.imageTag >><< else >>pr-<< inputs.id >>-<< inputs.sha >><< end >>
+                  tag: '<< get inputs "imageTag" | default (printf "pr-%s-%s" inputs.id inputs.sha) >>'
