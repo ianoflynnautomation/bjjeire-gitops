@@ -1,8 +1,8 @@
 ---
-# Required by ARC containerMode: kubernetes. The runner hook
-# (/home/runner/k8s/index.js) creates a Job/Pod (and a Secret) in this
-# namespace for each job that specifies `container:`. Custom SAs are not
-# granted this by the chart.
+# Required by ARC containerMode: kubernetes / kubernetes-novolume. The
+# runner hook creates a Job/Pod (and a Secret) in this namespace for each
+# job that specifies `container:`. kubernetes-novolume also uses pods/exec
+# to copy the workspace. Custom SAs are not granted this by the chart.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

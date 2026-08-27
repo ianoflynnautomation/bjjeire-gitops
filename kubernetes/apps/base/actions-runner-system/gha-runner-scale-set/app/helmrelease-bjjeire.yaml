@@ -49,13 +49,11 @@ spec:
     controllerServiceAccount:
       name: gha-runner-scale-set-controller
       namespace: actions-runner-system
+    # kubernetes-novolume copies the job workspace with container lifecycle
+    # hooks instead of a PVC. Azure Disk RWO on the gha-runner pool otherwise
+    # caps concurrent jobs at the node's max attached-volume count.
     containerMode:
-      type: kubernetes
-      kubernetesModeWorkVolumeClaim:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 5Gi
+      type: kubernetes-novolume
     template:
       metadata:
         labels:
@@ -83,7 +81,7 @@ spec:
             command: ["/home/runner/run.sh"]
             env:
               - name: ACTIONS_RUNNER_CONTAINER_HOOKS
-                value: /home/runner/k8s/index.js
+                value: /home/runner/k8s-novolume/index.js
               - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
                 value: "false"
               - name: ACTIONS_RUNNER_POD_NAME
