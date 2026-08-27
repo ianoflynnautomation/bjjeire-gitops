@@ -26,6 +26,9 @@ spec:
           selector:
             matchLabels:
               bjjeire.io/sha-env: "true"
+      - resources:
+          annotations:
+            bjjeire.io/sha-env: "true"
   conditions:
     all:
       - key: "{{ time_diff('{{target.metadata.creationTimestamp}}', time_now_utc('')) }}"

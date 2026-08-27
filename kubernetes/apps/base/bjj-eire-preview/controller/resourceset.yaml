@@ -8,7 +8,10 @@ metadata:
     fluxcd.controlplane.io/reconcileEvery: "1m"
 spec:
   serviceAccountName: flux-preview
-  wait: true
+  # CI waits on the per-env HelmRelease. RS-level wait:true stays InProgress
+  # while any of the (up to filter.limit) preview HelmReleases install, and
+  # InputProvider updates cancel in-flight health checks.
+  wait: false
   inputsFrom:
     - kind: ResourceSetInputProvider
       name: bjj-eire-prs
@@ -19,10 +22,18 @@ spec:
       selector:
         matchLabels:
           bjjeire.io/sha-env: "true"
+  # Static labels live here so they always land on generated Namespaces.
+  # Flux commonMetadata overrides matching keys; live applies were dropping
+  # the same keys from the Namespace template (Gateway then rejected HTTPRoutes).
   commonMetadata:
     labels:
       app.kubernetes.io/managed-by: flux-preview
       bjjeire.io/preview: "true"
+      bjjeire.io/ephemeral: "true"
+      gateway-access: "true"
+      istio.io/dataplane-mode: ambient
+      pod-security.kubernetes.io/enforce: baseline
+      pod-security.kubernetes.io/warn: restricted
   steps:
     - name: namespace
       timeout: 2m
@@ -41,6 +52,8 @@ spec:
               bjjeire.io/sha-env: '<< if get inputs "ns" >>true<< else >>false<< end >>'
             annotations:
               janitor/ttl: '<< get inputs "ttl" | default "2h" >>'
+              bjjeire.io/env-id: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
+              bjjeire.io/sha-env: '<< if get inputs "ns" >>true<< else >>false<< end >>'
         - apiVersion: v1
           kind: ResourceQuota
           metadata:
