@@ -77,7 +77,7 @@ spec:
             effect: "NoSchedule"
         containers:
           - name: runner
-            image: ghcr.io/ianoflynnautomation/actions-runner:2.336.0
+            image: ghcr.io/ianoflynnautomation/actions-runner:2.337.0
             command: ["/home/runner/run.sh"]
             env:
               - name: ACTIONS_RUNNER_CONTAINER_HOOKS
