@@ -18,7 +18,10 @@ spec:
   filter:
     labels:
       - deploy-preview
-    limit: 8
+    # Dependabot still runs compose smoke in ci-pr.yml. AKS previews are for
+    # human PRs; eight concurrent Helm installs exhaust the apps pool.
+    excludeBranch: "^dependabot/"
+    limit: 3
   defaultValues:
     clusterDomain: ${CLUSTER_DOMAIN}
     rootDomain: ${ROOT_DOMAIN}
