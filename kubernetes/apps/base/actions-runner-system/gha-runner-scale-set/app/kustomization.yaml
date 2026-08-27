@@ -6,6 +6,7 @@ resources:
   - serviceaccount.yaml
   - role.yaml
   - rolebinding.yaml
+  - configmap-hook-extension.yaml
   - helmrelease.yaml
   - helmrelease-bjjeire.yaml
   - helmrelease-bjjeire-tests.yaml
