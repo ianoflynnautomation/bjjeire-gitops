@@ -1,4 +1,10 @@
 ---
+# Official ephemeral overlay for the bjj-eire umbrella chart.
+# Use with: helm upgrade --install bjj-eire . -n <env> -f values-ephemeral.yaml
+#
+# Dynamic bits (image tags, CORS origin, Entra, waitForApi FQDN) stay on the
+# caller (Flux HelmRelease spec.values / valuesFrom, or a generated -f overlay).
+# This file is the source of truth; gitops copies must match it.
 bjj-mongodb:
   mongodb:
     persistence:
@@ -95,6 +101,7 @@ bjj-frontend:
       enabled: false
     waitForApi:
       enabled: true
+      apiUrl: "http://bjj-api:8080/actuator/health/readiness"
   ingress:
     enabled: false
 

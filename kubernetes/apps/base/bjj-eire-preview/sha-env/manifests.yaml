@@ -34,6 +34,8 @@ spec:
     limits.cpu: "4"
     limits.memory: 4Gi
     pods: "20"
+    # Matches bjj-eire values-ephemeral.yaml (mongodb.persistence.enabled=false).
+    # Preview namespaces must not attach Azure Disks.
     persistentvolumeclaims: "0"
 ---
 apiVersion: v1
