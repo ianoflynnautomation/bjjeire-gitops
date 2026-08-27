@@ -12,6 +12,13 @@ spec:
   inputsFrom:
     - kind: ResourceSetInputProvider
       name: bjj-eire-prs
+    # CI SHA/main acceptance envs. GitHub Actions applies a Static provider
+    # (no ResourceQuota); this selector picks them up. Flatten (default)
+    # concatenates PR inputs and SHA inputs into one env list.
+    - kind: ResourceSetInputProvider
+      selector:
+        matchLabels:
+          bjjeire.io/sha-env: "true"
   commonMetadata:
     labels:
       app.kubernetes.io/managed-by: flux-preview
@@ -23,21 +30,22 @@ spec:
         - apiVersion: v1
           kind: Namespace
           metadata:
-            name: pr-<< inputs.id >>
+            name: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
             labels:
               gateway-access: "true"
               istio.io/dataplane-mode: ambient
               pod-security.kubernetes.io/enforce: baseline
               pod-security.kubernetes.io/warn: restricted
               bjjeire.io/ephemeral: "true"
-              bjjeire.io/env-id: pr-<< inputs.id >>
+              bjjeire.io/env-id: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
+              bjjeire.io/sha-env: "<< if inputs.ns >>true<< else >>false<< end >>"
             annotations:
-              janitor/ttl: "2h"
+              janitor/ttl: "<< if inputs.ttl >><< inputs.ttl >><< else >>2h<< end >>"
         - apiVersion: v1
           kind: ResourceQuota
           metadata:
             name: ephemeral
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             hard:
               requests.cpu: "2"
@@ -50,7 +58,7 @@ spec:
           kind: LimitRange
           metadata:
             name: ephemeral
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             limits:
               - type: Container
@@ -64,14 +72,14 @@ spec:
           kind: ConfigMap
           metadata:
             name: bjj-eire-ephemeral-values
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
             annotations:
               fluxcd.controlplane.io/copyFrom: flux-system/bjj-eire-ephemeral-values
         - apiVersion: external-secrets.io/v1
           kind: ExternalSecret
           metadata:
             name: bjj-mongodb-root-password
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -92,7 +100,7 @@ spec:
           kind: ExternalSecret
           metadata:
             name: bjj-azure-ad-secret
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -121,7 +129,7 @@ spec:
           kind: ExternalSecret
           metadata:
             name: ghcr-pull-secret
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -143,7 +151,7 @@ spec:
           kind: ExternalSecret
           metadata:
             name: bjj-donation-secret
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             refreshInterval: 1h
             secretStoreRef:
@@ -164,14 +172,14 @@ spec:
           kind: HTTPRoute
           metadata:
             name: bjj-frontend
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             parentRefs:
               - name: istio-ingressgateway
                 namespace: istio-ingress
                 sectionName: https-apex-wildcard
             hostnames:
-              - pr-<< inputs.id >>.<< inputs.rootDomain >>
+              - << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.<< inputs.rootDomain >>
             rules:
               - matches:
                   - path:
@@ -184,14 +192,14 @@ spec:
           kind: HTTPRoute
           metadata:
             name: bjj-api
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             parentRefs:
               - name: istio-ingressgateway
                 namespace: istio-ingress
                 sectionName: https-apex-wildcard
             hostnames:
-              - api-pr-<< inputs.id >>.<< inputs.rootDomain >>
+              - api-<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.<< inputs.rootDomain >>
             rules:
               - matches:
                   - path:
@@ -204,7 +212,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: default-deny-all
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector: {}
             policyTypes:
@@ -216,18 +224,18 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-preview-internal
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             action: ALLOW
             rules:
               - from:
                   - source:
-                      namespaces: ["pr-<< inputs.id >>"]
+                      namespaces: ["<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>"]
         - apiVersion: security.istio.io/v1
           kind: AuthorizationPolicy
           metadata:
             name: allow-ingress-to-preview
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             action: ALLOW
             rules:
@@ -239,7 +247,7 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-observability-to-preview
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             action: ALLOW
             rules:
@@ -259,7 +267,7 @@ spec:
           kind: PeerAuthentication
           metadata:
             name: allow-plaintext-api-from-runners
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             selector:
               matchLabels:
@@ -271,7 +279,7 @@ spec:
           kind: PeerAuthentication
           metadata:
             name: allow-plaintext-frontend-from-runners
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             selector:
               matchLabels:
@@ -283,7 +291,7 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-actions-runners-to-preview
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             selector:
               matchLabels:
@@ -302,7 +310,7 @@ spec:
           kind: AuthorizationPolicy
           metadata:
             name: allow-actions-runners-to-frontend
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             selector:
               matchLabels:
@@ -321,7 +329,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-dns-egress
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector: {}
             policyTypes:
@@ -340,7 +348,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-frontend-ingress-from-gateway
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -361,7 +369,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-ingress-from-gateway-and-frontend
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -385,7 +393,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-ingress-from-actions-runners
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -406,7 +414,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-frontend-ingress-from-actions-runners
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -427,7 +435,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-mongodb-ingress-from-api
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -451,7 +459,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-frontend-egress-to-api
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -472,7 +480,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-egress-to-mongodb
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -493,7 +501,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-seeder-egress-to-mongodb
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -514,7 +522,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-egress-internet
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -537,7 +545,7 @@ spec:
           kind: NetworkPolicy
           metadata:
             name: allow-api-egress-to-otel-collector
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             podSelector:
               matchLabels:
@@ -561,7 +569,7 @@ spec:
           kind: HelmRelease
           metadata:
             name: bjj-eire
-            namespace: pr-<< inputs.id >>
+            namespace: << if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
           spec:
             interval: 5m
             timeout: 10m
@@ -605,18 +613,18 @@ spec:
               bjj-api:
                 api:
                   image:
-                    tag: pr-<< inputs.id >>-<< inputs.sha >>
+                    tag: << if inputs.imageTag >><< inputs.imageTag >><< else >>pr-<< inputs.id >>-<< inputs.sha >><< end >>
                   env:
-                    BJJEIRE_CORS_ALLOWEDORIGINS_0: https://pr-<< inputs.id >>.<< inputs.rootDomain >>
-                    OTEL_RESOURCE_ATTRIBUTES: service.name=bjjeire-api,deployment.environment=pr-<< inputs.id >>
+                    BJJEIRE_CORS_ALLOWEDORIGINS_0: https://<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.<< inputs.rootDomain >>
+                    OTEL_RESOURCE_ATTRIBUTES: service.name=bjjeire-api,deployment.environment=<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>
               bjj-frontend:
                 frontend:
                   image:
-                    tag: pr-<< inputs.id >>-<< inputs.sha >>
+                    tag: << if inputs.imageTag >><< inputs.imageTag >><< else >>pr-<< inputs.id >>-<< inputs.sha >><< end >>
                   env:
-                    SERVICES_API_HTTP_0: http://bjj-api.pr-<< inputs.id >>.svc.cluster.local:8080
+                    SERVICES_API_HTTP_0: http://bjj-api.<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.svc.cluster.local:8080
                   waitForApi:
-                    apiUrl: http://bjj-api.pr-<< inputs.id >>.svc.cluster.local:8080/actuator/health/readiness
+                    apiUrl: http://bjj-api.<< if inputs.ns >><< inputs.ns >><< else >>pr-<< inputs.id >><< end >>.svc.cluster.local:8080/actuator/health/readiness
               seeder:
                 image:
-                  tag: pr-<< inputs.id >>-<< inputs.sha >>
+                  tag: << if inputs.imageTag >><< inputs.imageTag >><< else >>pr-<< inputs.id >>-<< inputs.sha >><< end >>

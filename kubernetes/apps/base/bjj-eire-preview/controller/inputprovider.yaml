@@ -1,4 +1,7 @@
 ---
+# PR preview inputs (GitHubPullRequest). SHA/main acceptance inputs are
+# Static ResourceSetInputProviders applied by CI (label bjjeire.io/sha-env=true)
+# and selected by ResourceSet bjj-eire-previews; they are not in Git.
 apiVersion: fluxcd.controlplane.io/v1
 kind: ResourceSetInputProvider
 metadata:

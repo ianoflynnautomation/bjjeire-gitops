@@ -20,9 +20,40 @@ spec:
           selector:
             matchLabels:
               bjjeire.io/ephemeral: "true"
+  exclude:
+    any:
+      - resources:
+          selector:
+            matchLabels:
+              bjjeire.io/sha-env: "true"
   conditions:
     all:
       - key: "{{ time_diff('{{target.metadata.creationTimestamp}}', time_now_utc('')) }}"
         operator: GreaterThanOrEquals
         value: "{{ target.metadata.annotations.\"janitor/ttl\" || '2h' }}"
+  schedule: "*/15 * * * *"
+---
+# SHA/main acceptance envs are Flux-owned. Deleting the Static
+# ResourceSetInputProvider drops the ResourceSet input so Flux prunes the
+# namespace. Reaping the namespace alone would fight the ResourceSet.
+apiVersion: kyverno.io/v2
+kind: ClusterCleanupPolicy
+metadata:
+  name: ephemeral-sha-input-providers
+spec:
+  match:
+    any:
+      - resources:
+          kinds:
+            - fluxcd.controlplane.io/v1/ResourceSetInputProvider
+          namespaces:
+            - flux-system
+          selector:
+            matchLabels:
+              bjjeire.io/sha-env: "true"
+  conditions:
+    all:
+      - key: "{{ time_diff('{{target.metadata.creationTimestamp}}', time_now_utc('')) }}"
+        operator: GreaterThanOrEquals
+        value: "{{ target.metadata.annotations.\"janitor/ttl\" || '4h' }}"
   schedule: "*/15 * * * *"
