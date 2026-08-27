@@ -22,3 +22,6 @@ spec:
   defaultValues:
     clusterDomain: ${CLUSTER_DOMAIN}
     rootDomain: ${ROOT_DOMAIN}
+    ttl: "2h"
+    ns: ""
+    imageTag: ""
