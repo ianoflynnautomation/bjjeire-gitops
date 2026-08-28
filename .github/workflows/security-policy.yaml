@@ -50,7 +50,6 @@ jobs:
         with:
           paths: |
             kubernetes/apps/overlays/*
-            kubernetes/infrastructure/overlays/*
           output-dir: rendered
 
       - name: Upload rendered manifests

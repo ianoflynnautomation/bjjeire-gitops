@@ -1,12 +1,4 @@
 ---
-# Manual / debug SHA env only. Main CI no longer kubectl-applies this file
-# (AKS RBAC Admin cannot write ResourceQuota). SHA/main acceptance envs are
-# Flux-owned: GitHub Actions applies a Static ResourceSetInputProvider labelled
-# bjjeire.io/sha-env=true; ResourceSet bjj-eire-previews renders the same
-# objects as PR previews. Keep this copy aligned with controller/resourceset.yaml
-# if you still envsubst it for a break-glass apply.
-#
-# Placeholders: ENV_ID IMAGE_TAG CLUSTER_DOMAIN ROOT_DOMAIN TTL
 apiVersion: v1
 kind: Namespace
 metadata:

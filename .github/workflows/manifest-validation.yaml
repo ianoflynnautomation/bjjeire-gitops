@@ -30,7 +30,6 @@ jobs:
     with:
       overlay-paths: |
         kubernetes/apps/overlays/*
-        kubernetes/infrastructure/overlays/*
       kubernetes-version: "1.31.0"
       flux-version: "2.8.8"
       kustomize-version: "5.5.0"
