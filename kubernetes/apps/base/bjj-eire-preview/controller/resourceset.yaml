@@ -626,18 +626,18 @@ spec:
               bjj-api:
                 api:
                   image:
-                    tag: '<< get inputs "imageTag" | default (printf "pr-%s-%s" inputs.id inputs.sha) >>'
+                    tag: '<< if get inputs "imageTag" >><< get inputs "imageTag" >><< else >>pr-<< get inputs "id" >>-<< get inputs "sha" >><< end >>'
                   env:
                     BJJEIRE_CORS_ALLOWEDORIGINS_0: 'https://<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.<< inputs.rootDomain >>'
                     OTEL_RESOURCE_ATTRIBUTES: 'service.name=bjjeire-api,deployment.environment=<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
               bjj-frontend:
                 frontend:
                   image:
-                    tag: '<< get inputs "imageTag" | default (printf "pr-%s-%s" inputs.id inputs.sha) >>'
+                    tag: '<< if get inputs "imageTag" >><< get inputs "imageTag" >><< else >>pr-<< get inputs "id" >>-<< get inputs "sha" >><< end >>'
                   env:
                     SERVICES_API_HTTP_0: 'http://bjj-api.<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.svc.cluster.local:8080'
                   waitForApi:
                     apiUrl: 'http://bjj-api.<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>.svc.cluster.local:8080/actuator/health/readiness'
               seeder:
                 image:
-                  tag: '<< get inputs "imageTag" | default (printf "pr-%s-%s" inputs.id inputs.sha) >>'
+                  tag: '<< if get inputs "imageTag" >><< get inputs "imageTag" >><< else >>pr-<< get inputs "id" >>-<< get inputs "sha" >><< end >>'
