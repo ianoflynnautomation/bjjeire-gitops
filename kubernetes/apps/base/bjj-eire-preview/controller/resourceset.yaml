@@ -49,11 +49,11 @@ spec:
               pod-security.kubernetes.io/warn: restricted
               bjjeire.io/ephemeral: "true"
               bjjeire.io/env-id: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
-              bjjeire.io/sha-env: '<< if get inputs "ns" >>true<< else >>false<< end >>'
+              bjjeire.io/sha-env: '<< if get inputs "ns" >>"true"<< else >>"false"<< end >>'
             annotations:
               janitor/ttl: '<< get inputs "ttl" | default "2h" >>'
-              bjjeire.io/env-id: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>'
-              bjjeire.io/sha-env: '<< if get inputs "ns" >>true<< else >>false<< end >>'
+              bjjeire.io/env-id: '<< get inputs "ns" | default (printf "pr-%s" inputs.id) >>' 
+              bjjeire.io/sha-env: '<< if get inputs "ns" >>"true"<< else >>"false"<< end >>'
         - apiVersion: v1
           kind: ResourceQuota
           metadata:
