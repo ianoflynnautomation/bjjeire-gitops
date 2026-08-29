@@ -43,8 +43,7 @@ spec:
     runnerScaleSetName: gha-runner-scale-set
     githubConfigSecret: github-app-secret
     githubConfigUrl: https://github.com/ianoflynnautomation/bjjeire
-    # 8 acceptance shards; extra headroom for preview lifecycle jobs.
-    maxRunners: 10
+    maxRunners: 4
     minRunners: 0
     controllerServiceAccount:
       name: gha-runner-scale-set-controller
