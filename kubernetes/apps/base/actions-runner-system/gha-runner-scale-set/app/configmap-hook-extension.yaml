@@ -11,6 +11,22 @@ metadata:
 data:
   default.yaml: |
     spec:
+      # Job pods do NOT inherit the runner pod's scheduling. Without these they
+      # land on the apps/system pools, which are arm64 (Dpsv6/Dpdsv5) — and the
+      # fs-init init container runs the amd64-only runner image, so the pull
+      # fails with "no match for platform in manifest". Keep in lockstep with
+      # the template.spec in the gha-runner-scale-set HelmReleases.
+      nodeSelector:
+        workload: "gha-runner"
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gha-runner"
+          effect: "NoSchedule"
+        - key: "kubernetes.azure.com/scalesetpriority"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule"
       containers:
         - name: "$job"
           resources:
