@@ -306,3 +306,26 @@ patches:
               metadata:
                 name: mesh-default
                 namespace: istio-system
+
+  - target:
+      group: kustomize.toolkit.fluxcd.io
+      kind: Kustomization
+      name: kyverno-policies
+      namespace: flux-system
+    patch: |
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: kyverno-policies
+        namespace: flux-system
+      spec:
+        patches:
+          - target:
+              kind: ClusterPolicy
+              name: deny-ephemeral-envs
+            patch: |
+              $patch: delete
+              apiVersion: kyverno.io/v1
+              kind: ClusterPolicy
+              metadata:
+                name: deny-ephemeral-envs

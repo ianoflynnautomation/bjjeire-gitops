@@ -4,5 +4,6 @@ kind: Kustomization
 
 resources:
   - cleanup-controller-rbac.yaml
+  - deny-ephemeral-envs.yaml
   - ephemeral-env-cleanup.yaml
   - restrict-hostnames-by-env.yaml

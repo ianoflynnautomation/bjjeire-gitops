@@ -122,7 +122,8 @@ spec:
           targetCPUUtilizationPercentage: 70
         podDisruptionBudget:
           enabled: true
-          minAvailable: 1
+          minAvailable: ""
+          maxUnavailable: 1
       secrets:
         mongodbRootPassword:
           enabled: true
@@ -172,7 +173,8 @@ spec:
           targetMemoryUtilizationPercentage: 80
         podDisruptionBudget:
           enabled: true
-          minAvailable: 1
+          minAvailable: ""
+          maxUnavailable: 1
         waitForApi:
           enabled: true
           apiUrl: "http://bjj-api.bjjeire-app.svc.cluster.local:8080/actuator/health/readiness"

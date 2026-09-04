@@ -1,0 +1,98 @@
+---
+# Admission backstop: PR/SHA preview environments are a dev-only capability.
+#
+# The GitOps path already excludes them — bjj-eire-preview/ks.yaml is listed
+# only in the dev overlay — but that exclusion is enforced by a line being
+# *absent* from a kustomization, which nothing validates. Copy the dev overlay
+# to seed a new cluster and previews come along silently.
+#
+# This policy closes two gaps the overlay cannot:
+#   1. A preview stack added to a non-dev overlay by mistake.
+#   2. CI applying sha-env/manifests.yaml with kubectl, which bypasses Flux
+#      entirely (docs/operations.md) — admission still sees it.
+#
+# Dev opts out via a $patch: delete on the kyverno-policies Kustomization in
+# its overlay, so the guardrail is inherited by default and waived explicitly.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deny-ephemeral-envs
+  annotations:
+    policies.kyverno.io/title: Deny ephemeral preview environments
+    policies.kyverno.io/category: Multi-Tenancy
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      PR and SHA preview environments run on the dev cluster only. This
+      cluster rejects the ephemeral namespaces they create and the
+      ResourceSetInputProvider that generates them, whether the request
+      comes from Flux or directly from CI.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    # Primary gate. Both flows label the namespace bjjeire.io/ephemeral=true
+    # (resourceset.yaml step "namespace", sha-env/manifests.yaml) and stamp
+    # managed-by=flux-preview. Denying the namespace collapses the whole
+    # stack — every generated resource is namespaced inside it.
+    - name: no-ephemeral-namespaces
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+              selector:
+                matchLabels:
+                  bjjeire.io/ephemeral: "true"
+          - resources:
+              kinds:
+                - Namespace
+              selector:
+                matchLabels:
+                  app.kubernetes.io/managed-by: flux-preview
+      validate:
+        message: >-
+          Ephemeral environments are dev-only. A namespace labelled
+          bjjeire.io/ephemeral=true or managed-by=flux-preview cannot be
+          created on this cluster. Deploy previews to aks-bjjeire-dev-sdc-01.
+        deny: {}
+
+    # Belt and braces for the labels being dropped. Env IDs are arbitrary
+    # (pr-<id>, sha-<sha>, debug-*), so this covers the documented prefixes
+    # only — the label rule above is the reliable one.
+    - name: no-preview-namespace-names
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+      validate:
+        message: >-
+          Namespace names reserved for ephemeral preview environments
+          (pr-*, sha-*, debug-*) are not allowed on this cluster.
+        deny:
+          conditions:
+            all:
+              - key: "{{ regex_match('^(pr|sha|debug)-.+', '{{ request.object.metadata.name }}') }}"
+                operator: Equals
+                value: true
+
+    # The preview factory itself. Scoped to PR/MR provider types so ResourceSet
+    # stays available for other uses on this cluster.
+    - name: no-pull-request-input-providers
+      match:
+        any:
+          - resources:
+              kinds:
+                - ResourceSetInputProvider
+      validate:
+        message: >-
+          ResourceSetInputProvider of type GitHubPullRequest /
+          GitLabMergeRequest generates preview environments and is dev-only.
+        deny:
+          conditions:
+            any:
+              - key: "{{ request.object.spec.type }}"
+                operator: AnyIn
+                value:
+                  - GitHubPullRequest
+                  - GitLabMergeRequest
