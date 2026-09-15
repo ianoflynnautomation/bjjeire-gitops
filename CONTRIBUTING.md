@@ -7,8 +7,10 @@ Thanks for helping improve the BJJ Éire GitOps repository. This repo is the **d
 1. Create a feature branch from `main`.
 2. Make changes under `kubernetes/` (and docs when behavior or onboarding changes).
 3. Validate locally:
-   - `kustomize build kubernetes/apps/overlays/<cluster>`
-   - `./scripts/validate.sh` when possible
+   - `./scripts/validate.sh` — lint, kustomize build, kubeconform, Flux wiring
+     and repo guardrails (runs from any directory; `--help` for options)
+   - `./scripts/validate.sh --fix` — apply the safe YAML style fixes
+   - `./scripts/validate.sh --only build,schema` — fast inner loop while editing
 4. Open a Pull Request using the template; ensure CI is green.
 5. Request review — **required for staging and production promotions**.
 6. After merge, Flux reconciles. Force if needed:

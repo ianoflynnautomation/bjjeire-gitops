@@ -63,7 +63,8 @@ Bootstrap path per cluster: `kubernetes/clusters/<cluster-name>/`.
 kubernetes/
 ├── apps/
 │   ├── base/                 # Shared, env-agnostic manifests
-│   │   ├── bjj-eire/         # Application (umbrella Helm chart + image automation)
+│   │   ├── bjj-eire/         # Long-lived app (umbrella Helm chart + image automation)
+│   │   ├── bjj-eire-preview/ # Dev-only PR/SHA ephemeral env factory
 │   │   ├── istio-system/     # Control plane, ztunnel, policies, Gateway API
 │   │   ├── istio-ingress/    # Gateway API Gateway + HTTP redirect
 │   │   ├── istio-egress/     # ServiceEntry whitelist (REGISTRY_ONLY)
@@ -77,11 +78,12 @@ kubernetes/
 │       ├── aks-bjjeire-dev-sdc-01/
 │       ├── aks-bjjeire-stg-sdc-01/
 │       └── aks-bjjeire-prod-sdc-01/
-├── clusters/                 # Flux entrypoint per cluster (apps Kustomization)
-└── infrastructure/           # Infra-level overlays (where used)
+└── clusters/                 # Flux entrypoint per cluster (apps Kustomization)
 
 docs/                         # Human onboarding & ops guides (this set)
-scripts/validate.sh           # Local YAML / kustomize / schema checks
+.agent/rules/core-gitops.md   # AI constraints for Flux YAML
+.agent/validate.sh            # Agent-facing wrapper around scripts/validate.sh
+scripts/validate.sh           # Local lint / kustomize / schema / Flux checks (--fix, --only)
 renovate.json                 # Chart + Actions dependency PRs
 ```
 
@@ -100,14 +102,12 @@ renovate.json                 # Chart + Actions dependency PRs
 
 ## Architecture (summary)
 
-```
-Git (this repo) ──► Flux source ──► Flux Kustomizations ──► AKS
-                         │
-         ┌───────────────┼────────────────┐
-         ▼               ▼                ▼
-   HelmReleases    Image policies    ConfigMaps (substitute)
-   (OCI charts)    (dev images)      cluster-config, WI
-```
+![Platform architecture](docs/diagrams/architecture.drawio.svg)
+
+The diagram reads left to right as the reconciliation flow, with the live
+request path as a separate strip along the bottom. It renders here and opens
+for editing in [diagrams.net](https://app.diagrams.net/) or the draw.io VS Code
+extension — see [docs/diagrams/](docs/diagrams/).
 
 **Platform highlights**
 
@@ -126,13 +126,17 @@ Full diagram, dependency chain, and variable substitution: **[docs/architecture.
 | Doc | Contents |
 |-----|----------|
 | [Architecture](docs/architecture.md) | Stack, base/overlay, deps, mesh, variables |
+| [Decisions (ADRs)](docs/adr/) | *Why* it is built this way — ambient mesh, REGISTRY_ONLY egress, dev-only previews, cost gating |
+| [Diagrams](docs/diagrams/) | Editable `architecture.drawio.svg` |
+| [bjj-eire](docs/bjj-eire.md) | Long-lived app: HelmRelease, routes, secrets, netpols, image automation |
+| [bjj-eire-preview](docs/bjj-eire-preview.md) | Dev-only PR/SHA test factory (ResourceSet, Kyverno, ARC) |
 | [Deploy](docs/deploy.md) | Local validation, bootstrap, applying changes |
 | [Releases](docs/releases.md) | Helm/OCI charts, image automation, promotion, Renovate |
 | [Operations](docs/operations.md) | Flux commands, debug, common failures, rollback |
 | [Contributing](CONTRIBUTING.md) | PR workflow, style, ownership |
 | [Security](SECURITY.md) | Vulnerability reporting |
 
-Agent-oriented conventions for automation tools: `AGENTS.md` / `CLAUDE.md` (not a substitute for this guide).
+Agent-oriented conventions: `AGENTS.md` / `CLAUDE.md`. Flux YAML generation: `.agent/rules/core-gitops.md` and skill `/flux-cd-gitops-engineering` (not a substitute for this guide).
 
 ---
 
