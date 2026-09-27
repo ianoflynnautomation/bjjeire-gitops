@@ -1,5 +1,10 @@
 # Diagrams
 
+| File | Shows | Format |
+|---|---|---|
+| [`architecture.drawio.svg`](architecture.drawio.svg) | Platform topology — sources, Flux, platform, mesh, workloads, request path | Editable SVG (draw.io) |
+| [`devops-flow.md`](devops-flow.md) | Delivery lifecycle — commit → CI → GHCR → Flux reconcile → AKS, plus the dev-only preview factory | Mermaid |
+
 ## `architecture.drawio.svg`
 
 The full platform topology. It is a **dual-format file**: a plain SVG that

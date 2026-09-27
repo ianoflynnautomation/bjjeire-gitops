@@ -4,12 +4,13 @@
 |---|---|
 | [architecture.md](architecture.md) | Stack, base/overlay model, dependency graph, mesh, variable substitution, traffic path |
 | [adr/](adr/) | Architecture decision records — *why* the platform is shaped this way |
-| [diagrams/](diagrams/) | `architecture.drawio.svg` — renders on GitHub, editable in draw.io |
+| [diagrams/](diagrams/) | `architecture.drawio.svg` (topology, editable in draw.io) and `devops-flow.md` (delivery lifecycle, Mermaid) |
 | [bjj-eire.md](bjj-eire.md) | Long-lived app: HelmRelease, routes, secrets, netpols, image automation |
 | [bjj-eire-preview.md](bjj-eire-preview.md) | Dev-only PR/SHA test factory (ResourceSet, Kyverno, ARC) |
 | [deploy.md](deploy.md) | Local validation, bootstrap, applying changes |
 | [releases.md](releases.md) | Helm/OCI charts, image automation, promotion, Renovate |
 | [operations.md](operations.md) | Flux commands, debugging, common failures, rollback |
+| [progressive-delivery.md](progressive-delivery.md) | **Proposed** Flagger / canary plan (not implemented). When to do it, ADR-0011, manifests |
 
 ## Reading order
 

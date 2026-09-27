@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "gitops-cluster-debug": {
+      "source": "fluxcd/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/gitops-cluster-debug/SKILL.md",
+      "computedHash": "10dc7a7810ed9405b24b67f72b7dff786118758240f1eac9d4f6b7034512595f"
+    },
+    "gitops-knowledge": {
+      "source": "fluxcd/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/gitops-knowledge/SKILL.md",
+      "computedHash": "17609cf398a27741f55e513c6975645fde45aec57a8871608f673d7fa0c2411d"
+    },
+    "gitops-repo-audit": {
+      "source": "fluxcd/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/gitops-repo-audit/SKILL.md",
+      "computedHash": "797e73cf3bcba4c807fa0dc86cd490122474502f96d4d5933aa58bf875d322a9"
+    }
+  }
+}
